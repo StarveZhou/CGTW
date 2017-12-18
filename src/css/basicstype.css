@@ -1,0 +1,28 @@
+#glcanvas{
+    position: absolute;
+    top : 3%;
+    bottom : 15%;
+    left : 10%;
+    right : 10%;
+
+}
+
+.cgtw-leftbar{
+    position: absolute;
+    top: 3%;
+    bottom: 15%;
+    left: 2%;
+    right: 92%;
+}
+
+.cgtw-rightbar{
+    position: absolute;
+    top: 3%;
+    bottom: 15%;
+    left: 92%;
+    right: 2%;
+}
+
+body{
+    background: #32383e;
+}

@@ -9,8 +9,8 @@
  * @param texture
  * @param textureCoordinates
  */
-function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, texture, textureCoordinates) {
-    const buffers = initBuffers(gl, positions, faceColors, indices, textureCoordinates);
+function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, texture, textureCoordinates,vertexNormals) {
+    const buffers = initBuffers(gl, positions, faceColors, indices, textureCoordinates,vertexNormals);
 
 
     const modelViewMatrix = mat4.create();
@@ -29,6 +29,11 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
     //     modelViewMatrix,  // matrix to rotate
     //     cubeRotation * .7,// amount to rotate in radians
     //     [0, 1, 0]);       // axis to rotate around (X)
+
+    const normalMatrix = mat4.create();
+    // normal matrix should transform the invert transpose matrix of modelViewMatrix
+    mat4.invert(normalMatrix,modelViewMatrix);
+    mat4.transpose(normalMatrix,normalMatrix);
 
     // Tell WebGL how to pull out the positions from the position
     // buffer into the vertexPosition attribute
@@ -49,24 +54,24 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
         gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
     }
 
-    // Tell WebGL how to pull out the colors from the color buffer
-    // into the vertexColor attribute.
-    {
-        const numComponents = 4;
-        const type = gl.FLOAT;
-        const normalize = false;
-        const stride = 0;
-        const offset = 0;
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
-        gl.vertexAttribPointer(
-            programInfo.attribLocations.vertexColor,
-            numComponents,
-            type,
-            normalize,
-            stride,
-            offset);
-        gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
-    }
+    // // Tell WebGL how to pull out the colors from the color buffer
+    // // into the vertexColor attribute.
+    // {
+    //     const numComponents = 4;
+    //     const type = gl.FLOAT;
+    //     const normalize = false;
+    //     const stride = 0;
+    //     const offset = 0;
+    //     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+    //     gl.vertexAttribPointer(
+    //         programInfo.attribLocations.vertexColor,
+    //         numComponents,
+    //         type,
+    //         normalize,
+    //         stride,
+    //         offset);
+    //     gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
+    // }
 
     // Tell WebGL how to pull out the texture coordinates from
     // the texture coordinate buffer into the textureCoord attribute.
@@ -88,6 +93,26 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
           programInfo.attribLocations.textureCoord);
     }
 
+    // Tell WebGL how to pull out the normals 
+    {
+      const numComponents = 3;
+      const type = gl.FLOAT;
+      const normalize = false;
+      const stride = 0;
+      const offset = 0;
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normal);
+      gl.vertexAttribPointer(
+          programInfo.attribLocations.vertexNormal,
+          numComponents,
+          type,
+          normalize,
+          stride,
+          offset);
+      gl.enableVertexAttribArray(
+          programInfo.attribLocations.vertexNormal);
+    }
+
+
     // Tell WebGL which indices to use to index the vertices
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
 
@@ -105,6 +130,10 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
         programInfo.uniformLocations.modelViewMatrix,
         false,
         modelViewMatrix);
+    gl.uniformMatrix4fv(
+        programInfo.uniformLocations.normalMatrix,
+        false,
+        normalMatrix);
 
     // Tell WebGL we want to affect texture unit 0
     gl.activeTexture(gl.TEXTURE0);
@@ -135,7 +164,7 @@ function drawSphere() {
 // Initialize the buffers we'll need. For this demo, we just
 // have one object -- a simple three-dimensional cube.
 //
-function initBuffers(gl, positions, faceColors, indices, textureCoordinates) {
+function initBuffers(gl, positions, faceColors, indices, textureCoordinates, vertexNormals) {
     // positions
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -145,16 +174,20 @@ function initBuffers(gl, positions, faceColors, indices, textureCoordinates) {
     gl.bindBuffer(gl.ARRAY_BUFFER,textureCoordBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
 
+    // the normal buffer used for lighting 
+    const normalBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
     //colors
-    var colors = [];
-    for (var i = 0; i < faceColors.length; ++i) {
-        const c = faceColors[i];
-        for (var j = 0; j < 2 + indices.length / 3; j++)
-            colors = colors.concat(c);
-    }
-    const colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+    // var colors = [];
+    // for (var i = 0; i < faceColors.length; ++i) {
+    //     const c = faceColors[i];
+    //     for (var j = 0; j < 2 + indices.length / 3; j++)
+    //         colors = colors.concat(c);
+    // }
+    // const colorBuffer = gl.createBuffer();
+    // gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 
     // indices
     const indexBuffer = gl.createBuffer();
@@ -162,8 +195,9 @@ function initBuffers(gl, positions, faceColors, indices, textureCoordinates) {
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
     return {
         position: positionBuffer,
+        normal: normalBuffer,
         textureCoord: textureCoordBuffer,
-        color: colorBuffer,
+        //color: colorBuffer,
         indices: indexBuffer,
     };
 }

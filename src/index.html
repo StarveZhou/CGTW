@@ -1,35 +1,131 @@
 <!doctype html>
 <html>
 <head>
-    <title>Graphics</title>
-    <meta name = "viewport" content="text/html; charset=utf-8; width=device-width; initial-scale=1.0">
+    <link href="https://cdn.bootcss.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/metisMenu/2.7.1/metisMenu.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/animate.css/3.5.2/animate.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/basic.css">
+    <link rel="stylesheet" href="css/menu.css" type="text/css" />
 
-    <link href="dist/css/bootstrap.min.css" rel = "stylesheet">
-    <link href="css/basicstype.css" rel="stylesheet">
-    <script src="dist/js/bootstrap.js"></script>
-    <script src="dist/js/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/metisMenu/2.7.1/metisMenu.min.js"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.13.0/umd/popper.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
 
     <script src = "js/basic.js" type = "text/javascript"></script>
     <script src = "js/gl-matrix.js" type = "text/javascript"></script>
+    <script src = "js/menu.js" type = "text/javascript"></script>
 </head>
 
 <body>
-<div id="container">
-    <canvas id="glcanvas">
-        Your browser doesn't appear to support the <code>&lt;canvas&gt;</code> element.
-    </canvas>
-</div>
-
-<div id = "itemlist" class="list-group cgtw-leftbar">
-    <button type="button" class="list-group-item list-group-item-action active">item1</button>
-    <button type="button" class="list-group-item list-group-item-action">item2</button>
-    <button type="button" class="list-group-item list-group-item-action">item3</button>
-</div>
-
-<div id = "buttonlist" class="cgtw-rightbar">
-    <p><button type="button" class="btn btn-primary btn-sm">btn1</button></p>
-    <p><button type="button" class="btn btn-primary btn-sm">btn2</button></p>
-</div>
-
+    <button class="btn btn-default" onclick="addItem({id:'1'})">addItem</button>
+    <button class="btn btn-default" onclick="addModel({id:'1'})">addModel</button>
+    <button class="btn btn-default" onclick="addLight({id:'1'})">addLight</button>
+    <div id="editor">
+        <div id="leftBar">
+            <nav class="sidebar-nav">
+                <ul class="metismenu" id="leftMenu">
+                    <li id="itemList">
+                        <a class="has-arrow" href="#">
+                            ItemList
+                        </a>
+                        <ul aria-expanded="false" class="collapse">
+                            <li>
+                                <a href="#">
+                                    Item12345678
+                                </a>
+                                <span class="fa fa-times"></span>
+                            </li>
+                            <li id="Item2">
+                                <a href="#">
+                                    Item2
+                                </a>
+                                <span class="fa fa-times"></span>
+                            </li>
+                        </ul>
+                    </li>
+                    <li id="modelList">
+                        <a class="has-arrow" href="#">
+                            ModelList
+                        </a>
+                        <ul aria-expanded="false" class="collapse">
+                            <li>
+                                <a href="#" id="Model1">
+                                    Model1
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" id="Model2">
+                                    Model2
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li id="lightList">
+                        <a class="has-arrow" href="#">
+                            LightList
+                        </a>
+                        <ul aria-expanded="false" class="collapse">
+                            <li>
+                                <a href="#" id="Light1">
+                                    Light1
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" id="Light2">
+                                    Light2
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div id="canvas-container">
+            <canvas id="glcanvas" >
+                Your browser doesn't appear to support the <code>&lt;canvas&gt;</code> element.
+            </canvas>
+        </div>
+        <div id="rightBar">
+            <nav class="sidebar-nav">
+                <ul class="metismenu" id="rightMenu">
+                    <li id="createMenu">
+                        <a class="has-arrow" href="#">
+                            Create
+                        </a>
+                        <ul aria-expanded="false" class="collapse">
+                            <li>
+                                <a href="#">
+                                    BasicItem
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    ImportModel
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#" aria-expanded="false" aria-disabled="true">
+                            <div>
+                                Light
+                                <span id="lightState">Off</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" aria-expanded="false" aria-disabled="true">
+                            <div>
+                                Hover
+                                <span id="hoverState">Off</span>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
 </body>
 </html>

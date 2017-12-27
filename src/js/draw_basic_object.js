@@ -66,6 +66,7 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
         gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
     }
 
+
     // Tell WebGL which indices to use to index the vertices
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
 
@@ -83,7 +84,6 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
         programInfo.uniformLocations.modelViewMatrix,
         false,
         modelViewMatrix);
-
     {
         const vertexCount = indices.length;
         const type = gl.UNSIGNED_SHORT;
@@ -106,11 +106,14 @@ function drawSphere() {
 // Initialize the buffers we'll need. For this demo, we just
 // have one object -- a simple three-dimensional cube.
 //
-function initBuffers(gl, positions, faceColors, indices) {
+function initBuffers(gl, positions, faceColors, indices, textureCoordinates) {
     // positions
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+    const textureCoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER,textureCoordBuffer);
 
     //colors
     var colors = [];

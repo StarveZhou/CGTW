@@ -30,29 +30,42 @@
         const vsSource = `
         attribute vec4 aVertexPosition;
         attribute vec3 aVertexNormal;
-        //attribute vec4 aVertexColor;
         attribute vec2 aTextureCoord;
 
         uniform mat4 uModelViewMatrix;
         uniform mat4 uProjectionMatrix;
         uniform mat4 uNormalMatrix;
 
-        //varying lowp vec4 vColor;
+        // uniform vec3 uPointLightingLocation;
+        // uniform vec3 uPointLightingColor;
+        // uniform bool bUsePointLighting;
+        
         varying highp vec2 vTextureCoord;
         varying highp vec3  vLighting;
 
         void main(void) {
             gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-            // vColor = aVertexColor;
             vTextureCoord = aTextureCoord;
+            // the ambient light 
             highp vec3 ambientLight = vec3(0.3,0.3,0.3);
-            highp vec3 directionalLightColor = vec3(1,1,1);
-            highp vec3 directionalVector = normalize(vec3(0.85,0.8,0.75));
+            // highp bool bUsePointLighting = true;
 
-            highp vec4 transformedNormal = uNormalMatrix*vec4(aVertexNormal,1.0);
+            // if (!bUsePointLighting) {
+            //     vLighting = ambientLight;
+            // } else {
+                // the direction for point light
+                highp vec3 uPointLightingLocation = vec3(0,0,0);
+                highp vec3 uPointLightingColor = vec3(0,0,1);
+                highp vec3 directionalVector = normalize(uPointLightingLocation - vec3(uModelViewMatrix * aVertexPosition));
+                // highp vec3 directionalLightColor = vec3(1,1,1);
+                // highp vec3 directionalVector = normalize(vec3(0.85,0.8,0.75));
 
-            highp float directional = max(dot(transformedNormal.xyz,directionalVector),0.0);
-            vLighting = ambientLight+(directionalLightColor*directional);
+                highp vec4 transformedNormal = uNormalMatrix*vec4(aVertexNormal,1.0);
+
+                highp float directional = max(dot(transformedNormal.xyz,directionalVector),0.0);
+                vLighting = ambientLight+(uPointLightingColor *directional);
+            // }    
+           
         }
         `;
 
@@ -84,7 +97,6 @@
             attribLocations: {
                 vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
                 vertexNormal: gl.getAttribLocation(shaderProgram, 'aVertexNormal'),
-               // vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor'),
                 textureCoord: gl.getAttribLocation(shaderProgram, 'aTextureCoord'),
             },
             uniformLocations: {

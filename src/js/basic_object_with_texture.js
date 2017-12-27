@@ -19,16 +19,6 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
         modelViewMatrix,     // destination matrix
         modelViewMatrix,     // matrix to translate
         [-0.0, 0.0, -6.0]);  // amount to translate
-    // mat4.rotate(
-    //     modelViewMatrix,  // destination matrix
-    //     modelViewMatrix,  // matrix to rotate
-    //     cubeRotation,     // amount to rotate in radians
-    //     [0, 0, 1]);       // axis to rotate around (Z)
-    // mat4.rotate(
-    //     modelViewMatrix,  // destination matrix
-    //     modelViewMatrix,  // matrix to rotate
-    //     cubeRotation * .7,// amount to rotate in radians
-    //     [0, 1, 0]);       // axis to rotate around (X)
 
     const normalMatrix = mat4.create();
     // normal matrix should transform the invert transpose matrix of modelViewMatrix
@@ -75,6 +65,7 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
 
     // Tell WebGL how to pull out the texture coordinates from
     // the texture coordinate buffer into the textureCoord attribute.
+    if (textureCoordinates)
     {
       const numComponents = 2;
       const type = gl.FLOAT;
@@ -135,12 +126,15 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
         false,
         normalMatrix);
 
-    // Tell WebGL we want to affect texture unit 0
-    gl.activeTexture(gl.TEXTURE0);
-    // Bind the texture to texture unit 0
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    // Tell the shader we bound the texture to texture unit 0
-    gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
+    if (texture)
+    {
+        // Tell WebGL we want to affect texture unit 0
+        gl.activeTexture(gl.TEXTURE0);
+        // Bind the texture to texture unit 0
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        // Tell the shader we bound the texture to texture unit 0
+        gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
+    }
 
     {
         const vertexCount = indices.length;

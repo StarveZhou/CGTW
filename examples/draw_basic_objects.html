@@ -80,7 +80,8 @@
 
         void main(void) {
             highp vec4 texColor = texture2D(uSampler,vTextureCoord);
-        	 gl_FragColor = vec4(texColor.rgb*vLighting,  texColor.a);
+        	 gl_FragColor = texture2D(uSampler, vTextureCoord);
+           //gl_FragColor = vColor;
         }
         `;
 
@@ -222,7 +223,7 @@
         ];
 
         let faceColors = [
-            [1.0, 0.0, 0.0, 1.0],
+            [1.0, 1.0, 0.0, 1.0],
         ];
 
         let indices = [
@@ -244,7 +245,8 @@
            0.0,  0.0,  1.0,
         ];
 
-        drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, texture, textureCoordinates,vertexNormals);
+       
+        drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, null, null);
 
         positions = [
             0, 0, 0.5,
@@ -265,7 +267,9 @@
 	  		0, 0,
 	  		1, 0,
 	  	];
-        drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, texture, textureCoordinates,vertexNormals);
+        //drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, texture, textureCoordinates,vertexNormals);
+
+        drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, null, null);
 
     }
 </script>

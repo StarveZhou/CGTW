@@ -14,16 +14,17 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
 
 
     const modelViewMatrix = mat4.create();
+    const cubeRotation = 1;
 
     mat4.translate(
         modelViewMatrix,     // destination matrix
         modelViewMatrix,     // matrix to translate
         [-0.0, 0.0, -6.0]);  // amount to translate
-    // mat4.rotate(
-    //     modelViewMatrix,  // destination matrix
-    //     modelViewMatrix,  // matrix to rotate
-    //     cubeRotation,     // amount to rotate in radians
-    //     [0, 0, 1]);       // axis to rotate around (Z)
+    mat4.rotate(
+        modelViewMatrix,  // destination matrix
+        modelViewMatrix,  // matrix to rotate
+        cubeRotation,     // amount to rotate in radians
+        [0, 1, 0]);       // axis to rotate around (Z)
     // mat4.rotate(
     //     modelViewMatrix,  // destination matrix
     //     modelViewMatrix,  // matrix to rotate
@@ -54,24 +55,6 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
         gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
     }
 
-    // // Tell WebGL how to pull out the colors from the color buffer
-    // // into the vertexColor attribute.
-    // {
-    //     const numComponents = 4;
-    //     const type = gl.FLOAT;
-    //     const normalize = false;
-    //     const stride = 0;
-    //     const offset = 0;
-    //     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
-    //     gl.vertexAttribPointer(
-    //         programInfo.attribLocations.vertexColor,
-    //         numComponents,
-    //         type,
-    //         normalize,
-    //         stride,
-    //         offset);
-    //     gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
-    // }
 
     // Tell WebGL how to pull out the texture coordinates from
     // the texture coordinate buffer into the textureCoord attribute.
@@ -150,15 +133,7 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
     }
 }
 
-function drawCube() {
 
-}
-
-function drawSphere() {
-
-}
-
-//
 // initBuffers
 //
 // Initialize the buffers we'll need. For this demo, we just
@@ -178,17 +153,7 @@ function initBuffers(gl, positions, faceColors, indices, textureCoordinates, ver
     const normalBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
-    //colors
-    // var colors = [];
-    // for (var i = 0; i < faceColors.length; ++i) {
-    //     const c = faceColors[i];
-    //     for (var j = 0; j < 2 + indices.length / 3; j++)
-    //         colors = colors.concat(c);
-    // }
-    // const colorBuffer = gl.createBuffer();
-    // gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-
+  
     // indices
     const indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);

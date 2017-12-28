@@ -9,8 +9,8 @@
  * @param texture
  * @param textureCoordinates
  */
-function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, texture, textureCoordinates,vertexNormals) {
-    const buffers = initBuffers(gl, positions, faceColors, indices, textureCoordinates,vertexNormals);
+function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, vertexNormals, textureSource, lightSource) {
+    const buffers = initBuffers(gl, positions, faceColors, indices, textureSource.textureCoordinates,vertexNormals);
 
 
     const modelViewMatrix = mat4.create();
@@ -95,16 +95,17 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
           programInfo.attribLocations.vertexNormal);
     }
 
+    const materialShiness = 10.0;
 
     // Tell WebGL which indices to use to index the vertices
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
 
     // Tell WebGL to use our program when drawing
-
     gl.useProgram(programInfo.program);
 
-    // Set the shader uniforms
+    var usePointLighting = (lightSource.pointLightingLocation != null&&lightSource.pointLightingSpecularColor != null&&lightSource.pointLightingDiffuseColor != null)?1.0:0.0;
 
+    // Set the shader uniforms
     gl.uniformMatrix4fv(
         programInfo.uniformLocations.projectionMatrix,
         false,
@@ -117,11 +118,35 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
         programInfo.uniformLocations.normalMatrix,
         false,
         normalMatrix);
+    gl.uniform1f( programInfo.uniformLocations.usePointLighting,
+        usePointLighting);
+    gl.uniform1f( programInfo.uniformLocations.materialShiness,
+        materialShiness);
+    if (lightSource.pointLightingLocation != null) {
+      gl.uniform3fv(
+          programInfo.uniformLocations.pointLightingLocation,
+          lightSource.pointLightingLocation);
+    }
+    if (lightSource.pointLightingSpecularColor != null) {
+      gl.uniform3fv(
+          programInfo.uniformLocations.pointLightingSpecularColor,
+          lightSource.pointLightingSpecularColor);   
+    }
+    if (lightSource.pointLightingDiffuseColor != null) {
+      gl.uniform3fv(
+          programInfo.uniformLocations.pointLightingDiffuseColor,
+          lightSource.pointLightingDiffuseColor);   
+    }
+    
+
+    gl.uniform3fv(
+        programInfo.uniformLocations.ambientLight,
+        lightSource.ambientLight);
 
     // Tell WebGL we want to affect texture unit 0
     gl.activeTexture(gl.TEXTURE0);
     // Bind the texture to texture unit 0
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.bindTexture(gl.TEXTURE_2D, textureSource.texture);
     // Tell the shader we bound the texture to texture unit 0
     gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
 

@@ -10,7 +10,7 @@
 </body>
 
 <script src="../src/js/gl-matrix.js"></script>
-<script src="../src/js/basic_object_with_texture.js"></script>
+<script src="../src/js/draw_basic_object.js"></script>
 <script>
     main();
 
@@ -80,8 +80,8 @@
         void main(void) {
             highp vec4 texColor = texture2D(uSampler,vTextureCoord);
 
-           //gl_FragColor = vColor;
-        	gl_FragColor = vec4(texColor.rgb*vLighting,  texColor.a);
+            gl_FragColor = vec4(0,1,1,1);
+        	// gl_FragColor = vec4(texColor.rgb*vLighting,  texColor.a);
         }
         `;
 
@@ -157,42 +157,43 @@
         // as the destination to receive the result.
         mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
 
-        drawCube(gl, programInfo, projectionMatrix, [0,0,0,-1], 1.5, 0.2)
+        // drawCube(gl, programInfo, projectionMatrix, [0,0,0,-1], 1.5, 0.2)
 
        
-    //     let positions = [
-    //         0, 0, 0,
-    //         1, 0, 0,
-    //         1, 1, 0,
-    //         0, 1, 0,
+        let positions = [
+            0, 0, 0,
+            1, 0, 0,
+            1, 1, 0,
+            0, 1, 0,
 
-    //     ];
+        ];
 
-    //     let faceColors = [
-    //         [1.0, 1.0, 0.0, 1.0],
-    //     ];
+        let faceColors = [
+            [1.0, 1.0, 0.0, 1.0],
+        ];
 
-    //     let indices = [
-    //         0, 1, 2, 0, 2, 3,
-    //     ];
+        let indices = [
+            0, 1, 2, 0, 2, 3,
+        ];
 
-    //     let  textureCoordinates = [
-	  	// 	0, 1,
-	  	// 	0, 0,
-	  	// 	1, 0,
-	  	// 	1, 1,
-	  	// ];
+        let  textureCoordinates = [
+	  		0, 1,
+	  		0, 0,
+	  		1, 0,
+	  		1, 1,
+	  	];
 
-    //     // the vertex norm for this picture 
-    //     let vertexNormals = [
-    //        0.0,  1.0,  1.0,
-    //        0.0,  0.0,  1.0,
-    //        0.0,  0.0,  1.0,
-    //        0.0,  0.0,  1.0,
-    //     ];
+        // the vertex norm for this picture 
+        let vertexNormals = [
+           0.0,  1.0,  1.0,
+           0.0,  0.0,  1.0,
+           0.0,  0.0,  1.0,
+           0.0,  0.0,  1.0,
+        ];
 
+            drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, null, null);
        
-    //     drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, null, null);
+        // drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, texture, textureCoordinates);
 
     //     positions = [
     //         0, 0, 0.5,

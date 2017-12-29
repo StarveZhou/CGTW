@@ -9,22 +9,23 @@
  * @param texture
  * @param textureCoordinates
  */
-function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, vertexNormals, textureSource, lightSource) {
-    const buffers = initBuffers(gl, positions, faceColors, indices, textureSource.textureCoordinates,vertexNormals);
+function drawPolygon(gl, programInfo, projectionMatrix, positions, indices, vertexNormals, material, lightSource) {
+    const buffers = initBuffers(gl, positions, material.faceColors, indices, material.textureCoordinates,vertexNormals);
 
 
     const modelViewMatrix = mat4.create();
     const cubeRotation = 1;
+    const eyePosition = [0,-1,3];
 
     mat4.translate(
         modelViewMatrix,     // destination matrix
         modelViewMatrix,     // matrix to translate
         [-0.0, 0.0, -6.0]);  // amount to translate
-    mat4.rotate(
-        modelViewMatrix,  // destination matrix
-        modelViewMatrix,  // matrix to rotate
-        cubeRotation,     // amount to rotate in radians
-        [0, 1, 0]);       // axis to rotate around (Z)
+    // mat4.rotate(
+    //     modelViewMatrix,  // destination matrix
+    //     modelViewMatrix,  // matrix to rotate
+    //     cubeRotation,     // amount to rotate in radians
+    //     [0, 1, 0]);       // axis to rotate around (Z)
     // mat4.rotate(
     //     modelViewMatrix,  // destination matrix
     //     modelViewMatrix,  // matrix to rotate
@@ -53,6 +54,25 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
             stride,
             offset);
         gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+    }
+
+    // Tell WebGL how to pull out the colors from the color buffer
+    // into the vertexColor attribute.
+    {
+        const numComponents = 4;
+        const type = gl.FLOAT;
+        const normalize = false;
+        const stride = 0;
+        const offset = 0;
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+        gl.vertexAttribPointer(
+            programInfo.attribLocations.vertexColor,
+            numComponents,
+            type,
+            normalize,
+            stride,
+            offset);
+        gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
     }
 
 
@@ -95,15 +115,11 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
           programInfo.attribLocations.vertexNormal);
     }
 
-    const materialShiness = 10.0;
-
     // Tell WebGL which indices to use to index the vertices
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
 
     // Tell WebGL to use our program when drawing
     gl.useProgram(programInfo.program);
-
-    var usePointLighting = (lightSource.pointLightingLocation != null&&lightSource.pointLightingSpecularColor != null&&lightSource.pointLightingDiffuseColor != null)?1.0:0.0;
 
     // Set the shader uniforms
     gl.uniformMatrix4fv(
@@ -118,10 +134,15 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
         programInfo.uniformLocations.normalMatrix,
         false,
         normalMatrix);
-    gl.uniform1f( programInfo.uniformLocations.usePointLighting,
-        usePointLighting);
+    gl.uniform1i( programInfo.uniformLocations.usePointLighting,
+        lightSource.usePointLighting);
+    gl.uniform1i( programInfo.uniformLocations.useTexture,
+        material.useTexture);
     gl.uniform1f( programInfo.uniformLocations.materialShiness,
-        materialShiness);
+        material.shiness);
+    gl.uniform3fv(
+        programInfo.uniformLocations.eyePosition,
+        eyePosition);
     if (lightSource.pointLightingLocation != null) {
       gl.uniform3fv(
           programInfo.uniformLocations.pointLightingLocation,
@@ -143,10 +164,12 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, i
         programInfo.uniformLocations.ambientLight,
         lightSource.ambientLight);
 
+    // Flip the image's y axis
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); 
     // Tell WebGL we want to affect texture unit 0
     gl.activeTexture(gl.TEXTURE0);
     // Bind the texture to texture unit 0
-    gl.bindTexture(gl.TEXTURE_2D, textureSource.texture);
+    gl.bindTexture(gl.TEXTURE_2D, material.texture);
     // Tell the shader we bound the texture to texture unit 0
     gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
 
@@ -170,6 +193,19 @@ function initBuffers(gl, positions, faceColors, indices, textureCoordinates, ver
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
+    // color
+    //colors
+    var colors = [];
+    for (var i = 0; i < faceColors.length; ++i) {
+        const c = faceColors[i];
+        for (var j = 0; j < 2 + indices.length / 3; j++)
+            colors = colors.concat(c);
+    }
+    const colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+
+    // texture coordinate
     const textureCoordBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER,textureCoordBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
@@ -187,7 +223,7 @@ function initBuffers(gl, positions, faceColors, indices, textureCoordinates, ver
         position: positionBuffer,
         normal: normalBuffer,
         textureCoord: textureCoordBuffer,
-        //color: colorBuffer,
+        color: colorBuffer,
         indices: indexBuffer,
     };
 }

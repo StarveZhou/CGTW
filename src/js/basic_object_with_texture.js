@@ -4,18 +4,18 @@
  * @param programInfo
  * @param projectionMatrix
  * @param positions
- * @param faceColors
  * @param indices
- * @param texture
- * @param textureCoordinates
+ * @param material
+ * @param ambientLight
+ * @param lightSources
  */
-function drawPolygon(gl, programInfo, projectionMatrix, positions, indices, vertexNormals, material, lightSource) {
+function drawPolygon(gl, programInfo, projectionMatrix, positions, indices, vertexNormals, material, ambientLight, lightSources) {
     const buffers = initBuffers(gl, positions, material.faceColors, indices, material.textureCoordinates,vertexNormals);
 
 
     const modelViewMatrix = mat4.create();
     const cubeRotation = 1;
-    const eyePosition = [0,-1,3];
+    const eyePosition = [0,-1,5];
 
     mat4.translate(
         modelViewMatrix,     // destination matrix
@@ -134,8 +134,6 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, indices, vert
         programInfo.uniformLocations.normalMatrix,
         false,
         normalMatrix);
-    gl.uniform1i( programInfo.uniformLocations.usePointLighting,
-        lightSource.usePointLighting);
     gl.uniform1i( programInfo.uniformLocations.useTexture,
         material.useTexture);
     gl.uniform1f( programInfo.uniformLocations.materialShiness,
@@ -143,26 +141,37 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, indices, vert
     gl.uniform3fv(
         programInfo.uniformLocations.eyePosition,
         eyePosition);
-    if (lightSource.pointLightingLocation != null) {
-      gl.uniform3fv(
-          programInfo.uniformLocations.pointLightingLocation,
-          lightSource.pointLightingLocation);
+
+    var pointLightingLocation = [];
+    var pointLightingSpecularColor = [];
+    var pointLightingDiffuseColor = [];
+    var lightNum = 0;
+    for (var i = 0;i < lightSources.length;i++) {
+        if (lightSources[i].usePointLighting) {
+            pointLightingLocation = pointLightingLocation.concat(lightSources[i].pointLightingLocation);
+            pointLightingSpecularColor = pointLightingSpecularColor.concat(lightSources[i].pointLightingSpecularColor);
+            pointLightingDiffuseColor = pointLightingDiffuseColor.concat(lightSources[i].pointLightingDiffuseColor);
+            lightNum++;
+        }  
     }
-    if (lightSource.pointLightingSpecularColor != null) {
-      gl.uniform3fv(
-          programInfo.uniformLocations.pointLightingSpecularColor,
-          lightSource.pointLightingSpecularColor);   
+
+    console.log(lightSources.length);
+    gl.uniform1i( programInfo.uniformLocations.lightNum,lightNum);
+    if (lightNum != 0) {
+        gl.uniform3fv(
+            programInfo.uniformLocations.pointLightingLocation,
+            pointLightingLocation);
+        gl.uniform3fv(
+            programInfo.uniformLocations.pointLightingLocation,
+            pointLightingLocation);
+        gl.uniform3fv(
+            programInfo.uniformLocations.pointLightingDiffuseColor,
+            pointLightingDiffuseColor);   
     }
-    if (lightSource.pointLightingDiffuseColor != null) {
-      gl.uniform3fv(
-          programInfo.uniformLocations.pointLightingDiffuseColor,
-          lightSource.pointLightingDiffuseColor);   
-    }
-    
 
     gl.uniform3fv(
         programInfo.uniformLocations.ambientLight,
-        lightSource.ambientLight);
+        ambientLight);
 
     // Flip the image's y axis
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); 

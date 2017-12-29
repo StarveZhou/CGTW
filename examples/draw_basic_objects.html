@@ -56,14 +56,16 @@
         // Fragment shader program
 
         const fsSource = `
+        #define MAX_LIGHT_NUM 5
         precision lowp float;
-        uniform bool uUsePointLighting;
         uniform bool uUseTexture;
+
         uniform float uMaterialShiness;
         uniform vec3 uEyePosition;
-        uniform vec3 uPointLightingLocation;
-        uniform vec3 uPointLightingSpecularColor;
-        uniform vec3 uPointLightingDiffuseColor;
+        uniform int uLightNum;
+        uniform vec3 uPointLightingLocation[MAX_LIGHT_NUM];
+        uniform vec3 uPointLightingSpecularColor[MAX_LIGHT_NUM];
+        uniform vec3 uPointLightingDiffuseColor[MAX_LIGHT_NUM];
         uniform vec3 uAmbientLight;
 
         // the variable share with vsSource
@@ -75,25 +77,26 @@
         uniform sampler2D uSampler;
 
         void main(void) {
-            vec3 lighting;
+            vec3 lighting = uAmbientLight;
 
-            if (!uUsePointLighting ) {
-                lighting = uAmbientLight;
-            } else {
-                 // the direction for point light
-                vec3 directionalVector = normalize(uPointLightingLocation - vec3(vPosition));
-                vec3 normal = normalize(vTransformedNormal.xyz);
+            vec3 normal = normalize(vTransformedNormal.xyz);
+            vec3 eyeDirection = normalize(uEyePosition - vec3(vPosition));
 
-                vec3 eyeDirection = normalize(uEyePosition - vec3(vPosition));
-                vec3 reflectionDirection = reflect(-directionalVector, normal);
+            for (int i = 0;i < MAX_LIGHT_NUM;i++) {
+                if (i < uLightNum) {
+                    // the direction for point light
+                    vec3 directionalVector = normalize(uPointLightingLocation[i] - vec3(vPosition));
+                    vec3 reflectionDirection = reflect(-directionalVector, normal);
 
-                float specularLightWeighting = pow(max(dot(reflectionDirection, eyeDirection), 0.0), uMaterialShiness);
-                float diffuseLightWeighting = max(dot(normal, directionalVector), 0.0);
+                    float specularLightWeighting = pow(max(dot(reflectionDirection, eyeDirection), 0.0), uMaterialShiness);
+                    float diffuseLightWeighting = max(dot(normal, directionalVector), 0.0);
 
-                // lighting = uAmbientLight+ uPointLightingDiffuseColor * diffuseLightWeighting;
-                lighting = uAmbientLight+uPointLightingSpecularColor * specularLightWeighting
-                    + uPointLightingDiffuseColor * diffuseLightWeighting;
-            }    
+                    // lighting = uAmbientLight+ uPointLightingDiffuseColor * diffuseLightWeighting;
+                    lighting += uAmbientLight+uPointLightingSpecularColor[i] * specularLightWeighting
+                        + uPointLightingDiffuseColor[i] * diffuseLightWeighting;
+                    // lighting = vec3(1.0,1.0,1.0);
+                }
+            }
 
             if (uUseTexture) {
                 vec4 texColor = texture2D(uSampler,vTextureCoord);
@@ -129,6 +132,7 @@
                 useTexture: gl.getUniformLocation(shaderProgram,'uUseTexture'),
                 materialShiness: gl.getUniformLocation(shaderProgram,'uMaterialShiness'),
                 eyePosition: gl.getUniformLocation(shaderProgram,'uEyePosition'),
+                lightNum: gl.getUniformLocation(shaderProgram,'uLightNum'),
                 pointLightingLocation: gl.getUniformLocation(shaderProgram,'uPointLightingLocation'),
                 pointLightingSpecularColor: gl.getUniformLocation(shaderProgram,'uPointLightingSpecularColor'),
                 pointLightingDiffuseColor: gl.getUniformLocation(shaderProgram,'uPointLightingDiffuseColor'),
@@ -222,20 +226,26 @@
            0.0,  0.0,  1.0,
         ];
 
-        let pointLightingLocation = [0,1,8];
-        let pointLightingSpecularColor = [0.5,0.5,0.5];
-        let pointLightingDiffuseColor = [0.4,0.4,0.4];
         let ambientLight = [0.2,0.2,0.2];
-        let usePointLighting = true;
 
-        var lightSource = {
-            usePointLighting: usePointLighting,
-            pointLightingLocation:pointLightingLocation,
-            pointLightingSpecularColor:pointLightingSpecularColor,
-            pointLightingDiffuseColor:pointLightingDiffuseColor,
-            ambientLight: ambientLight,
+        var lightSource1 = {
+            usePointLighting: true,
+            pointLightingLocation: [0,1,4],
+            pointLightingSpecularColor:[0.5,0.5,0.5],
+            pointLightingDiffuseColor:[0.4,0.4,0.4],
         };
 
+        var lightSource2 = {
+            usePointLighting: true,
+            pointLightingLocation: [0,1,4],
+            pointLightingSpecularColor:[0.5,0.5,0.5],
+            pointLightingDiffuseColor:[0.4,0.4,0.4],
+        };
+
+
+        lightSources = [];
+        lightSources = lightSources.concat(lightSource1);
+        lightSources = lightSources.concat(lightSource2);
         // the material parameters
         let materialShiness = 10;
         let useTexture = true;
@@ -247,7 +257,7 @@
             shiness: materialShiness,
         }
 
-        drawPolygon(gl, programInfo, projectionMatrix, positions, indices, vertexNormals, material, lightSource);
+        drawPolygon(gl, programInfo, projectionMatrix, positions, indices, vertexNormals, material, ambientLight, lightSources);
 
         positions = [
             0, 0, 0.5,

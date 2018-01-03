@@ -4,13 +4,12 @@
  * @param programInfo
  * @param projectionMatrix
  * @param positions
- * @param indices
- * @param material
+ * @param object
  * @param ambientLight
  * @param lightSources
  */
-function drawPolygon(gl, programInfo, projectionMatrix, positions, indices, vertexNormals, material, ambientLight, lightSources) {
-    const buffers = initBuffers(gl, positions, material.faceColors, indices, material.textureCoordinates,vertexNormals);
+function drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources) {
+    const buffers = initBuffers(gl, object);
 
 
     const modelViewMatrix = mat4.create();
@@ -115,8 +114,8 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, indices, vert
           programInfo.attribLocations.vertexNormal);
     }
 
-    // Tell WebGL which indices to use to index the vertices
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
+    // // Tell WebGL which indices to use to index the vertices
+    // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
 
     // Tell WebGL to use our program when drawing
     gl.useProgram(programInfo.program);
@@ -135,9 +134,9 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, indices, vert
         false,
         normalMatrix);
     gl.uniform1i( programInfo.uniformLocations.useTexture,
-        material.useTexture);
+        object.useTexture);
     gl.uniform1f( programInfo.uniformLocations.materialShiness,
-        material.shiness);
+        object.shiness);
     gl.uniform3fv(
         programInfo.uniformLocations.eyePosition,
         eyePosition);
@@ -155,7 +154,7 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, indices, vert
         }  
     }
 
-    console.log(lightSources.length);
+    // console.log(lightSources.length);
     gl.uniform1i( programInfo.uniformLocations.lightNum,lightNum);
     if (lightNum != 0) {
         gl.uniform3fv(
@@ -178,15 +177,16 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, indices, vert
     // Tell WebGL we want to affect texture unit 0
     gl.activeTexture(gl.TEXTURE0);
     // Bind the texture to texture unit 0
-    gl.bindTexture(gl.TEXTURE_2D, material.texture);
+    gl.bindTexture(gl.TEXTURE_2D, object.texture);
     // Tell the shader we bound the texture to texture unit 0
     gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
 
     {
-        const vertexCount = indices.length;
+        const vertexCount = object.indices.length;
         const type = gl.UNSIGNED_SHORT;
         const offset = 0;
-        gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
+        gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
+        // gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
     }
 }
 
@@ -196,44 +196,64 @@ function drawPolygon(gl, programInfo, projectionMatrix, positions, indices, vert
 // Initialize the buffers we'll need. For this demo, we just
 // have one object -- a simple three-dimensional cube.
 //
-function initBuffers(gl, positions, faceColors, indices, textureCoordinates, vertexNormals) {
-    // positions
+function initBuffers(gl, object) {
+	// the real positions used in draw_array
+	// it is expaned from positions and indices 
+	real_positions = [];
+	for (var i = 0;i < object.indices.length;i++) {
+		const pos = 3*object.indices[i];
+		real_positions.push(object.positions[pos]);
+		real_positions.push(object.positions[pos+1]);
+		real_positions.push(object.positions[pos+2]);
+	}
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(real_positions), gl.STATIC_DRAW);
 
-    // color
     //colors
     var colors = [];
-    for (var i = 0; i < faceColors.length; ++i) {
-        const c = faceColors[i];
-        for (var j = 0; j < 2 + indices.length / 3; j++)
-            colors = colors.concat(c);
-    }
+    for (var i = 0;i < object.indices.length;i++) {
+    	colors = colors.concat(object.faceColors);
+	}
+    
     const colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 
+
+    // the real textureCoordinates used in draw_array
+    // it is expaned from textureCoordinates and indices 
+    real_textureCoordinates = [];
+    for (var i = 0;i < object.textureIndices.length;i++) {
+    	const pos = 2*object.textureIndices[i];
+    	real_textureCoordinates.push(object.textureCoordinates[pos]);
+    	real_textureCoordinates.push(object.textureCoordinates[pos+1]);
+    }
     // texture coordinate
     const textureCoordBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER,textureCoordBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(real_textureCoordinates), gl.STATIC_DRAW);
 
+
+    // the real normal used in draw_array
+    // it is expaned from textureCoordinates and indices 
+    real_vertexNormals = [];
+    for (var i = 0;i < object.normalIndices.length;i++) {
+    	const pos = 3*object.normalIndices[i];
+    	real_vertexNormals.push(object.vertexNormals[pos]);
+    	real_vertexNormals.push(object.vertexNormals[pos+1]);
+    	real_vertexNormals.push(object.vertexNormals[pos+2]);
+    }
     // the normal buffer used for lighting 
     const normalBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(real_vertexNormals), gl.STATIC_DRAW);
   
-    // indices
-    const indexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
     return {
         position: positionBuffer,
         normal: normalBuffer,
         textureCoord: textureCoordBuffer,
         color: colorBuffer,
-        indices: indexBuffer,
     };
 }
 

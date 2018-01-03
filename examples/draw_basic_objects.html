@@ -190,42 +190,6 @@
         // as the destination to receive the result.
         mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
 
-
-       
-        let positions = [
-            0, 0, 0,
-            1, 0, 0,
-            1, 1, 0,
-            0, 1, 0,
-
-        ];
-
-        let faceColors = [
-            [1.0, 1.0, 0.0, 1.0],
-        ];
-
-        let indices = [
-            0, 1, 2, 0, 2, 3,
-        ];
-
-        let  textureCoordinates = [
-	  		0, 0,
-	  		1, 0,
-	  		1, 1,
-	  		0, 1,
-            1, 0,
-            1, 1,
-
-	  	];
-
-        // the vertex norm for this picture 
-        let vertexNormals = [
-           0.0,  0.0,  1.0,
-           0.0,  0.0,  1.0,
-           0.0,  0.0,  1.0,
-           0.0,  0.0,  1.0,
-        ];
-
         let ambientLight = [0.2,0.2,0.2];
 
         var lightSource1 = {
@@ -236,7 +200,7 @@
         };
 
         var lightSource2 = {
-            usePointLighting: true,
+            usePointLighting: false,
             pointLightingLocation: [0,1,4],
             pointLightingSpecularColor:[0.5,0.5,0.5],
             pointLightingDiffuseColor:[0.4,0.4,0.4],
@@ -249,15 +213,31 @@
         // the material parameters
         let materialShiness = 10;
         let useTexture = true;
-        var material = {
-            faceColors:faceColors,
+        var object = {
+            positions: [
+                0, 0, 0,
+                1, 0, 0,
+                1, 1, 0,
+                0, 1, 0,],
+            indices: [
+            0, 1, 2, 0, 2, 3, ],
+            textureCoordinates: [   
+                0, 0,
+                1, 0,
+                1, 1,
+                0, 1,],
+            textureIndices: [ 0, 1, 2, 0, 2, 3,],
+            vertexNormals: [
+               0.0,  0.0,  1.0,
+            ],
+            normalIndices: [0, 0, 0, 0, 0, 0,],
+            faceColors: [1.0, 1.0, 0.0, 1.0],
             useTexture: useTexture,
             texture:texture,
-            textureCoordinates: textureCoordinates,
             shiness: materialShiness,
         }
 
-        drawPolygon(gl, programInfo, projectionMatrix, positions, indices, vertexNormals, material, ambientLight, lightSources);
+        drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources);
 
         positions = [
             0, 0, 0.5,

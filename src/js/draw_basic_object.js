@@ -7,13 +7,12 @@
  * @param ambientLight
  * @param lightSources
  */
-function drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources) {
+function drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition) {
     const buffers = initBuffers(gl, object);
 
 
     const modelViewMatrix = mat4.create();
     const cubeRotation = 1;
-    const eyePosition = [0,-1,5];
 
     mat4.translate(
         modelViewMatrix,     // destination matrix
@@ -55,23 +54,61 @@ function drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, li
         gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
     }
 
-    // Tell WebGL how to pull out the colors from the color buffer
-    // into the vertexColor attribute.
+    // Tell WebGL how to pull out the ambient colors from the color buffer
+    // into the vertexAmbientColor attribute.
     {
         const numComponents = 4;
         const type = gl.FLOAT;
         const normalize = false;
         const stride = 0;
         const offset = 0;
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.ambientColor);
         gl.vertexAttribPointer(
-            programInfo.attribLocations.vertexColor,
+            programInfo.attribLocations.vertexAmbientColor,
             numComponents,
             type,
             normalize,
             stride,
             offset);
-        gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
+        gl.enableVertexAttribArray(programInfo.attribLocations.vertexAmbientColor);
+    }
+
+    // Tell WebGL how to pull out the diffuse colors from the color buffer
+    // into the vertexDiffuseColor attribute.
+    {
+        const numComponents = 4;
+        const type = gl.FLOAT;
+        const normalize = false;
+        const stride = 0;
+        const offset = 0;
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.diffuseColor);
+        gl.vertexAttribPointer(
+            programInfo.attribLocations.vertexDiffuseColor,
+            numComponents,
+            type,
+            normalize,
+            stride,
+            offset);
+        gl.enableVertexAttribArray(programInfo.attribLocations.vertexDiffuseColor);
+    }
+
+    // Tell WebGL how to pull out the specular colors from the color buffer
+    // into the vertexSpecularColor attribute.
+    {
+        const numComponents = 4;
+        const type = gl.FLOAT;
+        const normalize = false;
+        const stride = 0;
+        const offset = 0;
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.specularColor);
+        gl.vertexAttribPointer(
+            programInfo.attribLocations.vertexSpecularColor,
+            numComponents,
+            type,
+            normalize,
+            stride,
+            offset);
+        gl.enableVertexAttribArray(programInfo.attribLocations.vertexSpecularColor);
     }
 
 
@@ -532,14 +569,34 @@ function initBuffers(gl, object) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(real_positions), gl.STATIC_DRAW);
 
     //colors
-    var colors = [];
+    var ambientColors = [];
     for (var i = 0;i < object.indices.length;i++) {
-        colors = colors.concat(object.faceColors);
+        ambientColors = ambientColors.concat(object.ambientColor);
     }
     
-    const colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+    const ambientColorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, ambientColorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ambientColors), gl.STATIC_DRAW);
+
+     //colors
+    var diffuseColors = [];
+    for (var i = 0;i < object.indices.length;i++) {
+        diffuseColors = diffuseColors.concat(object.diffuseColor);
+    }
+    
+    const diffuseColorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, diffuseColorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(diffuseColors), gl.STATIC_DRAW);
+
+     //colors
+    var specularColors = [];
+    for (var i = 0;i < object.indices.length;i++) {
+       specularColors = specularColors.concat(object.specularColor);
+    }
+    
+    const specularColorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, specularColorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(specularColors), gl.STATIC_DRAW);
 
 
     // the real textureCoordinates used in draw_array
@@ -574,7 +631,9 @@ function initBuffers(gl, object) {
         position: positionBuffer,
         normal: normalBuffer,
         textureCoord: textureCoordBuffer,
-        color: colorBuffer,
+        ambientColor: ambientColorBuffer,
+        diffuseColor: diffuseColorBuffer,
+        specularColor: specularColorBuffer,
     };
 }
 

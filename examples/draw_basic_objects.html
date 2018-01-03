@@ -30,7 +30,10 @@
         const vsSource = `
         precision lowp float;
         attribute vec4 aVertexPosition;
-        attribute vec4 aVertexColor;
+        attribute vec4 aVertexAmbientColor;
+        attribute vec4 aVertexDiffuseColor;
+        attribute vec4 aVertexSpecularColor;
+        // attribute vec4 aVertexColor;
         attribute vec3 aVertexNormal;
         attribute vec2 aTextureCoord;
 
@@ -39,13 +42,18 @@
         uniform mat4 uNormalMatrix;
         
         varying vec4 vPosition; 
-        varying vec4 vColor; 
+        varying vec4 vAmbientColor;
+        varying vec4 vDiffuseColor;
+        varying vec4 vSpecularColor;
+        // varying vec4 vColor; 
         varying vec2 vTextureCoord;
         varying vec4 vTransformedNormal;
 
         void main(void) {
             vPosition = uModelViewMatrix * aVertexPosition;
-            vColor = aVertexColor;
+            vAmbientColor = aVertexAmbientColor;
+            vDiffuseColor = aVertexDiffuseColor;
+            vSpecularColor = aVertexSpecularColor;
             gl_Position = uProjectionMatrix * vPosition;
             vTextureCoord = aTextureCoord;
             vTransformedNormal = uNormalMatrix*vec4(aVertexNormal,1.0);
@@ -69,7 +77,10 @@
 
         // the variable share with vsSource
         varying vec4 vPosition;
-        varying vec4 vColor; 
+        varying vec4 vAmbientColor;
+        varying vec4 vDiffuseColor;
+        varying vec4 vSpecularColor;
+        // varying vec4 vColor; 
         varying vec2 vTextureCoord;
         varying vec4 vTransformedNormal;
 
@@ -80,6 +91,7 @@
 
             vec3 normal = normalize(vTransformedNormal.xyz);
             vec3 eyeDirection = normalize(uEyePosition - vec3(vPosition));
+            vec3 origColor = uAmbientLight*vAmbientColor.rgb;
 
             for (int i = 0;i < MAX_LIGHT_NUM;i++) {
                 if (i < uLightNum) {
@@ -91,9 +103,10 @@
                     float diffuseLightWeighting = max(dot(normal, directionalVector), 0.0);
 
                     // lighting = uAmbientLight+ uPointLightingDiffuseColor * diffuseLightWeighting;
-                    lighting += uAmbientLight+uPointLightingSpecularColor[i] * specularLightWeighting
+                    lighting += uPointLightingSpecularColor[i] * specularLightWeighting
                         + uPointLightingDiffuseColor[i] * diffuseLightWeighting;
-                    // lighting = vec3(1.0,1.0,1.0);
+
+                    origColor +=  uPointLightingSpecularColor[i]*vSpecularColor.rgb + uPointLightingDiffuseColor[i]*vDiffuseColor.rgb;
                 }
             }
 
@@ -101,7 +114,7 @@
                 vec4 texColor = texture2D(uSampler,vTextureCoord);
                 gl_FragColor = vec4(texColor.rgb*lighting,  texColor.a);
             } else {
-                gl_FragColor = vec4(vColor.rgb*lighting,  vColor.a);     
+                gl_FragColor = vec4(origColor,vAmbientColor.a);     
             }
         }
         `;
@@ -118,7 +131,9 @@
             program: shaderProgram,
             attribLocations: {
                 vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
-                vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor'),
+                vertexAmbientColor: gl.getAttribLocation(shaderProgram, 'aVertexAmbientColor'),
+                vertexDiffuseColor: gl.getAttribLocation(shaderProgram, 'aVertexDiffuseColor'),
+                vertexSpecularColor: gl.getAttribLocation(shaderProgram, 'aVertexSpecularColor'),
                 vertexNormal: gl.getAttribLocation(shaderProgram, 'aVertexNormal'),
                 textureCoord: gl.getAttribLocation(shaderProgram, 'aTextureCoord'),
             },
@@ -198,7 +213,7 @@
         };
 
         var lightSource2 = {
-            usePointLighting: false,
+            usePointLighting: true,
             pointLightingLocation: [0,1,4],
             pointLightingSpecularColor:[0.5,0.5,0.5],
             pointLightingDiffuseColor:[0.4,0.4,0.4],
@@ -227,13 +242,16 @@
                0.0,  0.0,  1.0,
             ],
             normalIndices: [0, 0, 0, 0, 0, 0,],
-            faceColors: [1.0, 1.0, 0.0, 1.0],
-            useTexture: true,
+            ambientColor: [0.1, 0.1, 0.1, 1.0],
+            diffuseColor: [0.5, 0.5, 0.5, 1.0],
+            specularColor: [0.3, 0.3, 0.3, 1.0],
+            useTexture: false,
             texture:texture,
             shiness: 10,
         }
 
-        drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources);
+        const eyePosition = [0,10,5];
+        drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
     }
 </script>
 </html>

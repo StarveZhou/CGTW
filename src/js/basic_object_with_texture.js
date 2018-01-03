@@ -1,5 +1,4 @@
-/**
- *
+/*
  * @param gl
  * @param programInfo
  * @param projectionMatrix
@@ -25,11 +24,12 @@ function drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, li
     //     modelViewMatrix,  // matrix to rotate
     //     cubeRotation,     // amount to rotate in radians
     //     [0, 1, 0]);       // axis to rotate around (Z)
-    // mat4.rotate(
-    //     modelViewMatrix,  // destination matrix
-    //     modelViewMatrix,  // matrix to rotate
-    //     cubeRotation * .7,// amount to rotate in radians
-    //     [0, 1, 0]);       // axis to rotate around (X)
+
+    mat4.rotate(
+        modelViewMatrix,  // destination matrix
+        modelViewMatrix,  // matrix to rotate
+        cubeRotation,     // amount to rotate in radians
+        [0, 1, 0]);       // axis to rotate around (Z)
 
     const normalMatrix = mat4.create();
     // normal matrix should transform the invert transpose matrix of modelViewMatrix
@@ -77,6 +77,7 @@ function drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, li
 
     // Tell WebGL how to pull out the texture coordinates from
     // the texture coordinate buffer into the textureCoord attribute.
+    if (object.textureCoordinates)
     {
       const numComponents = 2;
       const type = gl.FLOAT;

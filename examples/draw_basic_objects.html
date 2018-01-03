@@ -5,13 +5,12 @@
     <title>WebGL Demo</title>
     <script src="../src/js/gl-matrix.js"></script>
     <script src="../src/js/basic_object_with_texture.js"></script>
+    <!-- <script src="../src/js/draw_basic_object.js"></script> -->
 </head>
 
 <body>
 <canvas id="glcanvas" width="640" height="480"></canvas>
 </body>
-
-
 <script>
     main();
 
@@ -104,7 +103,6 @@
             } else {
                 gl_FragColor = vec4(vColor.rgb*lighting,  vColor.a);     
             }
-           
         }
         `;
 
@@ -218,8 +216,7 @@
                 1, 0, 0,
                 1, 1, 0,
                 0, 1, 0,],
-            indices: [
-            0, 1, 2, 0, 2, 3, ],
+            indices: [0, 1, 2, 0, 2, 3, ],
             textureCoordinates: [   
                 0, 0,
                 1, 0,
@@ -237,30 +234,6 @@
         }
 
         drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources);
-
-        positions = [
-            0, 0, 0.5,
-            1, 0, 0.5,
-            1, 1, 0.5,
-        ];
-
-        // faceColors = [
-        //     [1.0, 1.0, 1.0, 1.0],
-        // ];
-
-        indices = [
-            0, 1, 2,
-        ];
-
-       	textureCoordinates = [
-	  		0, 1,
-	  		0, 0,
-	  		1, 0,
-	  	];
-
-         // drawPolygon(gl, programInfo, projectionMatrix, positions, indices, vertexNormals, material, lightSource);
-        // drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, texture, textureCoordinates,vertexNormals,null,null,ambientLight);
-
     }
 </script>
 </html>

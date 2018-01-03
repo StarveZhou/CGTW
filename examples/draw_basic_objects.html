@@ -210,9 +210,8 @@
         lightSources = [];
         lightSources = lightSources.concat(lightSource1);
         lightSources = lightSources.concat(lightSource2);
-        // the material parameters
-        let materialShiness = 10;
-        let useTexture = true;
+        
+        // the object to be rendered 
         var object = {
             positions: [
                 0, 0, 0,
@@ -232,9 +231,9 @@
             ],
             normalIndices: [0, 0, 0, 0, 0, 0,],
             faceColors: [1.0, 1.0, 0.0, 1.0],
-            useTexture: useTexture,
+            useTexture: true,
             texture:texture,
-            shiness: materialShiness,
+            shiness: 10,
         }
 
         drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources);

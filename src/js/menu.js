@@ -1,3 +1,8 @@
+var cubic_num = 0;
+
+
+
+
 function addItem(Obj)
 {
     var res = $("#itemList>ul #" + Obj.id);
@@ -84,12 +89,34 @@ function addLight(Obj)
 
 function selectItem(Obj)
 {
-    console.log("Item"+Obj.id);
+    current=Obj;
+    if (Obj.type=="cubic")
+    {
+        $("#cubic-form").fadeIn();
+        $("#cubic-sizex").spinner("value", Obj.x_size);
+        $("#cubic-sizey").spinner("value", Obj.y_size);
+        $("#cubic-sizez").spinner("value", Obj.z_size);
+        $("#cubic-rotx").spinner("value", Obj.x_rot);
+        $("#cubic-roty").spinner("value", Obj.y_rot);
+        $("#cubic-rotz").spinner("value", Obj.z_rot);
+        $("#cubic-x").spinner("value", Obj.x);
+        $("#cubic-y").spinner("value", Obj.y);
+        $("#cubic-z").spinner("value", Obj.z);
+    }
 }
 
 function removeItem(Obj)
 {
     var res = $("#itemList>ul #" + Obj.id);
+    if (Obj.type == "cubic")
+    {
+        if (Obj == current)
+        {
+            $("#cubic-form").fadeOut();
+        }
+        cubic_num--;
+    }
+    
     res.onclick=null;
     res.remove();
 }
@@ -116,4 +143,15 @@ function removeLight(Obj)
     var res = $("#lightList>ul #" + Obj.id);
     res.onclick=null;
     res.remove();
+}
+
+
+//right bar
+function createCubic()
+{
+    cubic_num++;
+    addItem({id:"cubic"+cubic_num, type:"cubic",
+             x_size:1, y_size:1, z_size:1,
+             x_rot:0, y_rot:0, z_rot:0,
+             x:0, y:0, z:0});
 }

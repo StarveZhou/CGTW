@@ -5,22 +5,22 @@
     <link href="https://cdn.bootcss.com/metisMenu/2.7.1/metisMenu.min.css" rel="stylesheet">
     <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="https://cdn.bootcss.com/animate.css/3.5.2/animate.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/basic.css">
-    <link rel="stylesheet" href="css/menu.css" type="text/css" />
+    <link href="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/myform.css" type="text/css" >
+    <link rel="stylesheet" href="css/menu.css" type="text/css" >
+    <link rel="stylesheet" href="css/basic.css" type="text/css" >
 
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdn.bootcss.com/metisMenu/2.7.1/metisMenu.min.js"></script>
     <script src="https://cdn.bootcss.com/popper.js/1.13.0/umd/popper.min.js"></script>
     <script src="https://cdn.bootcss.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
-
+    <script src="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src = "js/myform.js" type= "text/javascript"></script>
     <script src = "js/basic.js" type = "text/javascript"></script>
     <script src = "js/menu.js" type = "text/javascript"></script>
 </head>
 
 <body>
-    <button class="btn btn-default" onclick="addItem({id:'1'})">addItem</button>
-    <button class="btn btn-default" onclick="addModel({id:'1'})">addModel</button>
-    <button class="btn btn-default" onclick="addLight({id:'1'})">addLight</button>
     <div id="editor">
         <div id="leftBar">
             <nav class="sidebar-nav">
@@ -30,18 +30,14 @@
                             ItemList
                         </a>
                         <ul aria-expanded="false" class="collapse">
+                            <!--
                             <li>
                                 <a href="#">
                                     Item12345678
                                 </a>
                                 <span class="fa fa-times"></span>
                             </li>
-                            <li id="Item2">
-                                <a href="#">
-                                    Item2
-                                </a>
-                                <span class="fa fa-times"></span>
-                            </li>
+                            -->
                         </ul>
                     </li>
                     <li id="modelList">
@@ -81,10 +77,61 @@
                 </ul>
             </nav>
         </div>
-        <div id="canvas-container">
+        <div id="middle">
+            <div id="canvas-container">
             <canvas id="glcanvas" >
                 Your browser doesn't appear to support the <code>&lt;canvas&gt;</code> element.
             </canvas>
+            </div>
+            <div id="form-container">
+                <div id="cubic-form" class="myform">
+                    <div class="form-title">Cubic Form</div>
+                    <div role="form">
+                        <div id="cubic-size" class="form-inline form-group">
+                            <div class="form-group input-size">
+                                <label for="spinner">x方向长度：</label>
+                                <input id="cubic-sizex" class="spinner" value="0">
+                            </div>
+                            <div class="form-group input-size">
+                                <label for="spinner">y方向长度：</label>
+                                <input id="cubic-sizey" class="spinner" value="0">
+                            </div>
+                            <div class="form-group input-size">
+                                <label for="spinner">z方向长度：</label>
+                                <input id="cubic-sizez" class="spinner" value="0">
+                            </div>
+                        </div>
+                        <div id="cubic-rot" class="form-inline form-group">
+                            <div class="form-group input-rot">
+                                <label for="spinner">x方向旋转：</label>
+                                <input id="cubic-rotx" class="spinner" value="0">
+                            </div>
+                            <div class="form-group input-rot">
+                                <label for="spinner">y方向旋转：</label>
+                                <input id="cubic-roty" class="spinner" value="0">
+                            </div>
+                            <div class="form-group input-rot">
+                                <label for="spinner">z方向旋转：</label>
+                                <input id="cubic-rotz" class="spinner" value="0">
+                            </div>
+                        </div>
+                        <div id="cubic-loc" class="form-inline form-group">
+                            <div class="form-group input-loc">
+                                <label for="spinner">x坐标：</label>
+                                <input id="cubic-x" class="spinner" value="0">
+                            </div>
+                            <div class="form-group input-loc">
+                                <label for="spinner">y坐标：</label>
+                                <input id="cubic-y" class="spinner" value="0">
+                            </div>
+                            <div class="form-group input-loc">
+                                <label for="spinner">z坐标：</label>
+                                <input id="cubic-z" class="spinner" value="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div id="rightBar">
             <nav class="sidebar-nav">
@@ -95,8 +142,8 @@
                         </a>
                         <ul aria-expanded="false" class="collapse">
                             <li>
-                                <a href="#">
-                                    BasicItem
+                                <a href="#" onclick="createCubic()">
+                                    Cubic
                                 </a>
                             </li>
                             <li>

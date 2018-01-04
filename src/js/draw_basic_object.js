@@ -511,14 +511,14 @@ function drawSphere(gl, programInfo, projectionMatrix, object, ambientLight, lig
     object.textureIndices = textureIndex;
     //drawPolygon(gl, programInfo, projectionMatrix, vertexPositionData, [1, 1, 1, 1], indexData, translation, scale, rotation);
     drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
-    console.log('normal', normalData)
-    // console.log("vertex", vertexPositionData);
-    // console.log("index", indexData);
+
 }
 
-function drawCylinder(gl, programInfo, projectionMatrix, translation, scale, rotation) {
+function drawCylinder(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition) {
     const radGap = 0.05;
     let vertexPositionData = [];
+    let normalData = [];
+    let textureCoordData = [];
     for (let rad = 0.0; rad <= 2.0; rad += radGap) {
         let x = Math.cos(rad * Math.PI);
         let z = Math.sin(rad * Math.PI);
@@ -528,14 +528,37 @@ function drawCylinder(gl, programInfo, projectionMatrix, translation, scale, rot
         vertexPositionData.push(x);
         vertexPositionData.push(1);
         vertexPositionData.push(z);
+
+        textureCoordData.push(rad/2);
+        textureCoordData.push(0);
+        textureCoordData.push(rad/2);
+        textureCoordData.push(1);
+
+        normalData.push(x);
+        normalData.push(0);
+        normalData.push(z);
+        normalData.push(x);
+        normalData.push(0);
+        normalData.push(z);
     }
     vertexPositionData.push(0);
     vertexPositionData.push(-1);
     vertexPositionData.push(0);
-
     vertexPositionData.push(0);
     vertexPositionData.push(1);
     vertexPositionData.push(0);
+
+    textureCoordData.push(0.5);
+    textureCoordData.push(0.5);
+    textureCoordData.push(0.5);
+    textureCoordData.push(0.5);
+
+    normalData.push(0);
+    normalData.push(-1);
+    normalData.push(0);
+    normalData.push(0);
+    normalData.push(1);
+    normalData.push(0);
 
     let indexData = [];
     let i;
@@ -578,30 +601,60 @@ function drawCylinder(gl, programInfo, projectionMatrix, translation, scale, rot
     indexData.push(i);
     indexData.push(1);
     indexData.push(vertexPositionData.length / 3 - 1);
-    console.log('indices', indexData);
-    drawPolygon(gl, programInfo, projectionMatrix, vertexPositionData, [[1, 1, 1, 1]], indexData, translation, scale, rotation);
+
+    object.positions = vertexPositionData;
+    object.indices = indexData;
+    object.vertexNormals = normalData;
+    object.normalIndices = indexData;
+    object.textureCoordinates = textureCoordData;
+    object.textureIndices = indexData;
+
+    drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
 
 }
 
 
-function drawCone(gl, programInfo, projectionMatrix, translation, scale, rotation) {
+function drawCone(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition) {
     const radGap = 0.05;
     let vertexPositionData = [];
+    let normalData = [];
+    let textureCoordData = [];
     for (let rad = 0.0; rad <= 2.0; rad += radGap) {
         let x = Math.cos(rad * Math.PI);
         let z = Math.sin(rad * Math.PI);
         vertexPositionData.push(x);
         vertexPositionData.push(-1);
         vertexPositionData.push(z);
+
+        textureCoordData.push(rad/2);
+        textureCoordData.push(0);
+
+        normalData.push(x);
+        normalData.push(0);
+        normalData.push(z);
     }
     // top
     vertexPositionData.push(0);
     vertexPositionData.push(1);
     vertexPositionData.push(0);
+
+    textureCoordData.push(0.5);
+    textureCoordData.push(1);
+
+    normalData.push(0);
+    normalData.push(1);
+    normalData.push(0);
     // bottom center
     vertexPositionData.push(0);
     vertexPositionData.push(-1);
     vertexPositionData.push(0);
+
+    textureCoordData.push(0.5);
+    textureCoordData.push(1);
+
+    normalData.push(0);
+    normalData.push(-1);
+    normalData.push(0);
 
     let i;
     let indexData = [];
@@ -624,13 +677,23 @@ function drawCone(gl, programInfo, projectionMatrix, translation, scale, rotatio
     indexData.push(0);
     indexData.push(vertexPositionData.length / 3 - 1);
 
-    drawPolygon(gl, programInfo, projectionMatrix, vertexPositionData, [[1, 1, 1, 1]], indexData, translation, scale, rotation);
+
+    object.positions = vertexPositionData;
+    object.indices = indexData;
+    object.vertexNormals = normalData;
+    object.normalIndices = indexData;
+    object.textureCoordinates = textureCoordData;
+    object.textureIndices = indexData;
+
+    drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
 
 }
 
-function drawPrism(gl, programInfo, projectionMatrix, sideNum, translation, scale, rotation) {
-    const radGap = 2 / sideNum;
+function drawPrism(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition) {
+    const radGap = 2 / object.sideNum;
     let vertexPositionData = [];
+    let normalData = [];
+    let textureCoordData = [];
     for (let rad = 0.0; rad <= 2.0; rad += radGap) {
         let x = Math.cos(rad * Math.PI);
         let z = Math.sin(rad * Math.PI);
@@ -640,14 +703,37 @@ function drawPrism(gl, programInfo, projectionMatrix, sideNum, translation, scal
         vertexPositionData.push(x);
         vertexPositionData.push(1);
         vertexPositionData.push(z);
+
+        textureCoordData.push(rad/2);
+        textureCoordData.push(0);
+        textureCoordData.push(rad/2);
+        textureCoordData.push(1);
+
+        normalData.push(x);
+        normalData.push(0);
+        normalData.push(z);
+        normalData.push(x);
+        normalData.push(0);
+        normalData.push(z);
     }
     vertexPositionData.push(0);
     vertexPositionData.push(-1);
     vertexPositionData.push(0);
-
     vertexPositionData.push(0);
     vertexPositionData.push(1);
     vertexPositionData.push(0);
+
+    textureCoordData.push(0.5);
+    textureCoordData.push(0.5);
+    textureCoordData.push(0.5);
+    textureCoordData.push(0.5);
+
+    normalData.push(0);
+    normalData.push(-1);
+    normalData.push(0);
+    normalData.push(0);
+    normalData.push(1);
+    normalData.push(0);
 
     let indexData = [];
     let i;
@@ -671,8 +757,8 @@ function drawPrism(gl, programInfo, projectionMatrix, sideNum, translation, scal
     indexData.push(0);
     indexData.push(1);
 
-    drawPolygon(gl, programInfo, projectionMatrix, vertexPositionData, [[1, 0, 1, 1]], indexData, translation, scale, rotation);
-    indexData = [];
+    //drawPolygon(gl, programInfo, projectionMatrix, vertexPositionData, [[1, 0, 1, 1]], indexData, translation, scale, rotation);
+    //indexData = [];
     for (i = 0; i < vertexPositionData.length / 3 - 2 - 2; i += 2) {
         indexData.push(i);
         indexData.push(i + 2);
@@ -690,30 +776,61 @@ function drawPrism(gl, programInfo, projectionMatrix, sideNum, translation, scal
     indexData.push(i);
     indexData.push(1);
     indexData.push(vertexPositionData.length / 3 - 1);
-    console.log('indices', indexData);
-    drawPolygon(gl, programInfo, projectionMatrix, vertexPositionData, [[1, 1, 1, 1]], indexData, translation, scale, rotation);
+
+    object.positions = vertexPositionData;
+    object.indices = indexData;
+    object.vertexNormals = normalData;
+    object.normalIndices = indexData;
+    object.textureCoordinates = textureCoordData;
+    object.textureIndices = indexData;
+    drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
 }
 
-function drawTrustumOfAPyramid(gl, programInfo, projectionMatrix, sideNum, upBottomRatio, translation, scale, rotation) {
-    const radGap = 2 / sideNum;
+function drawTrustumOfAPyramid(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition) {
+    const radGap = 2 / object.sideNum;
     let vertexPositionData = [];
+    let normalData = [];
+    let textureCoordData = [];
     for (let rad = 0.0; rad <= 2.0; rad += radGap) {
         let x = Math.cos(rad * Math.PI);
         let z = Math.sin(rad * Math.PI);
         vertexPositionData.push(x);
         vertexPositionData.push(-1);
         vertexPositionData.push(z);
-        vertexPositionData.push(x * upBottomRatio);
+        vertexPositionData.push(x * object.upBottomRatio);
         vertexPositionData.push(1);
-        vertexPositionData.push(z * upBottomRatio);
+        vertexPositionData.push(z * object.upBottomRatio);
+
+        textureCoordData.push(rad/2);
+        textureCoordData.push(0);
+        textureCoordData.push(rad/2);
+        textureCoordData.push(1);
+
+        normalData.push(x);
+        normalData.push(0);
+        normalData.push(z);
+        normalData.push(x);
+        normalData.push(0);
+        normalData.push(z);
     }
     vertexPositionData.push(0);
     vertexPositionData.push(-1);
     vertexPositionData.push(0);
-
     vertexPositionData.push(0);
     vertexPositionData.push(1);
     vertexPositionData.push(0);
+
+    textureCoordData.push(0.5);
+    textureCoordData.push(0.5);
+    textureCoordData.push(0.5);
+    textureCoordData.push(0.5);
+
+    normalData.push(0);
+    normalData.push(-1);
+    normalData.push(0);
+    normalData.push(0);
+    normalData.push(1);
+    normalData.push(0);
 
     let indexData = [];
     let i;
@@ -737,8 +854,8 @@ function drawTrustumOfAPyramid(gl, programInfo, projectionMatrix, sideNum, upBot
     indexData.push(0);
     indexData.push(1);
 
-    drawPolygon(gl, programInfo, projectionMatrix, vertexPositionData, [[1, 0, 1, 1]], indexData, translation, scale, rotation);
-    indexData = [];
+    // drawPolygon(gl, programInfo, projectionMatrix, vertexPositionData, [[1, 0, 1, 1]], indexData, translation, scale, rotation);
+    // indexData = [];
     for (i = 0; i < vertexPositionData.length / 3 - 2 - 2; i += 2) {
         indexData.push(i);
         indexData.push(i + 2);
@@ -756,8 +873,15 @@ function drawTrustumOfAPyramid(gl, programInfo, projectionMatrix, sideNum, upBot
     indexData.push(i);
     indexData.push(1);
     indexData.push(vertexPositionData.length / 3 - 1);
-    console.log('indices', indexData);
-    drawPolygon(gl, programInfo, projectionMatrix, vertexPositionData, [[1, 1, 1, 1]], indexData, translation, scale, rotation);
+
+    object.positions = vertexPositionData;
+    object.indices = indexData;
+    object.vertexNormals = normalData;
+    object.normalIndices = indexData;
+    object.textureCoordinates = textureCoordData;
+    object.textureIndices = indexData;
+
+    drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
 }
 
 // initBuffers

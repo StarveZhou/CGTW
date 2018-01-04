@@ -432,7 +432,7 @@ function drawCube(gl, programInfo, projectionMatrix, object, ambientLight, light
     ];
     object.positions = vertexPositionData;
     object.indices = indexData;
-    object.vertexNormal = normalData;
+    object.vertexNormals = normalData;
     object.normalIndices = normalIndex;
     object.textureIndices = textureIndex;
     //drawPolygon(gl, programInfo, projectionMatrix, vertexPositionData, [[1, 1, 1, 1]], indexData, translation, scale, rotation);
@@ -505,7 +505,7 @@ function drawSphere(gl, programInfo, projectionMatrix, object, ambientLight, lig
     }
     object.positions = vertexPositionData;
     object.indices = indexData;
-    object.vertexNormal = normalData;
+    object.vertexNormals = normalData;
     object.normalIndices = normalIndex;
     object.textureCoordinates = textureCoordData;
     object.textureIndices = textureIndex;

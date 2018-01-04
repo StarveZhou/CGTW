@@ -232,8 +232,12 @@
                 0, 0, 0,
                 1, 0, 0,
                 1, 1, 0,
-                0, 1, 0,],
-            indices: [0, 1, 2, 0, 2, 3,],
+                0, 1, 0,
+            ],
+            indices: [
+                0, 1, 2,
+                0, 2, 3,
+            ],
             transformation: {
                 translation: [1.0, 0.0, 0.0],
                 scale: [1.0, 1.0, 1.0],
@@ -244,11 +248,16 @@
                 1, 0,
                 1, 1,
                 0, 1,],
-            textureIndices: [0, 1, 2, 0, 2, 3,],
+            textureIndices: [
+                0, 1, 2,
+                0, 2, 3,
+            ],
             vertexNormals: [
                 0.0, 0.0, 1.0,
             ],
-            normalIndices: [0, 0, 0, 0, 0, 0,],
+            normalIndices: [
+                0, 0, 0, 0, 0, 0
+            ],
             ambientColor: [0.1, 0.1, 0.1, 1.0],
             diffuseColor: [0.5, 0.5, 0.5, 1.0],
             specularColor: [0.3, 0.3, 0.3, 1.0],
@@ -260,7 +269,7 @@
         let object = Object.create(ObjectInfo);
         const eyePosition = [0, 10, 10];
 
-        drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
+        //drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
 
         //object.transformation.translation = [-1, -1, 0];
         drawCube(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);

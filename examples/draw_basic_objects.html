@@ -264,6 +264,8 @@
             useTexture: true,
             texture: texture,
             shiness: 10,
+            sideNum: null,
+            upBottomRatio: null
         };
 
         let object = Object.create(ObjectInfo);
@@ -272,7 +274,13 @@
         //drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
 
         //object.transformation.translation = [-1, -1, 0];
-        drawCube(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
+        drawCylinder(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
+        object.transformation.translation = [-1, -1, 0 ];
+        object.transformation.scale = [1, 0.7, 1];
+        object.transformation.rotation = {x:0.2, y:0.0, z:0.0};
+        object.sideNum = 5;
+        object.upBottomRatio = 0.6;
+        drawTrustumOfAPyramid(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
 
     }
 </script>

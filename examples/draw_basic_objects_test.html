@@ -10,8 +10,10 @@
 </body>
 
 <script src="../src/js/gl-matrix.js"></script>
-<script src="../src/js/basic_object_with_texture.js"></script>
+<script src="../src/js/draw_basic_object.js"></script>
 <script>
+    var cubeRotation = 30;
+
     main();
 
     //
@@ -30,18 +32,15 @@
         const vsSource = `
         attribute vec4 aVertexPosition;
         attribute vec4 aVertexColor;
-        attribute vec2 aTextureCoord;
 
         uniform mat4 uModelViewMatrix;
         uniform mat4 uProjectionMatrix;
 
         varying lowp vec4 vColor;
-        varying highp vec2 vTextureCoord;
 
         void main(void) {
             gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
             vColor = aVertexColor;
-            vTextureCoord = aTextureCoord;
         }
         `;
 
@@ -49,12 +48,9 @@
 
         const fsSource = `
         varying lowp vec4 vColor;
-        varying highp vec2 vTextureCoord;
-        uniform sampler2D uSampler;
 
         void main(void) {
-        	 gl_FragColor = texture2D(uSampler, vTextureCoord);
-           //gl_FragColor = vColor;
+            gl_FragColor = vColor;
         }
         `;
 
@@ -70,35 +66,30 @@
             program: shaderProgram,
             attribLocations: {
                 vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
-               vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor'),
-                textureCoord: gl.getAttribLocation(shaderProgram, 'aTextureCoord'),
+                vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor'),
             },
             uniformLocations: {
                 projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
                 modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
-                uSampler: gl.getUniformLocation(shaderProgram, 'uSampler'),
             },
         };
 
-
-        const texture = loadTexture(gl, '../images/cubetexture.png');
-
         // Here's where we call the routine that builds all the
         // objects we'll be drawing.
-        // drawScene(gl, programInfo);
-        // 
-        var then = 0;
-        // Draw the scene repeatedly
-        function render(now) {
-          now *= 0.001;  // convert to seconds
-          const deltaTime = now - then;
-          then = now;
 
-          drawScene(gl, programInfo,texture);
+        let then = 0;
 
-          requestAnimationFrame(render);
-        }
-        requestAnimationFrame(render);
+        // function render(now) {
+        //     now *= 0.001;  // convert to seconds
+        //     const deltaTime = now - then;
+        //     then = now;
+        //
+        //     drawScene(gl, programInfo, deltaTime);
+        //     rotation.z += deltaTime;
+        //     requestAnimationFrame(render);
+        // }
+        // requestAnimationFrame(render);
+        drawScene(gl, programInfo)
 
     }
 
@@ -106,7 +97,7 @@
     //
     // Draw the scene.
     //
-    function drawScene(gl, programInfo, texture) {
+    function drawScene(gl, programInfo) {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
         gl.clearDepth(1.0);                 // Clear everything
         gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -185,7 +176,7 @@
         //     16, 17, 18, 16, 18, 19,   // right
         //     20, 21, 22, 20, 22, 23,   // left
         // ];
-       
+
         let positions = [
             0, 0, 0,
             1, 0, 0,
@@ -195,20 +186,14 @@
         ];
 
         let faceColors = [
-            [1.0, 1.0, 0.0, 1.0],
+            [1.0, 0.0, 0.0, 1.0],
         ];
 
         let indices = [
             0, 1, 2, 0, 2, 3,
         ];
 
-        let  textureCoordinates = [
-	  		0, 1,
-	  		0, 0,
-	  		1, 0,
-	  		1, 1,
-	  	];
-        drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, null, null);
+        //drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices);
 
         positions = [
             0, 0, 0.5,
@@ -217,20 +202,31 @@
         ];
 
         faceColors = [
-            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 0, 1.0, 1.0],
         ];
 
         indices = [
             0, 1, 2,
         ];
+        let translation = [-1, -1, 0];
+        let rotation = {x: 0, y: 0, z: 1.0};
+        let scale = [1.2, 1.2, 1.2];
+        //drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, null, null, null);
+        drawSphere(gl, programInfo, projectionMatrix, translation, null, rotation);
 
-       	textureCoordinates = [
-	  		0, 1,
-	  		0, 0,
-	  		1, 0,
-	  	];
-        //drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, null, null);
+        //drawCylinder(gl, programInfo, projectionMatrix);
 
+        translation = [1, 1, 0];
+        drawCone(gl, programInfo, projectionMatrix, translation, scale, rotation);
+
+        translation = [0, 0, 0];
+        rotation = {x: 0.2 * Math.PI, y: 0, z: 0};
+        scale = [0.5, 0.25, 0.5];
+        //drawCube(gl, programInfo, projectionMatrix, translation, scale, rotation);
+        //drawPrism(gl, programInfo, projectionMatrix, 8, translation, scale, rotation)
+        drawTrustumOfAPyramid(gl, programInfo, projectionMatrix, 8, 0.5, translation, scale, rotation);
     }
+
+
 </script>
 </html>

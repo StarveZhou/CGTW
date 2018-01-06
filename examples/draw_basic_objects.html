@@ -3,14 +3,14 @@
 <head>
     <meta charset="utf-8">
     <title>WebGL Demo</title>
+    <script src="../src/js/gl-matrix.js"></script>
+    <!-- <script src="../src/js/basic_object_with_texture.js"></script> -->
+    <script src="../src/js/draw_basic_object.js"></script>
 </head>
 
 <body>
 <canvas id="glcanvas" width="640" height="480"></canvas>
 </body>
-
-<script src="../src/js/gl-matrix.js"></script>
-<script src="../src/js/basic_object_with_texture.js"></script>
 <script>
     main();
 
@@ -28,33 +28,94 @@
         // Vertex shader program
 
         const vsSource = `
+        precision lowp float;
         attribute vec4 aVertexPosition;
-        attribute vec4 aVertexColor;
+        attribute vec4 aVertexAmbientColor;
+        attribute vec4 aVertexDiffuseColor;
+        attribute vec4 aVertexSpecularColor;
+        // attribute vec4 aVertexColor;
+        attribute vec3 aVertexNormal;
         attribute vec2 aTextureCoord;
 
         uniform mat4 uModelViewMatrix;
         uniform mat4 uProjectionMatrix;
-
-        varying lowp vec4 vColor;
-        varying highp vec2 vTextureCoord;
+        uniform mat4 uNormalMatrix;
+        
+        varying vec4 vPosition; 
+        varying vec4 vAmbientColor;
+        varying vec4 vDiffuseColor;
+        varying vec4 vSpecularColor;
+        // varying vec4 vColor; 
+        varying vec2 vTextureCoord;
+        varying vec4 vTransformedNormal;
 
         void main(void) {
-            gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-            vColor = aVertexColor;
+            vPosition = uModelViewMatrix * aVertexPosition;
+            vAmbientColor = aVertexAmbientColor;
+            vDiffuseColor = aVertexDiffuseColor;
+            vSpecularColor = aVertexSpecularColor;
+            gl_Position = uProjectionMatrix * vPosition;
             vTextureCoord = aTextureCoord;
+            vTransformedNormal = uNormalMatrix*vec4(aVertexNormal,1.0);
         }
         `;
 
         // Fragment shader program
 
         const fsSource = `
-        varying lowp vec4 vColor;
-        varying highp vec2 vTextureCoord;
+        #define MAX_LIGHT_NUM 5
+        precision lowp float;
+        uniform bool uUseTexture;
+
+        uniform float uMaterialShiness;
+        uniform vec3 uEyePosition;
+        uniform int uLightNum;
+        uniform vec3 uPointLightingLocation[MAX_LIGHT_NUM];
+        uniform vec3 uPointLightingSpecularColor[MAX_LIGHT_NUM];
+        uniform vec3 uPointLightingDiffuseColor[MAX_LIGHT_NUM];
+        uniform vec3 uAmbientLight;
+
+        // the variable share with vsSource
+        varying vec4 vPosition;
+        varying vec4 vAmbientColor;
+        varying vec4 vDiffuseColor;
+        varying vec4 vSpecularColor;
+        // varying vec4 vColor; 
+        varying vec2 vTextureCoord;
+        varying vec4 vTransformedNormal;
+
         uniform sampler2D uSampler;
 
         void main(void) {
-        	 gl_FragColor = texture2D(uSampler, vTextureCoord);
-           //gl_FragColor = vColor;
+            vec3 lighting = uAmbientLight;
+            vec3 normal = normalize(vTransformedNormal.xyz);
+            vec3 eyeDirection = normalize(uEyePosition - vec3(vPosition));
+            vec3 origColor = uAmbientLight*vAmbientColor.rgb;
+
+            for (int i = 0;i < MAX_LIGHT_NUM;i++) {
+                if (i < uLightNum) {
+                    // the direction for point light
+                    vec3 directionalVector = normalize(uPointLightingLocation[i] - vec3(vPosition));
+                    vec3 reflectionDirection = reflect(-directionalVector, normal);
+
+                    float specularLightWeighting = pow(max(dot(reflectionDirection, eyeDirection), 0.0), uMaterialShiness);
+                    float diffuseLightWeighting = max(dot(normal, directionalVector), 0.0);
+
+                    // lighting = uAmbientLight+ uPointLightingDiffuseColor * diffuseLightWeighting;
+                    lighting += uPointLightingSpecularColor[i] * specularLightWeighting
+                        + uPointLightingDiffuseColor[i] * diffuseLightWeighting;
+
+                    origColor +=  uPointLightingSpecularColor[i]*specularLightWeighting*vSpecularColor.rgb + uPointLightingDiffuseColor[i]*diffuseLightWeighting*vDiffuseColor.rgb;
+                }
+            }
+
+            if (uUseTexture) {
+                vec4 texColor = texture2D(uSampler,vTextureCoord);
+                gl_FragColor = vec4(texColor.rgb*lighting,  texColor.a);
+            } else {
+                gl_FragColor = vec4(origColor,vAmbientColor.a);
+                // gl_FragColor = vec4(vAmbientColor.rgb*lighting,1.0);     
+            }
         }
         `;
 
@@ -70,12 +131,25 @@
             program: shaderProgram,
             attribLocations: {
                 vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
-               vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor'),
+                vertexAmbientColor: gl.getAttribLocation(shaderProgram, 'aVertexAmbientColor'),
+                vertexDiffuseColor: gl.getAttribLocation(shaderProgram, 'aVertexDiffuseColor'),
+                vertexSpecularColor: gl.getAttribLocation(shaderProgram, 'aVertexSpecularColor'),
+                vertexNormal: gl.getAttribLocation(shaderProgram, 'aVertexNormal'),
                 textureCoord: gl.getAttribLocation(shaderProgram, 'aTextureCoord'),
             },
             uniformLocations: {
                 projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
                 modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+                normalMatrix: gl.getUniformLocation(shaderProgram, 'uNormalMatrix'),
+                usePointLighting: gl.getUniformLocation(shaderProgram, 'uUsePointLighting'),
+                useTexture: gl.getUniformLocation(shaderProgram, 'uUseTexture'),
+                materialShiness: gl.getUniformLocation(shaderProgram, 'uMaterialShiness'),
+                eyePosition: gl.getUniformLocation(shaderProgram, 'uEyePosition'),
+                lightNum: gl.getUniformLocation(shaderProgram, 'uLightNum'),
+                pointLightingLocation: gl.getUniformLocation(shaderProgram, 'uPointLightingLocation'),
+                pointLightingSpecularColor: gl.getUniformLocation(shaderProgram, 'uPointLightingSpecularColor'),
+                pointLightingDiffuseColor: gl.getUniformLocation(shaderProgram, 'uPointLightingDiffuseColor'),
+                ambientLight: gl.getUniformLocation(shaderProgram, 'uAmbientLight'),
                 uSampler: gl.getUniformLocation(shaderProgram, 'uSampler'),
             },
         };
@@ -88,16 +162,18 @@
         // drawScene(gl, programInfo);
         // 
         var then = 0;
+
         // Draw the scene repeatedly
         function render(now) {
-          now *= 0.001;  // convert to seconds
-          const deltaTime = now - then;
-          then = now;
+            now *= 0.001;  // convert to seconds
+            const deltaTime = now - then;
+            then = now;
 
-          drawScene(gl, programInfo,texture);
+            drawScene(gl, programInfo, texture);
 
-          requestAnimationFrame(render);
+            requestAnimationFrame(render);
         }
+
         requestAnimationFrame(render);
 
     }
@@ -129,107 +205,80 @@
         // as the destination to receive the result.
         mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
 
+        let ambientLight = [0.2, 0.2, 0.2];
 
-        // let positions = [
-        //     // Front face
-        //     -1.0, -1.0, 1.0,
-        //     1.0, -1.0, 1.0,
-        //     1.0, 1.0, 1.0,
-        //     -1.0, 1.0, 1.0,
-        //
-        //     // Back face
-        //     -1.0, -1.0, -1.0,
-        //     -1.0, 1.0, -1.0,
-        //     1.0, 1.0, -1.0,
-        //     1.0, -1.0, -1.0,
-        //
-        //     // Top face
-        //     -1.0, 1.0, -1.0,
-        //     -1.0, 1.0, 1.0,
-        //     1.0, 1.0, 1.0,
-        //     1.0, 1.0, -1.0,
-        //
-        //     // Bottom face
-        //     -1.0, -1.0, -1.0,
-        //     1.0, -1.0, -1.0,
-        //     1.0, -1.0, 1.0,
-        //     -1.0, -1.0, 1.0,
-        //
-        //     // Right face
-        //     1.0, -1.0, -1.0,
-        //     1.0, 1.0, -1.0,
-        //     1.0, 1.0, 1.0,
-        //     1.0, -1.0, 1.0,
-        //
-        //     // Left face
-        //     -1.0, -1.0, -1.0,
-        //     -1.0, -1.0, 1.0,
-        //     -1.0, 1.0, 1.0,
-        //     -1.0, 1.0, -1.0,
-        // ];
-        //
-        // let faceColors = [
-        //     [1.0, 1.0, 1.0, 1.0],    // Front face: white
-        //     [1.0, 0.0, 0.0, 1.0],    // Back face: red
-        //     [0.0, 1.0, 0.0, 1.0],    // Top face: green
-        //     [0.0, 0.0, 1.0, 1.0],    // Bottom face: blue
-        //     [1.0, 1.0, 0.0, 1.0],    // Right face: yellow
-        //     [1.0, 0.0, 1.0, 1.0],    // Left face: purple
-        // ];
-        //
-        // let indices = [
-        //     0, 1, 2, 0, 2, 3,    // front
-        //     4, 5, 6, 4, 6, 7,    // back
-        //     8, 9, 10, 8, 10, 11,   // top
-        //     12, 13, 14, 12, 14, 15,   // bottom
-        //     16, 17, 18, 16, 18, 19,   // right
-        //     20, 21, 22, 20, 22, 23,   // left
-        // ];
-       
-        let positions = [
-            0, 0, 0,
-            1, 0, 0,
-            1, 1, 0,
-            0, 1, 0,
+        var lightSource1 = {
+            usePointLighting: true,
+            pointLightingLocation: [0, 10, 4],
+            pointLightingSpecularColor: [0.5, 0.5, 0.5],
+            pointLightingDiffuseColor: [1, 1, 1],
+        };
 
-        ];
+        var lightSource2 = {
+            usePointLighting: true,
+            pointLightingLocation: [0, 10, -4],
+            pointLightingSpecularColor: [0.5, 0.5, 0.5],
+            pointLightingDiffuseColor: [0.4, 0.4, 0.4],
+        };
 
-        let faceColors = [
-            [1.0, 1.0, 0.0, 1.0],
-        ];
 
-        let indices = [
-            0, 1, 2, 0, 2, 3,
-        ];
+        lightSources = [];
+        lightSources = lightSources.concat(lightSource1);
+        lightSources = lightSources.concat(lightSource2);
 
-        let  textureCoordinates = [
-	  		0, 1,
-	  		0, 0,
-	  		1, 0,
-	  		1, 1,
-	  	];
-        drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, null, null);
+        // the object to be rendered 
+        let ObjectInfo = {
+            positions: [
+                1, 1, 1,
+                1, -1, 1,
+                -1, -1, 1,
+                -1, 1, 1,],
+            indices: [
+                0, 1, 2,
+                0, 2, 3,
+            ],
+            transformation: {
+                translation: [0.0, 0.0, -1.0],
+                scale: [1.0, 1.0, 1.0],
+                rotation: {x:0.0, y: 1.0, z: 0.0}
+            },
+            textureCoordinates: [
+                0, 0,
+                1, 0,
+                1, 1,
+                0, 1,],
+            textureIndices: [
+                0, 1, 2,
+                0, 2, 3,
+            ],
+            vertexNormals: [
+                0.0, 0.0, 1.0,
+            ],
+            normalIndices: [
+                0, 0, 0, 0, 0, 0
+            ],
+            ambientColor: [0.1, 0.1, 0.1, 1.0],
+            diffuseColor: [1.0, 1.0, 1.0, 1.0],
+            specularColor: [0.3, 0.3, 0.3, 1.0],
+            useTexture: false,
+            texture: texture,
+            shiness: 10,
+            sideNum: null,
+            upBottomRatio: null
+        };
 
-        positions = [
-            0, 0, 0.5,
-            1, 0, 0.5,
-            1, 1, 0.5,
-        ];
+        let object = Object.create(ObjectInfo);
+        const eyePosition = [0, 0, 5];
+        //drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
 
-        faceColors = [
-            [1.0, 1.0, 1.0, 1.0],
-        ];
-
-        indices = [
-            0, 1, 2,
-        ];
-
-       	textureCoordinates = [
-	  		0, 1,
-	  		0, 0,
-	  		1, 0,
-	  	];
-        //drawPolygon(gl, programInfo, projectionMatrix, positions, faceColors, indices, null, null);
+        //object.transformation.translation = [-1, -1, 0];
+        drawCylinder(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
+        object.transformation.translation = [-1, -1, 0 ];
+        object.transformation.scale = [1, 0.7, 1];
+        object.transformation.rotation = {x:0.2, y:0.0, z:0.0};
+        object.sideNum = 5;
+        object.upBottomRatio = 0.6;
+        drawTrustumOfAPyramid(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
 
     }
 </script>

@@ -63,23 +63,23 @@ function keydown(ev,matrixInfo) {
             break;
         }
         case 'W': {
-            matrixInfo.eye[1] += 0.01;
+            matrixInfo.eye[1] += 0.05;
             matrixInfo.at[1]+=0.01;
             break;
         }
         case 'S': {
-            matrixInfo.eye[1] -= 0.01;
+            matrixInfo.eye[1] -= 0.05;
             matrixInfo.at[1]-=0.01;
             break;
         }
         case 'A': {
-            matrixInfo.eye[0] -= 0.01;
-            matrixInfo.at[0]-=0.01;
+            matrixInfo.eye[0] -= 0.05;
+            matrixInfo.at[0]-=0.05;
             break;
         }
         case 'D': {
-            matrixInfo.eye[0] += 0.01;
-            matrixInfo.at[0]+=0.01;
+            matrixInfo.eye[0] += 0.05;
+            matrixInfo.at[0]+=0.05;
             break;
         }
         case "F":{
@@ -115,7 +115,7 @@ function initDocumentHandlers(document,matrixInfo) {
 function initCanvasHandlers(canvas,matrixInfo){
     canvas.onmousewheel=function (ev) {
         if(ev.shiftKey){
-            matrixInfo.eye[2]+=ev.wheelDelta/500;
+            matrixInfo.eye[2]-=ev.wheelDelta/500;
         }
     };
     let dragging = false;

@@ -188,14 +188,14 @@ function drawPolygon(gl, programInfo,matrixInfo, object, ambientLight, lightSour
         programInfo.uniformLocations.modelMatrix,
         false,
         modelMatrix);
-    gl.uniformMatrix4fv(
-        programInfo.uniformLocations.viewMatrix,
-        false,
-        matrixInfo.viewMatrix);
-    gl.uniformMatrix4fv(
-        programInfo.uniformLocations.projectionMatrix,
-        false,
-        matrixInfo.projectionMatrix);
+    // gl.uniformMatrix4fv(
+    //     programInfo.uniformLocations.viewMatrix,
+    //     false,
+    //     matrixInfo.viewMatrix);
+    // gl.uniformMatrix4fv(
+    //     programInfo.uniformLocations.projectionMatrix,
+    //     false,
+    //     matrixInfo.projectionMatrix);
     gl.uniformMatrix4fv(
         programInfo.uniformLocations.normalMatrix,
         false,

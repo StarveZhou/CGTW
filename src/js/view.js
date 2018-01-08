@@ -1,98 +1,123 @@
 
 
+//
+// let g_eye = vec3.fromValues(0.0, 0.0, 5.0);
+// let g_at = vec3.fromValues(0.0, 0.0, 0.0);
+// let g_up = vec3.fromValues(0.0, 1.0, 0.0);
+// let g_bPersp= true;
+// let g_fov=30.0;
+// let g_near=1.0;
+// let g_far=100.0;
+// let g_width=10.0;
+// let g_height=10.0;
 
-let g_eye = vec3.fromValues(0.0, 0.0, 5.0);
-let g_at = vec3.fromValues(0.0, 0.0, 0.0);
-let g_up = vec3.fromValues(0.0, 1.0, 0.0);
-let g_bPersp= true;
-let g_fov=30.0;
-let g_near=1.0;
-let g_far=100.0;
-let g_width=10.0;
-let g_height=10.0;
+
+
+/**
+ *  function of updateMatrix
+ * @param gl
+ * @param canvas
+ * @param matrixInfo
+ */
+function updateMatrix(gl,canvas,programInfo,matrixInfo) {
+    // update projection matrix
+    if(matrixInfo.bPersp) {
+        mat4.perspective(matrixInfo.projectionMatrix,matrixInfo.fov*Math.PI/180,canvas.width/canvas.height,matrixInfo.near,matrixInfo.far);
+    }
+    else{
+        mat4.ortho(matrixInfo.projectionMatrix, -matrixInfo.width,matrixInfo.width,-matrixInfo.height,matrixInfo.height,matrixInfo.near,matrixInfo.far);
+    }
+    gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix,false,matrixInfo.projectionMatrix);
+
+    // update view matrix
+    mat4.lookAt(matrixInfo.viewMatrix, matrixInfo.eye, matrixInfo.at, matrixInfo.up);
+
+    let allModelMatrix=mat4.create();
+    mat4.rotateX(allModelMatrix,allModelMatrix,-(Math.PI/180)*matrixInfo.currentAngle[0]);
+    mat4.rotateY(allModelMatrix,allModelMatrix,-(Math.PI/180)*matrixInfo.currentAngle[1]);
+    mat4.multiply(matrixInfo.viewMatrix,matrixInfo.viewMatrix,allModelMatrix);
+    gl.uniformMatrix4fv(programInfo.uniformLocations.viewMatrix, false,matrixInfo.viewMatrix);
+
+    // update model matrix
+    // mat4.rotateX(matrixInfo.modelViewMatrix,mat4.create(),-(Math.PI/180)*matrixInfo.currentAngle[0]);
+    // mat4.rotateY(matrixInfo.modelViewMatrix,matrixInfo.modelViewMatrix,-(Math.PI/180)*matrixInfo.currentAngle[1]);
+    // gl.uniformMatrix4fv(u_ModelMatrix,false,modelMatrix);
+}
+
+
+
+
+
+
+// followings are small handler
 
 /**
  *
  * @param ev
- * @param gl
- * @param canvas
- * @param u_ProjMatrix
- * @param projMatrix
- * @param u_ViewMatrix
- * @param viewMatrix
- * @param u_ModelMatrix
- * @param modelMatrix
- * @param currentAngle
+ * @param matrixInfo
  */
-function keydown(ev, gl,canvas,u_ProjMatrix,projMatrix, u_ViewMatrix, viewMatrix,u_ModelMatrix,modelMatrix,currentAngle) {
-    switch (ev.keyCode()) {
-        case 'p':{
-            g_bPersp=!g_bPersp;
+function keydown(ev,matrixInfo) {
+    switch (String.fromCharCode(ev.keyCode)) {
+        case 'P':{
+            matrixInfo.bPersp=!matrixInfo.bPersp;
             break;
         }
-        case 'w': {
-            g_eye[1] = 0.01;
+        case 'W': {
+            matrixInfo.eye[1] += 0.01;
+            matrixInfo.at[1]+=0.01;
             break;
         }
-        case 's': {
-            g_eye[1] -= 0.01;
+        case 'S': {
+            matrixInfo.eye[1] -= 0.01;
+            matrixInfo.at[1]-=0.01;
             break;
         }
-        case 'a': {
-            g_eye[0] -= 0.01;
+        case 'A': {
+            matrixInfo.eye[0] -= 0.01;
+            matrixInfo.at[0]-=0.01;
             break;
         }
-        case 'd': {
-            g_eye[0] += 0.01;
+        case 'D': {
+            matrixInfo.eye[0] += 0.01;
+            matrixInfo.at[0]+=0.01;
             break;
         }
-
+        case "F":{
+            matrixInfo.eye=vec3.fromValues(0.0, 0.0, 5.0);
+            matrixInfo.at=vec3.fromValues(0.0, 0.0, 0.0);
+            matrixInfo.up=vec3.fromValues(0.0, 1.0, 0.0);
+            break;
+        }
         default:
             return;
     }
-    updateMatrix(gl,canvas,u_ProjMatrix,projMatrix, u_ViewMatrix, viewMatrix,u_ModelMatrix,modelMatrix,currentAngle);
-}
-
-/**
- *
- * @param gl
- * @param canvas
- * @param u_ProjMatrix
- * @param projMatrix
- * @param u_ViewMatrix
- * @param viewMatrix
- * @param u_ModelMatrix
- * @param modelMatrix
- * @param currentAngle
- */
-function updateMatrix(gl,canvas,u_ProjMatrix,projMatrix, u_ViewMatrix, viewMatrix,u_ModelMatrix,modelMatrix,currentAngle) {
-    // update projection matrix
-    if(g_bPersp) {
-        mat4.perspective(projMatrix,g_fov,canvas.width/canvas.height,g_near,g_far);
-    }
-    else{
-        mat4.ortho(projMatrix, -g_width,g_width,-g_height,g_height,g_near,g_far);
-    }
-    gl.uniformMatrix4fv(u_ProjMatrix,false,projMatrix);
-
-    // update view matrix
-    mat4.lookAt(viewMatrix, g_eye, g_at, g_up);
-    gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix);
-
-    // update model matrix
-    mat4.rotateX(modelMatrix,mat4.create(),-(Math.PI/180)*currentAngle[0]);
-    mat4.rotateY(modelMatrix,modelMatrix,-(Math.PI/180)*currentAngle[1]);
-    gl.uniformMatrix4fv(u_ModelMatrix,false,modelMatrix);
-
 }
 
 
+
+
+// followings are event handler(including different objects' event, e.g document or canvas
+function initDocumentHandlers(document,matrixInfo) {
+    document.onkeydown = function (ev) {
+        keydown(ev, matrixInfo);
+    };
+}
+
+
+
+
+
 /**
- *
+ * Actually a canvas relevant handler(all callbacks register on canvas's event can be added to this function)
  * @param canvas
- * @param currentAngle
+ * @param matrixInfo
  */
-function initRotateHandlers(canvas,currentAngle){
+function initCanvasHandlers(canvas,matrixInfo){
+    canvas.onmousewheel=function (ev) {
+        if(ev.shiftKey){
+            matrixInfo.eye[2]+=ev.wheelDelta/500;
+        }
+    };
     let dragging = false;
     let lastX=-1,lastY=-1;
     //push the button
@@ -114,11 +139,10 @@ function initRotateHandlers(canvas,currentAngle){
             let xFactor=100/canvas.width;
             let dx=xFactor*(x-lastX);
             let dy=yFactor*(y-lastY);
-            currentAngle[0]=Math.max(Math.min(currentAngle[0]+dy,90.0),-90.0);
-            // currentAngle[0]=currentAngle[0]+dy;
-            currentAngle[1]=currentAngle[1]+dx;
+            matrixInfo.currentAngle[0]=Math.max(Math.min(matrixInfo.currentAngle[0]+dy,90.0),-90.0);
+            matrixInfo.currentAngle[1]=matrixInfo.currentAngle[1]+dx;
         }
         lastX=x;
         lastY=y;
-    }
+    };
 }

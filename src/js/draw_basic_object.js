@@ -7,48 +7,48 @@
  * @param ambientLight
  * @param lightSources
  */
-function drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition) {
+function drawPolygon(gl, programInfo,matrixInfo, object, ambientLight, lightSources) {
     const buffers = initBuffers(gl, object);
 
 
-    const modelViewMatrix = mat4.create();
+    const modelMatrix = mat4.create();
 
 
     mat4.translate(
-        modelViewMatrix,     // destination matrix
-        modelViewMatrix,     // matrix to translate
+        modelMatrix,     // destination matrix
+        modelMatrix,     // matrix to translate
         [-0.0, 0.0, -6.0]);  // amount to translate
 
     if (object.transformation) {
         if (object.transformation.translation)
             mat4.translate(
-                modelViewMatrix,     // destination matrix
-                modelViewMatrix,     // matrix to translate
+                modelMatrix,     // destination matrix
+                modelMatrix,     // matrix to translate
                 object.transformation.translation);  // amount to translate
 
         if (object.transformation.scale)
             mat4.scale(
-                modelViewMatrix,
-                modelViewMatrix,
+                modelMatrix,
+                modelMatrix,
                 object.transformation.scale
             );
 
         if (object.transformation.rotation) {
             mat4.rotate(
-                modelViewMatrix,  // destination matrix
-                modelViewMatrix,  // matrix to rotate
+                modelMatrix,  // destination matrix
+                modelMatrix,  // matrix to rotate
                 object.transformation.rotation.x,     // amount to rotate in radians
                 [1, 0, 0]);       // axis to rotate around (X)
 
             mat4.rotate(
-                modelViewMatrix,  // destination matrix
-                modelViewMatrix,  // matrix to rotate
+                modelMatrix,  // destination matrix
+                modelMatrix,  // matrix to rotate
                 object.transformation.rotation.y,     // amount to rotate in radians
                 [0, 1, 0]);       // axis to rotate around (Y)
 
             mat4.rotate(
-                modelViewMatrix,  // destination matrix
-                modelViewMatrix,  // matrix to rotate
+                modelMatrix,  // destination matrix
+                modelMatrix,  // matrix to rotate
                 object.transformation.rotation.z,     // amount to rotate in radians
                 [0, 0, 1]);       // axis to rotate around (Z)
         }
@@ -56,8 +56,8 @@ function drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, li
 
 
     const normalMatrix = mat4.create();
-    // normal matrix should transform the invert transpose matrix of modelViewMatrix
-    mat4.invert(normalMatrix, modelViewMatrix);
+    // normal matrix should transform the invert transpose matrix of modelMatrix
+    mat4.invert(normalMatrix, modelMatrix);
     mat4.transpose(normalMatrix, normalMatrix);
 
     // Tell WebGL how to pull out the positions from the position
@@ -180,18 +180,12 @@ function drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, li
     // // Tell WebGL which indices to use to index the vertices
     // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
 
-    // Tell WebGL to use our program when drawing
-    gl.useProgram(programInfo.program);
 
     // Set the shader uniforms
     gl.uniformMatrix4fv(
-        programInfo.uniformLocations.projectionMatrix,
+        programInfo.uniformLocations.modelMatrix,
         false,
-        projectionMatrix);
-    gl.uniformMatrix4fv(
-        programInfo.uniformLocations.modelViewMatrix,
-        false,
-        modelViewMatrix);
+        modelMatrix);
     gl.uniformMatrix4fv(
         programInfo.uniformLocations.normalMatrix,
         false,
@@ -202,13 +196,13 @@ function drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, li
         object.shiness);
     gl.uniform3fv(
         programInfo.uniformLocations.eyePosition,
-        eyePosition);
+        matrixInfo.eye);
 
-    var pointLightingLocation = [];
-    var pointLightingSpecularColor = [];
-    var pointLightingDiffuseColor = [];
-    var lightNum = 0;
-    for (var i = 0; i < lightSources.length; i++) {
+    let pointLightingLocation = [];
+    let pointLightingSpecularColor = [];
+    let pointLightingDiffuseColor = [];
+    let lightNum = 0;
+    for (let i = 0; i < lightSources.length; i++) {
         if (lightSources[i].usePointLighting) {
             pointLightingLocation = pointLightingLocation.concat(lightSources[i].pointLightingLocation);
             pointLightingSpecularColor = pointLightingSpecularColor.concat(lightSources[i].pointLightingSpecularColor);
@@ -253,141 +247,140 @@ function drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, li
     }
 }
 
-function drawPolygon1(gl, programInfo, projectionMatrix, positions, faceColors, indices, translation, scale, rotation, texture, textureCoordinates) {
-    const buffers = initBuffers(gl, positions, faceColors, indices, textureCoordinates);
+// function drawPolygon1(gl, programInfo, matrixInfo, positions, faceColors, indices, translation, scale, rotation, texture, textureCoordinates) {
+//     const buffers = initBuffers(gl, positions, faceColors, indices, textureCoordinates);
+//
+//
+//
+//     mat4.translate(
+//         matrixInfo.modelMatrix,     // destination matrix
+//         matrixInfo.modelMatrix,     // matrix to translate
+//         [-0.0, 0.0, -6.0]);  // amount to translate
+//
+//     if (translation)
+//         mat4.translate(
+//             matrixInfo.modelMatrix,     // destination matrix
+//             matrixInfo.modelMatrix,     // matrix to translate
+//             translation);  // amount to translate
+//
+//     if (scale)
+//         mat4.scale(
+//             matrixInfo.modelMatrix,
+//             matrixInfo.modelMatrix,
+//             scale
+//         );
+//     if (rotation) {
+//         mat4.rotate(
+//             modelMatrix,  // destination matrix
+//             modelMatrix,  // matrix to rotate
+//             rotation.x,     // amount to rotate in radians
+//             [1, 0, 0]);       // axis to rotate around (X)
+//
+//         mat4.rotate(
+//             modelMatrix,  // destination matrix
+//             modelMatrix,  // matrix to rotate
+//             rotation.y,     // amount to rotate in radians
+//             [0, 1, 0]);       // axis to rotate around (Y)
+//
+//         mat4.rotate(
+//             modelMatrix,  // destination matrix
+//             modelMatrix,  // matrix to rotate
+//             rotation.z,     // amount to rotate in radians
+//             [0, 0, 1]);       // axis to rotate around (Z)
+//     }
+//
+//     // Tell WebGL how to pull out the positions from the position
+//     // buffer into the vertexPosition attribute
+//     {
+//         const numComponents = 3;
+//         const type = gl.FLOAT;
+//         const normalize = false;
+//         const stride = 0;
+//         const offset = 0;
+//         gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
+//         gl.vertexAttribPointer(
+//             programInfo.attribLocations.vertexPosition,
+//             numComponents,
+//             type,
+//             normalize,
+//             stride,
+//             offset);
+//         gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+//     }
+//
+//     // Tell WebGL how to pull out the colors from the color buffer
+//     // into the vertexColor attribute.
+//     {
+//         const numComponents = 4;
+//         const type = gl.FLOAT;
+//         const normalize = false;
+//         const stride = 0;
+//         const offset = 0;
+//         gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+//         gl.vertexAttribPointer(
+//             programInfo.attribLocations.vertexColor,
+//             numComponents,
+//             type,
+//             normalize,
+//             stride,
+//             offset);
+//         gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
+//     }
+//
+//     // Tell WebGL how to pull out the texture coordinates from
+//     // the texture coordinate buffer into the textureCoord attribute.
+//     if (textureCoordinates) {
+//         const numComponents = 2;
+//         const type = gl.FLOAT;
+//         const normalize = false;
+//         const stride = 0;
+//         const offset = 0;
+//         gl.bindBuffer(gl.ARRAY_BUFFER, buffers.textureCoord);
+//         gl.vertexAttribPointer(
+//             programInfo.attribLocations.textureCoord,
+//             numComponents,
+//             type,
+//             normalize,
+//             stride,
+//             offset);
+//         gl.enableVertexAttribArray(
+//             programInfo.attribLocations.textureCoord);
+//     }
+//
+//     // Tell WebGL which indices to use to index the vertices
+//     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
+//
+//     // Tell WebGL to use our program when drawing
+//     gl.useProgram(programInfo.program);
+//
+//     // Set the shader uniforms
+//     gl.uniformMatrix4fv(
+//         programInfo.uniformLocations.projectionMatrix,
+//         false,
+//         matrixInfo.projectionMatrix);
+//     gl.uniformMatrix4fv(
+//         programInfo.uniformLocations.modelMatrix,
+//         false,
+//         modelMatrix);
+//
+//     if (texture) {
+//         // Tell WebGL we want to affect texture unit 0
+//         gl.activeTexture(gl.TEXTURE0);
+//         // Bind the texture to texture unit 0
+//         gl.bindTexture(gl.TEXTURE_2D, texture);
+//         // Tell the shader we bound the texture to texture unit 0
+//         gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
+//     }
+//
+//     {
+//         const vertexCount = indices.length;
+//         const type = gl.UNSIGNED_SHORT;
+//         const offset = 0;
+//         gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
+//     }
+// }
 
-    const modelViewMatrix = mat4.create();
-
-
-    mat4.translate(
-        modelViewMatrix,     // destination matrix
-        modelViewMatrix,     // matrix to translate
-        [-0.0, 0.0, -6.0]);  // amount to translate
-
-    if (translation)
-        mat4.translate(
-            modelViewMatrix,     // destination matrix
-            modelViewMatrix,     // matrix to translate
-            translation);  // amount to translate
-
-    if (scale)
-        mat4.scale(
-            modelViewMatrix,
-            modelViewMatrix,
-            scale
-        );
-    if (rotation) {
-        mat4.rotate(
-            modelViewMatrix,  // destination matrix
-            modelViewMatrix,  // matrix to rotate
-            rotation.x,     // amount to rotate in radians
-            [1, 0, 0]);       // axis to rotate around (X)
-
-        mat4.rotate(
-            modelViewMatrix,  // destination matrix
-            modelViewMatrix,  // matrix to rotate
-            rotation.y,     // amount to rotate in radians
-            [0, 1, 0]);       // axis to rotate around (Y)
-
-        mat4.rotate(
-            modelViewMatrix,  // destination matrix
-            modelViewMatrix,  // matrix to rotate
-            rotation.z,     // amount to rotate in radians
-            [0, 0, 1]);       // axis to rotate around (Z)
-    }
-
-    // Tell WebGL how to pull out the positions from the position
-    // buffer into the vertexPosition attribute
-    {
-        const numComponents = 3;
-        const type = gl.FLOAT;
-        const normalize = false;
-        const stride = 0;
-        const offset = 0;
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
-        gl.vertexAttribPointer(
-            programInfo.attribLocations.vertexPosition,
-            numComponents,
-            type,
-            normalize,
-            stride,
-            offset);
-        gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
-    }
-
-    // Tell WebGL how to pull out the colors from the color buffer
-    // into the vertexColor attribute.
-    {
-        const numComponents = 4;
-        const type = gl.FLOAT;
-        const normalize = false;
-        const stride = 0;
-        const offset = 0;
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
-        gl.vertexAttribPointer(
-            programInfo.attribLocations.vertexColor,
-            numComponents,
-            type,
-            normalize,
-            stride,
-            offset);
-        gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
-    }
-
-    // Tell WebGL how to pull out the texture coordinates from
-    // the texture coordinate buffer into the textureCoord attribute.
-    if (textureCoordinates) {
-        const numComponents = 2;
-        const type = gl.FLOAT;
-        const normalize = false;
-        const stride = 0;
-        const offset = 0;
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.textureCoord);
-        gl.vertexAttribPointer(
-            programInfo.attribLocations.textureCoord,
-            numComponents,
-            type,
-            normalize,
-            stride,
-            offset);
-        gl.enableVertexAttribArray(
-            programInfo.attribLocations.textureCoord);
-    }
-
-    // Tell WebGL which indices to use to index the vertices
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
-
-    // Tell WebGL to use our program when drawing
-    gl.useProgram(programInfo.program);
-
-    // Set the shader uniforms
-    gl.uniformMatrix4fv(
-        programInfo.uniformLocations.projectionMatrix,
-        false,
-        projectionMatrix);
-    gl.uniformMatrix4fv(
-        programInfo.uniformLocations.modelViewMatrix,
-        false,
-        modelViewMatrix);
-
-    if (texture) {
-        // Tell WebGL we want to affect texture unit 0
-        gl.activeTexture(gl.TEXTURE0);
-        // Bind the texture to texture unit 0
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        // Tell the shader we bound the texture to texture unit 0
-        gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
-    }
-
-    {
-        const vertexCount = indices.length;
-        const type = gl.UNSIGNED_SHORT;
-        const offset = 0;
-        gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
-    }
-}
-
-function drawCube(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition) {
+function drawCube(gl, programInfo, matrixInfo, object, ambientLight, lightSources) {
     let vertexPositionData = [
         1, 1, 1,
         1, -1, 1,
@@ -436,10 +429,10 @@ function drawCube(gl, programInfo, projectionMatrix, object, ambientLight, light
     object.normalIndices = normalIndex;
     object.textureIndices = textureIndex;
     //drawPolygon(gl, programInfo, projectionMatrix, vertexPositionData, [[1, 1, 1, 1]], indexData, translation, scale, rotation);
-    drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
+    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
 }
 
-function drawSphere(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition) {
+function drawSphere(gl, programInfo, matrixInfo, object, ambientLight, lightSources) {
     const latitudeBands = 30;
     const longitudeBands = 30;
     const radius = 1;
@@ -510,11 +503,11 @@ function drawSphere(gl, programInfo, projectionMatrix, object, ambientLight, lig
     object.textureCoordinates = textureCoordData;
     object.textureIndices = textureIndex;
     //drawPolygon(gl, programInfo, projectionMatrix, vertexPositionData, [1, 1, 1, 1], indexData, translation, scale, rotation);
-    drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
+    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
 
 }
 
-function drawCylinder(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition) {
+function drawCylinder(gl, programInfo, matrixInfo, object, ambientLight, lightSources) {
     const radGap = 0.05;
     let vertexPositionData = [];
     let normalData = [];
@@ -609,12 +602,12 @@ function drawCylinder(gl, programInfo, projectionMatrix, object, ambientLight, l
     object.textureCoordinates = textureCoordData;
     object.textureIndices = indexData;
 
-    drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
+    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
 
 }
 
 
-function drawCone(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition) {
+function drawCone(gl, programInfo, matrixInfo, object, ambientLight, lightSources) {
     const radGap = 0.05;
     let vertexPositionData = [];
     let normalData = [];
@@ -685,11 +678,11 @@ function drawCone(gl, programInfo, projectionMatrix, object, ambientLight, light
     object.textureCoordinates = textureCoordData;
     object.textureIndices = indexData;
 
-    drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
+    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
 
 }
 
-function drawPrism(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition) {
+function drawPrism(gl, programInfo, matrixInfo, object, ambientLight, lightSources) {
     const radGap = 2 / object.sideNum;
     let vertexPositionData = [];
     let normalData = [];
@@ -783,10 +776,10 @@ function drawPrism(gl, programInfo, projectionMatrix, object, ambientLight, ligh
     object.normalIndices = indexData;
     object.textureCoordinates = textureCoordData;
     object.textureIndices = indexData;
-    drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
+    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
 }
 
-function drawTrustumOfAPyramid(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition) {
+function drawTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight, lightSources) {
     const radGap = 2 / object.sideNum;
     let vertexPositionData = [];
     let normalData = [];
@@ -881,7 +874,7 @@ function drawTrustumOfAPyramid(gl, programInfo, projectionMatrix, object, ambien
     object.textureCoordinates = textureCoordData;
     object.textureIndices = indexData;
 
-    drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
+    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
 }
 
 // initBuffers
@@ -893,7 +886,7 @@ function initBuffers(gl, object) {
     // the real positions used in draw_array
     // it is expaned from positions and indices 
     let real_positions = [];
-    for (var i = 0; i < object.indices.length; i++) {
+    for (let i = 0; i < object.indices.length; i++) {
         const pos = 3 * object.indices[i];
         real_positions.push(object.positions[pos]);
         real_positions.push(object.positions[pos + 1]);
@@ -904,8 +897,8 @@ function initBuffers(gl, object) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(real_positions), gl.STATIC_DRAW);
 
     //colors
-    var ambientColors = [];
-    for (var i = 0; i < object.indices.length; i++) {
+    let ambientColors = [];
+    for (let i = 0; i < object.indices.length; i++) {
         ambientColors = ambientColors.concat(object.ambientColor);
     }
 
@@ -914,8 +907,8 @@ function initBuffers(gl, object) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ambientColors), gl.STATIC_DRAW);
 
     //colors
-    var diffuseColors = [];
-    for (var i = 0; i < object.indices.length; i++) {
+    let diffuseColors = [];
+    for (let i = 0; i < object.indices.length; i++) {
         diffuseColors = diffuseColors.concat(object.diffuseColor);
     }
 
@@ -924,8 +917,8 @@ function initBuffers(gl, object) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(diffuseColors), gl.STATIC_DRAW);
 
     //colors
-    var specularColors = [];
-    for (var i = 0; i < object.indices.length; i++) {
+    let specularColors = [];
+    for (let i = 0; i < object.indices.length; i++) {
         specularColors = specularColors.concat(object.specularColor);
     }
 
@@ -939,7 +932,7 @@ function initBuffers(gl, object) {
         // the real textureCoordinates used in draw_array
         // it is expaned from textureCoordinates and indices
         let real_textureCoordinates = [];
-        for (var i = 0; i < object.textureIndices.length; i++) {
+        for (let i = 0; i < object.textureIndices.length; i++) {
             const pos = 2 * object.textureIndices[i];
             real_textureCoordinates.push(object.textureCoordinates[pos]);
             real_textureCoordinates.push(object.textureCoordinates[pos + 1]);
@@ -954,13 +947,13 @@ function initBuffers(gl, object) {
     // the real normal used in draw_array
     // it is expand from textureCoordinates and indices
     let real_vertexNormals = [];
-    for (var i = 0; i < object.normalIndices.length; i++) {
+    for (let i = 0; i < object.normalIndices.length; i++) {
         const pos = 3 * object.normalIndices[i];
         real_vertexNormals.push(object.vertexNormals[pos]);
         real_vertexNormals.push(object.vertexNormals[pos + 1]);
         real_vertexNormals.push(object.vertexNormals[pos + 2]);
     }
-    console.log(object.vertexNormals);
+    // console.log(object.vertexNormals);
     // console.log(real_vertexNormals);
     // the normal buffer used for lighting 
     const normalBuffer = gl.createBuffer();
@@ -1038,7 +1031,7 @@ function loadTexture(gl, url) {
         width, height, border, srcFormat, srcType,
         pixel);
 
-    var image = new Image();
+    let image = new Image();
     image.onload = function () {
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,

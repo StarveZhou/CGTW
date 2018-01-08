@@ -6,7 +6,7 @@
 </head>
 
 <body onload="main()">
-<canvas id="webgl" width="400" height="400"></canvas>
+<canvas id="webgl" width="1000" height="1000"></canvas>
 </body>
 
 <script src="../src/js/gl-matrix.js"></script>
@@ -56,9 +56,9 @@
                 a_Color: gl.getAttribLocation(shaderProgram, 'a_Color'),
             },
             uniformLocations: {
-                u_ProjMatrix: gl.getUniformLocation(shaderProgram, 'u_ProjMatrix'),
-                u_ViewMatrix: gl.getUniformLocation(shaderProgram,'u_ViewMatrix'),
-                u_ModelMatrix: gl.getUniformLocation(shaderProgram, 'u_ModelMatrix'),
+                projectionMatrix: gl.getUniformLocation(shaderProgram, 'u_ProjMatrix'),
+                viewMatrix: gl.getUniformLocation(shaderProgram,'u_ViewMatrix'),
+                modelMatrix: gl.getUniformLocation(shaderProgram, 'u_ModelMatrix'),
             },
         };
         let vertices = new Float32Array([   // Vertex coordinates
@@ -116,17 +116,31 @@
 
         let n = indices.length;
 
-        let currentAngle=[0.0,0.0];
+        // info used by projectionMatrix and viewMatrix
+        let matrixInfo={
+            eye:vec3.fromValues(0.0, 0.0, 5.0),
+            // eye:[0.0,0.0,0.5],
+            at:vec3.fromValues(0.0, 0.0, 0.0),
+            up: vec3.fromValues(0.0, 1.0, 0.0),
+            bPersp:true,
+            fov:30.0,
+            near:1.0,
+            far:100.0,
+            width:10.0,
+            height:10.0,
+            currentAngle:[0.0,0.0],
+            projectionMatrix:mat4.create(),
+            viewMatrix:mat4.create()
+        };
 
-        let projMatrix=mat4.create();
-        let viewMatrix=mat4.create();
         let modelMatrix=mat4.create();
-        document.onkeydown=function (ev) {
-            keydown(ev,gl,canvas,programInfo.uniformLocations.u_ProjMatrix,projMatrix, programInfo.uniformLocations.u_ViewMatrix, viewMatrix,programInfo.uniformLocations.u_ModelMatrix,modelMatrix,currentAngle);
-        }
-        initRotateHandlers(canvas,currentAngle);
+        initDocumentHandlers(document,matrixInfo);
+        initCanvasHandlers(canvas,matrixInfo);
         let tick=function() {
-            updateMatrix(gl,canvas,programInfo.uniformLocations.u_ProjMatrix,projMatrix, programInfo.uniformLocations.u_ViewMatrix, viewMatrix,programInfo.uniformLocations.u_ModelMatrix,modelMatrix,currentAngle);
+
+            updateMatrix(gl,canvas,programInfo,matrixInfo);
+
+            gl.uniformMatrix4fv(programInfo.uniformLocations.modelMatrix,false,mat4.fromScaling(modelMatrix,[0.5,0.5,0.5]));
             // clear the color buffer and depth buffer
             gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
             // example of draw triangles

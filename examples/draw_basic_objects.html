@@ -154,6 +154,40 @@
             },
         };
 
+        // vertex shader to determine shadow
+        const shadowVsSource = `
+        precision lowp float;
+        attribute vec4 aVertexPosition;
+
+        uniform mat4 uModelViewMatrix;
+        uniform mat4 uProjectionMatrix;
+
+        void main(void) {
+            gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+        }
+        `;
+
+        // Fragment shader to determine shadow 
+        const shadowFsSource = `
+        void main(void) {
+            gl_FragColor = vec4( 0.0, 0.0, 0.0,gl_FragCoord.z);
+        }
+        `;
+
+        // Initialize a shader program; this is where all the lighting
+        // for the vertices and so forth is established.
+        const shadowShaderProgram = initShaderProgram(gl, shadowVsSource, shadowFsSource);
+        // the program info used for shadow 
+        const shadowProgramInfo = {
+            program: shadowShaderProgram,
+            attribLocations: {
+                vertexPosition: gl.getAttribLocation(shadowShaderProgram, 'aVertexPosition'),
+            },
+            uniformLocations: {
+                projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
+                modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+            },
+        };
 
         const texture = loadTexture(gl, '../images/cubetexture.png');
 

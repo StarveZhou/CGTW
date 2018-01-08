@@ -52,7 +52,7 @@
         varying vec4 vTransformedNormal;
 
         void main(void) {
-            vPosition = uProjectionMatrix * uViewMatrix * uModelMatrix * aVertexPosition;
+            vPosition = uViewMatrix * uModelMatrix * aVertexPosition;
             vAmbientColor = aVertexAmbientColor;
             vDiffuseColor = aVertexDiffuseColor;
             vSpecularColor = aVertexSpecularColor;

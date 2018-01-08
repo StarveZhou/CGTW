@@ -180,12 +180,22 @@ function drawPolygon(gl, programInfo,matrixInfo, object, ambientLight, lightSour
     // // Tell WebGL which indices to use to index the vertices
     // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
 
+    console.log(matrixInfo.viewMatrix);
+    console.log(matrixInfo.projectionMatrix);
 
     // Set the shader uniforms
     gl.uniformMatrix4fv(
         programInfo.uniformLocations.modelMatrix,
         false,
         modelMatrix);
+    gl.uniformMatrix4fv(
+        programInfo.uniformLocations.viewMatrix,
+        false,
+        matrixInfo.viewMatrix);
+    gl.uniformMatrix4fv(
+        programInfo.uniformLocations.projectionMatrix,
+        false,
+        matrixInfo.projectionMatrix);
     gl.uniformMatrix4fv(
         programInfo.uniformLocations.normalMatrix,
         false,

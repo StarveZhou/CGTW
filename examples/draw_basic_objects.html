@@ -87,11 +87,11 @@
         varying vec4 vTransformedNormal;
 
         void main(void) {
-            vPosition = uViewMatrix *uModelMatrix * aVertexPosition;
+            vPosition = uModelMatrix * aVertexPosition;
             vAmbientColor = aVertexAmbientColor;
             vDiffuseColor = aVertexDiffuseColor;
             vSpecularColor = aVertexSpecularColor;
-            gl_Position = uProjectionMatrix *  vPosition;
+            gl_Position = uProjectionMatrix * uViewMatrix * vPosition;
             vTextureCoord = aTextureCoord;
             vTransformedNormal = uNormalMatrix*vec4(aVertexNormal,1.0);
         }
@@ -367,10 +367,9 @@
 
         let object = Object.create(ObjectInfo);
         // const eyePosition = [0, 0, 5];
-        //drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
 
         //object.transformation.translation = [-1, -1, 0];
-        // drawCylinder(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+        drawCylinder(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
         object.transformation.translation = [-1, -1, 0 ];
         object.transformation.scale = [1, 0.7, 1];
         object.transformation.rotation = {x:0.2, y:0.0, z:0.0};

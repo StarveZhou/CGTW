@@ -6,6 +6,7 @@
     <script src="../src/js/gl-matrix.js"></script>
     <!-- <script src="../src/js/basic_object_with_texture.js"></script> -->
     <script src="../src/js/draw_basic_object.js"></script>
+    <script src="../src/js/view.js"></script>
 </head>
 
 <body>
@@ -37,7 +38,8 @@
         attribute vec3 aVertexNormal;
         attribute vec2 aTextureCoord;
 
-        uniform mat4 uModelViewMatrix;
+        uniform mat4 uModelMatrix;
+        uniform mat4 uViewMatrix;
         uniform mat4 uProjectionMatrix;
         uniform mat4 uNormalMatrix;
         
@@ -50,11 +52,11 @@
         varying vec4 vTransformedNormal;
 
         void main(void) {
-            vPosition = uModelViewMatrix * aVertexPosition;
+            vPosition = uModelMatrix * aVertexPosition;
             vAmbientColor = aVertexAmbientColor;
             vDiffuseColor = aVertexDiffuseColor;
             vSpecularColor = aVertexSpecularColor;
-            gl_Position = uProjectionMatrix * vPosition;
+            gl_Position = uProjectionMatrix * uViewMatrix * vPosition;
             vTextureCoord = aTextureCoord;
             vTransformedNormal = uNormalMatrix*vec4(aVertexNormal,1.0);
         }
@@ -123,6 +125,9 @@
         // for the vertices and so forth is established.
         const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
 
+        gl.useProgram(shaderProgram);
+
+
         // Collect all the info needed to use the shader program.
         // Look up which attributes our shader program is using
         // for aVertexPosition, aVevrtexColor and also
@@ -139,7 +144,8 @@
             },
             uniformLocations: {
                 projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
-                modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+                viewMatrix:gl.getUniformLocation(shaderProgram,'uViewMatrix'),
+                modelMatrix: gl.getUniformLocation(shaderProgram, 'uModelMatrix'),
                 normalMatrix: gl.getUniformLocation(shaderProgram, 'uNormalMatrix'),
                 usePointLighting: gl.getUniformLocation(shaderProgram, 'uUsePointLighting'),
                 useTexture: gl.getUniformLocation(shaderProgram, 'uUseTexture'),
@@ -154,6 +160,58 @@
             },
         };
 
+        // vertex shader to determine shadow
+        const shadowVsSource = `
+        precision lowp float;
+        attribute vec4 aVertexPosition;
+
+        uniform mat4 uModelViewMatrix;
+        uniform mat4 uProjectionMatrix;
+
+        void main(void) {
+            gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+        }
+        `;
+
+        // Fragment shader to determine shadow 
+        const shadowFsSource = `
+        void main(void) {
+            gl_FragColor = vec4( 0.0, 0.0, 0.0,gl_FragCoord.z);
+        }
+        `;
+
+        // Initialize a shader program; this is where all the lighting
+        // for the vertices and so forth is established.
+        const shadowShaderProgram = initShaderProgram(gl, shadowVsSource, shadowFsSource);
+        // the program info used for shadow 
+        const shadowProgramInfo = {
+            program: shadowShaderProgram,
+            attribLocations: {
+                vertexPosition: gl.getAttribLocation(shadowShaderProgram, 'aVertexPosition'),
+            },
+            uniformLocations: {
+                projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
+                modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+            },
+        };
+
+
+        // info used by projectionMatrix and viewMatrix
+        let matrixInfo={
+            eye:vec3.fromValues(0.0, 0.0, 5.0),
+            // eye:[0.0,0.0,0.5],
+            at:vec3.fromValues(0.0, 0.0, 0.0),
+            up: vec3.fromValues(0.0, 1.0, 0.0),
+            bPersp:true,
+            fov:45.0,
+            near:0.1,
+            far:100.0,
+            width:10.0,
+            height:10.0,
+            currentAngle:[0.0,0.0],
+            projectionMatrix:mat4.create(),
+            viewMatrix:mat4.create()
+        };
 
         const texture = loadTexture(gl, '../images/cubetexture.png');
 
@@ -161,15 +219,23 @@
         // objects we'll be drawing.
         // drawScene(gl, programInfo);
         // 
-        var then = 0;
+        let then = 0;
+
+
+
+
+        //init event handlers
+        initDocumentHandlers(document,matrixInfo);
+        initCanvasHandlers(canvas,matrixInfo);
+
 
         // Draw the scene repeatedly
         function render(now) {
             now *= 0.001;  // convert to seconds
             const deltaTime = now - then;
             then = now;
-
-            drawScene(gl, programInfo, texture);
+            updateMatrix(gl,canvas,programInfo,matrixInfo);
+            drawScene(gl, programInfo,matrixInfo, texture);
 
             requestAnimationFrame(render);
         }
@@ -182,7 +248,7 @@
     //
     // Draw the scene.
     //
-    function drawScene(gl, programInfo, texture) {
+    function drawScene(gl,programInfo,matrixInfo, texture) {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
         gl.clearDepth(1.0);                 // Clear everything
         gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -195,26 +261,26 @@
         // and we only want to see objects between 0.1 units
         // and 100 units away from the camera.
 
-        const fieldOfView = 45 * Math.PI / 180;   // in radians
-        const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-        const zNear = 0.1;
-        const zFar = 100.0;
-        const projectionMatrix = mat4.create();
+        // const fieldOfView = 45 * Math.PI / 180;   // in radians
+        // const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+        // const zNear = 0.1;
+        // const zFar = 100.0;
+        // const projectionMatrix = mat4.create();
 
         // note: glmatrix.js always has the first argument
         // as the destination to receive the result.
-        mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
+        // mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
 
         let ambientLight = [0.2, 0.2, 0.2];
 
-        var lightSource1 = {
+        let lightSource1 = {
             usePointLighting: true,
             pointLightingLocation: [0, 10, 4],
             pointLightingSpecularColor: [0.5, 0.5, 0.5],
             pointLightingDiffuseColor: [1, 1, 1],
         };
 
-        var lightSource2 = {
+        let lightSource2 = {
             usePointLighting: true,
             pointLightingLocation: [0, 10, -4],
             pointLightingSpecularColor: [0.5, 0.5, 0.5],
@@ -222,9 +288,12 @@
         };
 
 
-        lightSources = [];
+        let lightSources = [];
         lightSources = lightSources.concat(lightSource1);
         lightSources = lightSources.concat(lightSource2);
+
+
+
 
         // the object to be rendered 
         let ObjectInfo = {
@@ -268,17 +337,22 @@
         };
 
         let object = Object.create(ObjectInfo);
-        const eyePosition = [0, 0, 5];
-        //drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
+        // const eyePosition = [0, 0, 5];
+        // drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
 
         //object.transformation.translation = [-1, -1, 0];
-        drawCylinder(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
+        drawCylinder(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
         object.transformation.translation = [-1, -1, 0 ];
         object.transformation.scale = [1, 0.7, 1];
         object.transformation.rotation = {x:0.2, y:0.0, z:0.0};
         object.sideNum = 5;
         object.upBottomRatio = 0.6;
+<<<<<<< HEAD
         drawTrustumOfAPyramid(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
+=======
+        drawTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+
+>>>>>>> 5b410712e19dd467c7b7c2c659bc3d4f6f80aba4
     }
 </script>
 </html>

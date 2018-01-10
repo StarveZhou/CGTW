@@ -6,6 +6,7 @@
     <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="https://cdn.bootcss.com/animate.css/3.5.2/animate.min.css" rel="stylesheet">
     <link href="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/bootstrap-colorpicker/2.5.1/css/bootstrap-colorpicker.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/myform.css" type="text/css" >
     <link rel="stylesheet" href="css/menu.css" type="text/css" >
     <link rel="stylesheet" href="css/basic.css" type="text/css" >
@@ -15,6 +16,7 @@
     <script src="https://cdn.bootcss.com/popper.js/1.13.0/umd/popper.min.js"></script>
     <script src="https://cdn.bootcss.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap-colorpicker/2.5.1/js/bootstrap-colorpicker.js"></script>
     <script src = "js/myform.js" type= "text/javascript"></script>
     <script src = "js/basic.js" type = "text/javascript"></script>
     <script src = "js/gl-matrix.js" type = "text/javascript"></script>
@@ -26,11 +28,11 @@
         <div id="leftBar">
             <nav class="sidebar-nav">
                 <ul class="metismenu" id="leftMenu">
-                    <li id="itemList">
+                    <li>
                         <a class="has-arrow" href="#">
                             ItemList
                         </a>
-                        <ul aria-expanded="false" class="collapse">
+                        <ul id="itemList" aria-expanded="false" class="collapse">
                             <!--
                             <li>
                                 <a href="#">
@@ -85,49 +87,66 @@
             </canvas>
             </div>
             <div id="form-container">
-                <div id="cubic-form" class="myform">
-                    <div class="form-title">Cubic Form</div>
+                <div id="cube-form" class="myform">
+                    <div class="form-title">Cube Form</div>
                     <div role="form">
-                        <div id="cubic-size" class="form-inline form-group">
+                        <div id="cube-size" class="form-inline form-group">
                             <div class="form-group input-size">
-                                <label for="spinner">x方向长度：</label>
-                                <input id="cubic-sizex" class="spinner" value="0">
+                                <label for="cube-sizex">x方向缩放：</label>
+                                <input id="cube-sizex" class="spinner" value="0">
                             </div>
                             <div class="form-group input-size">
-                                <label for="spinner">y方向长度：</label>
-                                <input id="cubic-sizey" class="spinner" value="0">
+                                <label for="cube-sizey">y方向缩放：</label>
+                                <input id="cube-sizey" class="spinner" value="0">
                             </div>
                             <div class="form-group input-size">
-                                <label for="spinner">z方向长度：</label>
-                                <input id="cubic-sizez" class="spinner" value="0">
+                                <label for="cube-sizez">z方向缩放：</label>
+                                <input id="cube-sizez" class="spinner" value="0">
                             </div>
                         </div>
-                        <div id="cubic-rot" class="form-inline form-group">
+                        <div id="cube-rot" class="form-inline form-group">
                             <div class="form-group input-rot">
-                                <label for="spinner">x方向旋转：</label>
-                                <input id="cubic-rotx" class="spinner" value="0">
+                                <label for="cube-rotx">x方向旋转：</label>
+                                <input id="cube-rotx" class="spinner" value="0">
                             </div>
                             <div class="form-group input-rot">
-                                <label for="spinner">y方向旋转：</label>
-                                <input id="cubic-roty" class="spinner" value="0">
+                                <label for="cube-roty">y方向旋转：</label>
+                                <input id="cube-roty" class="spinner" value="0">
                             </div>
                             <div class="form-group input-rot">
-                                <label for="spinner">z方向旋转：</label>
-                                <input id="cubic-rotz" class="spinner" value="0">
+                                <label for="cube-rotz">z方向旋转：</label>
+                                <input id="cube-rotz" class="spinner" value="0">
                             </div>
                         </div>
-                        <div id="cubic-loc" class="form-inline form-group">
+                        <div id="cub-loc" class="form-inline form-group">
                             <div class="form-group input-loc">
-                                <label for="spinner">x坐标：</label>
-                                <input id="cubic-x" class="spinner" value="0">
+                                <label for="cube-x">x坐标：</label>
+                                <input id="cube-x" class="spinner" value="0">
                             </div>
                             <div class="form-group input-loc">
-                                <label for="spinner">y坐标：</label>
-                                <input id="cubic-y" class="spinner" value="0">
+                                <label for="cube-y">y坐标：</label>
+                                <input id="cube-y" class="spinner" value="0">
                             </div>
                             <div class="form-group input-loc">
-                                <label for="spinner">z坐标：</label>
-                                <input id="cubic-z" class="spinner" value="0">
+                                <label for="cube-z">z坐标：</label>
+                                <input id="cube-z" class="spinner" value="0">
+                            </div>
+                        </div>
+                        <div id="cube-tc">
+                            <div class="form-inline form-group en-texture">
+                                <label>使用纹理：</label>
+                                <input id="cube-entex" type="checkbox" onclick="changeCube()">
+                            </div>
+                            <div class="form-inline form-group input-texture">
+                                <label>纹理：</label>
+                                <input id="cube-texture" type="file" id="inputfile" onchange="changeCube()">
+                            </div>
+                            <div class="form-inline form-group input-color">
+                                <label>颜色:</label>
+                                <div id="cube-color" class="input-group colorpicker-component">
+                                    <input type="text" class="form-control input-lg"/>
+                                    <span class="input-group-addon"><i></i></span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -143,8 +162,8 @@
                         </a>
                         <ul aria-expanded="false" class="collapse">
                             <li>
-                                <a href="#" onclick="createCubic()">
-                                    Cubic
+                                <a href="#" onclick="create('cube')">
+                                    Cube
                                 </a>
                             </li>
                             <li>
@@ -174,5 +193,8 @@
             </nav>
         </div>
     </div>
+    <?php
+        echo "Hello World!";
+    ?>
 </body>
 </html>

@@ -43,10 +43,30 @@
     width:30px;
 }
 
-#cubic-form{
-    display:none;
+.input-color{
+    width:100%;
 }
 
-#cubic-loc{
+.en-texture label{
+    width:100px;
+}
 
+.input-texture label{
+    width:100px;
+}
+
+.input-texture input{
+    width:250px;
+}
+
+.input-color label{
+    width:100px;
+}
+
+.input-color .colorpicker-component{
+    width:250px;
+}
+
+#cube-form{
+    display:none;
 }

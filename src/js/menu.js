@@ -1,39 +1,31 @@
-var cubic_num = 0;
+var cube_num = 0;
 
-
-
-
-function addItem(Obj)
+function addItem(id)
 {
-    var res = $("#itemList>ul #" + Obj.id);
-    if (res.length)
+    if (ObjectPool[id].type === "cube")
     {
-        //an item with same id
-        return false;
+        $("#itemList").append("<li id=\"" + id + "\"><a href=\"#form-container\" onclick=\"selectItem('" + id + "')\">" + id + "</a>" +
+            "<span class=\"fa fa-times\" onclick=\"removeItem('" + id + "')\"></span></li>");
     }
-    else
-    {
-        $("#itemList>ul").append("<li id=\""+Obj.id+"\"><a href=\"#\">"+Obj.id+"</a>\
-                                    <span class=\"fa fa-times\"></span></li>");
-        res = $("#itemList>ul #" + Obj.id);
-        res.find("a")[0].onclick=function(a){
-            return function(){
-                selectItem(a);
-            }
-        }(Obj);//通过一个匿名函数（这个匿名函数接受一个参数，接受的参数是Obj，返回一个函数）构造出一个函数
+    /*
+    res = $("#itemList>ul #" + id);
+    res.find("a")[0].onclick=function(a){
+        return function(){
+            selectItem(a);
+        }
+    }(Obj);//通过一个匿名函数（这个匿名函数接受一个参数，接受的参数是Obj，返回一个函数）构造出一个函数
 
-        res.find("span")[0].onclick=function(a){
-            return function(){
-                removeItem(a);
-            }
-        }(Obj);
-    }
-    return true;
+    res.find("span")[0].onclick=function(a){
+        return function(){
+            removeItem(a);
+        }
+    }(Obj);
+    */
 }
 
 function addModel(Obj)
 {
-    var res = $("#modelList>ul #" + Obj.id);
+    let res = $("#modelList").find(">ul #" + Obj.id);
     if (res.length)
     {
         //a model with same id
@@ -41,9 +33,9 @@ function addModel(Obj)
     }
     else
     {
-        $("#modelList>ul").append("<li id=\""+Obj.id+"\"><a href=\"#\">"+Obj.id+"</a>\
+        $("#modelList").find(">ul").append("<li id=\""+Obj.id+"\"><a href=\"#\">"+Obj.id+"</a>\
                                     <span class=\"fa fa-times\"></span></li>");
-        res = $("#modelList>ul #" + Obj.id);
+        res = $("#modelList").find(">ul #" + Obj.id);
         res.find("a")[0].onclick=function(a){
             return function(){
                 selectModel(a);
@@ -61,7 +53,7 @@ function addModel(Obj)
 
 function addLight(Obj)
 {
-    var res = $("#lightList>ul #" + Obj.id);
+    let res = $("#lightList").find(">ul #" + Obj.id);
     if (res.length)
     {
         //a light with same id
@@ -69,9 +61,9 @@ function addLight(Obj)
     }
     else
     {
-        $("#lightList>ul").append("<li id=\""+Obj.id+"\"><a href=\"#\">"+Obj.id+"</a>\
+        $("#lightList").find(">ul").append("<li id=\""+Obj.id+"\"><a href=\"#\">"+Obj.id+"</a>\
                                     <span class=\"fa fa-times\"></span></li>");
-        res = $("#lightList>ul #" + Obj.id);
+        res = $("#lightList").find(">ul #" + Obj.id);
         res.find("a")[0].onclick=function(a){
             return function(){
                 selectLight(a);
@@ -87,34 +79,26 @@ function addLight(Obj)
     return true;
 }
 
-function selectItem(Obj)
+function selectItem(id)
 {
-    current=Obj;
-    if (Obj.type=="cubic")
+    if (ObjectPool[id].type === "cube")
     {
-        $("#cubic-form").fadeIn();
-        $("#cubic-sizex").spinner("value", Obj.x_size);
-        $("#cubic-sizey").spinner("value", Obj.y_size);
-        $("#cubic-sizez").spinner("value", Obj.z_size);
-        $("#cubic-rotx").spinner("value", Obj.x_rot);
-        $("#cubic-roty").spinner("value", Obj.y_rot);
-        $("#cubic-rotz").spinner("value", Obj.z_rot);
-        $("#cubic-x").spinner("value", Obj.x);
-        $("#cubic-y").spinner("value", Obj.y);
-        $("#cubic-z").spinner("value", Obj.z);
+        current = id;
+        showCubeForm();
     }
 }
 
-function removeItem(Obj)
+function removeItem(id)
 {
-    var res = $("#itemList>ul #" + Obj.id);
-    if (Obj.type == "cubic")
+    let res = $("#itemList #" + id);
+    if (ObjectPool[id].type === "cube")
     {
-        if (Obj == current)
+        if (id === current)
         {
-            $("#cubic-form").fadeOut();
+            $("#cube-form").fadeOut();
         }
-        cubic_num--;
+        delete ObjectPool[id];
+        cube_num--;
     }
     
     res.onclick=null;
@@ -128,7 +112,7 @@ function selectModel(Obj)
 
 function removeModel(Obj)
 {
-    var res = $("#modelList>ul #" + Obj.id);
+    let res = $("#modelList").find(">ul #" + Obj.id);
     res.onclick=null;
     res.remove();
 }
@@ -140,18 +124,41 @@ function selectLight(Obj)
 
 function removeLight(Obj)
 {
-    var res = $("#lightList>ul #" + Obj.id);
+    let res = $("#lightList").find(">ul #" + Obj.id);
     res.onclick=null;
     res.remove();
 }
 
 
 //right bar
-function createCubic()
+function create(type)
 {
-    cubic_num++;
-    addItem({id:"cubic"+cubic_num, type:"cubic",
-             x_size:1, y_size:1, z_size:1,
-             x_rot:0, y_rot:0, z_rot:0,
-             x:0, y:0, z:0});
+    if (type === "cube")
+    {
+        cube_num++;
+        let Obj = {
+            positions: null,
+            indices: null,
+            transformation: {
+                translation: [0.0, 0.0, 0.0],
+                scale: [1.0, 1.0, 1.0],
+                rotation: {x:0.0, y: 0.0, z: 0.0}
+            },
+            textureCoordinates: null,
+            textureIndices: null,
+            vertexNormals: null,
+            normalIndices: null,
+            ambientColor: [0.1, 0.1, 0.1, 1.0],
+            diffuseColor: [1.0, 1.0, 1.0, 1.0],
+            specularColor: [0.3, 0.3, 0.3, 1.0],
+            useTexture: false,
+            texture: null,
+            shiness: 10,
+            sideNum: null,
+            upBottomRatio: null
+        };
+        Obj = {type:"cube", ObjectInfo:Obj};
+        ObjectPool["cube"+cube_num] = Obj;
+        addItem("cube"+cube_num);
+    }
 }

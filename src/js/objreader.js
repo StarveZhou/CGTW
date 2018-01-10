@@ -71,6 +71,7 @@ function insertObjIntoHtml(files){
 * */
 function objReader(){
     let files = document.getElementById("files").files;
+    alert(files);
     if (files.length){
         let name = insertObjIntoHtml(files);
     }

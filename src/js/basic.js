@@ -2,10 +2,11 @@ $(function() {
     $('#leftMenu').metisMenu();      
     $('#rightMenu').metisMenu();
     $('.myform').myform();
-    var c = $("#glcanvas")[0];
-    var gl = c.getContext('webgl');
+    let c = $("#glcanvas")[0];
+    let gl = c.getContext('webgl');
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 });
 
-current = {};
+current = null;
+ObjectPool = {};

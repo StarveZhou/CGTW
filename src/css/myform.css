@@ -4,16 +4,16 @@
     text-align:center;
 }
 
-.input-size{
+.input-scale{
     margin-left:10px;
     width:30%;
 }
 
-.input-size label{
+.input-scale label{
     width:100px;
 }
 
-.input-size .spinner{
+.input-scale .spinner{
     width:30px;
 }
 
@@ -43,12 +43,44 @@
     width:30px;
 }
 
-.input-color{
+.input-sideNum{
+    margin-left:10px;
+    width:30%;
+}
+
+.input-sideNum label{
+    width:100px;
+}
+
+.input-sideNum .spinner{
+    width:30px;
+}
+
+.input-upBottomRatio{
+    margin-left:10px;
+    width:30%;
+}
+
+.input-upBottomRatio label{
+    width:100px;
+}
+
+.input-upBottomRatio .spinner{
+    width:30px;
+}
+
+.en-texture{
+    margin-left:10px;
     width:100%;
 }
 
 .en-texture label{
     width:100px;
+}
+
+.input-texture{
+    margin-left:10px;
+    width:100%;
 }
 
 .input-texture label{
@@ -59,6 +91,10 @@
     width:250px;
 }
 
+.input-color{
+    width:100%;
+}
+
 .input-color label{
     width:100px;
 }
@@ -67,6 +103,6 @@
     width:250px;
 }
 
-#cube-form{
+#basic-form{
     display:none;
 }

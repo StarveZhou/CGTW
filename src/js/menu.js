@@ -1,8 +1,9 @@
-var cube_num = 0;
+let item_num = 0;
 
 function addItem(id)
 {
-    if (ObjectPool[id].type === "cube")
+    let type = ObjectPool[id].type;
+    if (type === "cube" || type === "sphere" || type == "cylinder" || type === "cone" || type === "prism" || type === "trustum")
     {
         $("#itemList").append("<li id=\"" + id + "\"><a href=\"#form-container\" onclick=\"selectItem('" + id + "')\">" + id + "</a>" +
             "<span class=\"fa fa-times\" onclick=\"removeItem('" + id + "')\"></span></li>");
@@ -81,28 +82,28 @@ function addLight(Obj)
 
 function selectItem(id)
 {
-    if (ObjectPool[id].type === "cube")
-    {
+    let type = ObjectPool[id].type;
+    if (type === "cube" || type === "sphere" || type == "cylinder" || type === "cone" || type === "prism" ||type === "trustum") {
         current = id;
-        showCubeForm();
+        showForm();
     }
 }
 
 function removeItem(id)
 {
-    let res = $("#itemList #" + id);
-    if (ObjectPool[id].type === "cube")
+    let res = $("#itemList").find("#" + id);
+    let type = ObjectPool[id].type;
+    if (type === "cube" || type === "sphere" || type === "cylinder" || type == "cone" || type === "prism" ||type === "trustum")
     {
         if (id === current)
         {
-            $("#cube-form").fadeOut();
+            unshowBasicForm();
+            current = null;
         }
         delete ObjectPool[id];
-        cube_num--;
+        res.remove();
     }
-    
-    res.onclick=null;
-    res.remove();
+    //res.onclick=null;
 }
 
 function selectModel(Obj)
@@ -133,32 +134,41 @@ function removeLight(Obj)
 //right bar
 function create(type)
 {
-    if (type === "cube")
+    let Obj = {
+        positions: null,
+        indices: null,
+        transformation: {
+            translation: [0.0, 0.0, 0.0],
+            scale: [1.0, 1.0, 1.0],
+            rotation: {x:0.0, y: 0.0, z: 0.0}
+        },
+        textureCoordinates: null,
+        textureIndices: null,
+        vertexNormals: null,
+        normalIndices: null,
+        ambientColor: [0.1, 0.1, 0.1, 1.0],
+        diffuseColor: [1.0, 1.0, 1.0, 1.0],
+        specularColor: [0.3, 0.3, 0.3, 1.0],
+        useTexture: false,
+        texture: null,
+        shiness: 10,
+        sideNum: null,
+        upBottomRatio: null
+    };
+    if (type === "cube" || type === "sphere" || type === "cylinder" || type === "cone" ||type === "prism" || type === "trustum")
     {
-        cube_num++;
-        let Obj = {
-            positions: null,
-            indices: null,
-            transformation: {
-                translation: [0.0, 0.0, 0.0],
-                scale: [1.0, 1.0, 1.0],
-                rotation: {x:0.0, y: 0.0, z: 0.0}
-            },
-            textureCoordinates: null,
-            textureIndices: null,
-            vertexNormals: null,
-            normalIndices: null,
-            ambientColor: [0.1, 0.1, 0.1, 1.0],
-            diffuseColor: [1.0, 1.0, 1.0, 1.0],
-            specularColor: [0.3, 0.3, 0.3, 1.0],
-            useTexture: false,
-            texture: null,
-            shiness: 10,
-            sideNum: null,
-            upBottomRatio: null
-        };
-        Obj = {type:"cube", ObjectInfo:Obj};
-        ObjectPool["cube"+cube_num] = Obj;
-        addItem("cube"+cube_num);
+        item_num++;
+        if (type === "prism")
+        {
+            Obj.sideNum = 3;
+        }
+        else if (type === "trustum")
+        {
+            Obj.sideNum = 3;
+            Obj.upBottomRatio = 0.5;
+        }
+        Obj = {type:type, ObjectInfo:Obj};
+        ObjectPool[type+item_num] = Obj;
+        addItem(type+item_num);
     }
 }

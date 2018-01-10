@@ -1,92 +1,136 @@
-function showCubeForm()
+function showBasicForm()
 {
     let Obj = ObjectPool[current].ObjectInfo;
-    let cube_form = $("#cube-form");
-    cube_form.fadeIn();
-    $("#cube-sizex").spinner("value", Obj.transformation.scale[0]);
-    $("#cube-sizey").spinner("value", Obj.transformation.scale[1]);
-    $("#cube-sizez").spinner("value", Obj.transformation.scale[2]);
-    $("#cube-rotx").spinner("value", Obj.transformation.rotation['x'] / 6.28 * 360);
-    $("#cube-roty").spinner("value", Obj.transformation.rotation['y'] / 6.28 * 360);
-    $("#cube-rotz").spinner("value", Obj.transformation.rotation['z'] / 6.28 * 360);
-    $("#cube-x").spinner("value", Obj.transformation.translation[0]);
-    $("#cube-y").spinner("value", Obj.transformation.translation[1]);
-    $("#cube-z").spinner("value", Obj.transformation.translation[2]);
+    let basic_form = $("#basic-form");
+    basic_form.find("#extra-arg").hide();
+    basic_form.fadeIn();
+
+    basic_form.find("#basic-scalex").spinner("value", Obj.transformation.scale[0]);
+    basic_form.find("#basic-scaley").spinner("value", Obj.transformation.scale[1]);
+    basic_form.find("#basic-scalez").spinner("value", Obj.transformation.scale[2]);
+    basic_form.find("#basic-rotx").spinner("value", Obj.transformation.rotation['x'] / 6.28 * 360);
+    basic_form.find("#basic-roty").spinner("value", Obj.transformation.rotation['y'] / 6.28 * 360);
+    basic_form.find("#basic-rotz").spinner("value", Obj.transformation.rotation['z'] / 6.28 * 360);
+    basic_form.find("#basic-x").spinner("value", Obj.transformation.translation[0]);
+    basic_form.find("#basic-y").spinner("value", Obj.transformation.translation[1]);
+    basic_form.find("#basic-z").spinner("value", Obj.transformation.translation[2]);
     if (Obj.useTexture)
-        $("#cube-entex").prop("checked", true);
+        basic_form.find("#basic-entex").prop("checked", true);
     else
-        $("#cube-entex").prop("checked", false);
-    //$("#cube-texture").prop("value", Obj.texture);
-    $("#cube-color").colorpicker("setValue","rgba("+Obj.diffuseColor[0]*255 + "," + Obj.diffuseColor[1]*255 + "," + Obj.diffuseColor[2]*255 + "," + Obj.diffuseColor[3] + ")");
+        basic_form.find("#basic-entex").prop("checked", false);
+    //$("#basic-texture").prop("value", Obj.texture);
+    basic_form.find("#basic-color").colorpicker("setValue","rgba("+Obj.diffuseColor[0]*255 + "," + Obj.diffuseColor[1]*255 + "," + Obj.diffuseColor[2]*255 + "," + Obj.diffuseColor[3] + ")");
 
     if (ObjectPool[current].ObjectInfo.useTexture)
     {
-        cube_form.find(".input-color").hide();
-        cube_form.find(".input-texture").fadeIn();
-
+        basic_form.find(".input-color").hide();
+        basic_form.find(".input-texture").fadeIn();
     }
     else
     {
-        cube_form.find(".input-texture").hide();
-        cube_form.find(".input-color").fadeIn();
+        basic_form.find(".input-texture").hide();
+        basic_form.find(".input-color").fadeIn();
     }
 }
 
-function changeCube()
+function showPrismForm()
+{
+    let Obj = ObjectPool[current].ObjectInfo;
+    let extra_arg = $("#basic-form").find("#extra-arg");
+    extra_arg.find("#sideNum").spinner("value", Obj.sideNum);
+    showBasicForm();
+    extra_arg.show();
+    extra_arg.find(".input-upBottomRatio").hide();
+}
+
+function showTrustumForm()
+{
+    let Obj = ObjectPool[current].ObjectInfo;
+    let extra_arg = $("#basic-form").find("#extra-arg");
+    extra_arg.find("#sideNum").spinner("value", Obj.sideNum);
+    extra_arg.find("#upBottomRatio").spinner("value", Obj.upBottomRatio);
+    showBasicForm();
+    extra_arg.find(".input-upBottomRatio").show();
+    extra_arg.show();
+}
+
+function showForm()
+{
+    let type = ObjectPool[current].type;
+    $("#form-container").find(".form-title").text(type + " form");
+
+    if (type === "cube" || type === "sphere" || type === "cylinder" || type === "cone")
+    {
+        showBasicForm();
+    }
+    else if (type === "prism")
+    {
+        showPrismForm();
+    }
+    else if (type === "trustum")
+    {
+        showTrustumForm();
+    }
+
+}
+
+function unshowBasicForm()
+{
+    $("#basic-form").fadeOut();
+}
+
+function changeBasic()
 {
     if (current == null) return ;
-    if ($("#cube-sizex").spinner("value") != null)
-        ObjectPool[current].ObjectInfo.transformation.scale[0] = $("#cube-sizex").spinner("value");
-    if ($("#cube-sizey").spinner("value") != null)
-        ObjectPool[current].ObjectInfo.transformation.scale[1] = $("#cube-sizey").spinner("value");
-    if ($("#cube-sizez").spinner("value") != null)
-        ObjectPool[current].ObjectInfo.transformation.scale[2] = $("#cube-sizez").spinner("value");
-    if ($("#cube-rotx").spinner("value") != null)
-        ObjectPool[current].ObjectInfo.transformation.rotation.x = $("#cube-rotx").spinner("value") / 360 * 6.28;
-    if ($("#cube-roty").spinner("value") != null)
-        ObjectPool[current].ObjectInfo.transformation.rotation.y = $("#cube-roty").spinner("value") / 360 * 6.28;
-    if ($("#cube-rotz").spinner("value") != null)
-        ObjectPool[current].ObjectInfo.transformation.rotation.z = $("#cube-rotz").spinner("value") / 360 * 6.28;
-    if ($("#cube-x").spinner("value") != null)
-        ObjectPool[current].ObjectInfo.transformation.translation[0] = $("#cube-x").spinner("value");
-    if ($("#cube-y").spinner("value") != null)
-        ObjectPool[current].ObjectInfo.transformation.translation[1] = $("#cube-y").spinner("value");
-    if ($("#cube-z").spinner("value") != null)
-        ObjectPool[current].ObjectInfo.transformation.translation[2] = $("#cube-z").spinner("value");
+    let type = ObjectPool[current].type;
+    let basic_form = $("#basic-form");
+    let obj_info = ObjectPool[current].ObjectInfo;
 
-    if ($("#cube-entex").is(':checked'))
-        ObjectPool[current].ObjectInfo.useTexture = true;
-    else
-        ObjectPool[current].ObjectInfo.useTexture = false;
+    obj_info.transformation.scale[0] = basic_form.find("#basic-scalex").spinner("value");
+    obj_info.transformation.scale[1] = basic_form.find("#basic-scaley").spinner("value");
+    obj_info.transformation.scale[2] = basic_form.find("#basic-scalez").spinner("value");
+    obj_info.transformation.rotation.x = basic_form.find("#basic-rotx").spinner("value") / 360 * 6.28;
+    obj_info.transformation.rotation.y = basic_form.find("#basic-roty").spinner("value") / 360 * 6.28;
+    obj_info.transformation.rotation.z = basic_form.find("#basic-rotz").spinner("value") / 360 * 6.28;
+    obj_info.transformation.translation[0] = basic_form.find("#basic-x").spinner("value");
+    obj_info.transformation.translation[1] = basic_form.find("#basic-y").spinner("value");
+    obj_info.transformation.translation[2] = basic_form.find("#basic-z").spinner("value");
+    obj_info.useTexture = !!basic_form.find("#basic-entex").is(':checked');
 
-    if ($("#cube-color").colorpicker("getValue")!= null)
+    let s = basic_form.find("#basic-color").colorpicker("getValue");
+    s = s.substring(5);
+    let a = s.substring(0, s.indexOf(','));
+    obj_info.diffuseColor[0] = parseInt(a)/255;
+    s = s.substring(s.indexOf(',')+1);
+    a = s.substring(0, s.indexOf(','));
+    obj_info.diffuseColor[1] = parseInt(a)/255;
+    s = s.substring(s.indexOf(',')+1);
+    a = s.substring(0, s.indexOf(','));
+    obj_info.diffuseColor[2] = parseInt(a)/255;
+    s = s.substring(s.indexOf(',')+1);
+    a = s.substring(0, s.indexOf(')'));
+    obj_info.diffuseColor[3] = parseFloat(a);
+
+    if (obj_info.useTexture)
     {
-        s = $("#cube-color").colorpicker("getValue");
-        s = s.substring(5);
-        a = s.substring(0, s.indexOf(','));
-        ObjectPool[current].ObjectInfo.diffuseColor[0] = parseInt(a)/255;
-        s = s.substring(s.indexOf(',')+1);
-        a = s.substring(0, s.indexOf(','));
-        ObjectPool[current].ObjectInfo.diffuseColor[1] = parseInt(a)/255;
-        s = s.substring(s.indexOf(',')+1);
-        a = s.substring(0, s.indexOf(','));
-        ObjectPool[current].ObjectInfo.diffuseColor[2] = parseInt(a)/255;
-        s = s.substring(s.indexOf(',')+1);
-        a = s.substring(0, s.indexOf(')'));
-        ObjectPool[current].ObjectInfo.diffuseColor[3] = parseFloat(a);
-    }
-
-    let cube_form = $("#cube-form");
-    if (ObjectPool[current].ObjectInfo.useTexture)
-    {
-        cube_form.find(".input-color").hide();
-        cube_form.find(".input-texture").fadeIn();
+        basic_form.find(".input-color").hide();
+        basic_form.find(".input-texture").fadeIn();
 
     }
     else
     {
-        cube_form.find(".input-texture").hide();
-        cube_form.find(".input-color").fadeIn();
+        basic_form.find(".input-texture").hide();
+        basic_form.find(".input-color").fadeIn();
+    }
+
+    if (type === "prism" || type === "trustum")
+    {
+        obj_info.sideNum = basic_form.find("#sideNum").spinner("value");
+    }
+
+    if (type === "trustum")
+    {
+        obj_info.upBottomRatio = basic_form.find("#upBottomRatio").spinner("value");
     }
 
 }
@@ -94,14 +138,16 @@ function changeCube()
 jQuery.fn.myform=function()
 {
     $( ".spinner" ).spinner();
-    $(".input-rot").find(".spinner").spinner({max:360, min:0});
-    $(".input-size").find(".spinner").spinner({min:0});
-    $("#cube-form").find(".spinner").spinner({stop:changeCube});
-    $('#cube-color').colorpicker({
+    $(".input-rot").find(".spinner").spinner({max:360, min:0, step:1});
+    $(".input-scale").find(".spinner").spinner({min:0, step:0.1});
+    $(".input-sideNum").find(".spinner").spinner({max:10, min:3, step:1});
+    $(".input-upBottomRatio").find(".spinner").spinner({max:1, min:0.1, step:0.1});
+    $("#basic-form").find(".spinner").spinner({stop:changeBasic});
+    $('#basic-color').colorpicker({
         format: "rgba",
         color: "#FFFFFF"
     }).on('changeColor',
         function(ev) {
-            changeCube();
+            changeBasic();
         });
 }

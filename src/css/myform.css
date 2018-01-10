@@ -1,0 +1,52 @@
+.form-title{
+    height:50px;
+    font-size:2em;
+    text-align:center;
+}
+
+.input-size{
+    margin-left:10px;
+    width:30%;
+}
+
+.input-size label{
+    width:100px;
+}
+
+.input-size .spinner{
+    width:30px;
+}
+
+.input-loc{
+    margin-left:10px;
+    width:30%;
+}
+
+.input-loc label{
+    width:100px;
+}
+
+.input-loc .spinner{
+    width:30px;
+}
+
+.input-rot{
+    margin-left:10px;
+    width:30%;
+}
+
+.input-rot label{
+    width:100px;
+}
+
+.input-rot .spinner{
+    width:30px;
+}
+
+#cubic-form{
+    display:none;
+}
+
+#cubic-loc{
+
+}

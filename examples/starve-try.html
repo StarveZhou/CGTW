@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="test"></div>
+</body>
+</html>
+<script>
+    let obj = {
+        "a" : 1,
+        "b" : 2,
+        "c" : 3
+    };
+
+    let str = "";
+
+    for (let item in obj){
+        str += item + "???";
+    }
+
+    let a = document.getElementById("test");
+    let textNode = document.createTextNode(str);
+    a.appendChild(textNode);
+</script>

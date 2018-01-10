@@ -26,19 +26,29 @@ body {
     width: var(--menu-width);
 }
 
-#canvas-container{
+#middle{
     position: absolute;
     top: 0px;
-    bottom: 0px;
     left: var(--menu-width);
     right: var(--menu-width);
     margin-left:10px;
     margin-right:10px;
 }
 
+#canvas-container{
+    width: 100%;
+    height: calc(100vh - 100px);
+}
+
 #glcanvas{
     width: 100%;
     height: 100%;
+}
+
+#form-container{
+    color: #adb5bd;
+    position: relative;
+    margin-top: 10px;
 }
 
 #rightBar{

@@ -9,7 +9,8 @@ function getProgramInfo(gl) {
         attribute vec3 aVertexNormal;
         attribute vec2 aTextureCoord;
 
-        uniform mat4 uModelViewMatrix;
+        uniform mat4 uModelMatrix;
+        uniform mat4 uViewMatrix;
         uniform mat4 uProjectionMatrix;
         uniform mat4 uNormalMatrix;
         
@@ -22,11 +23,11 @@ function getProgramInfo(gl) {
         varying vec4 vTransformedNormal;
 
         void main(void) {
-            vPosition = uModelViewMatrix * aVertexPosition;
+            vPosition = uModelMatrix * aVertexPosition;
             vAmbientColor = aVertexAmbientColor;
             vDiffuseColor = aVertexDiffuseColor;
             vSpecularColor = aVertexSpecularColor;
-            gl_Position = uProjectionMatrix * vPosition;
+            gl_Position = uProjectionMatrix * uViewMatrix * vPosition;
             vTextureCoord = aTextureCoord;
             vTransformedNormal = uNormalMatrix*vec4(aVertexNormal,1.0);
         }
@@ -91,7 +92,11 @@ function getProgramInfo(gl) {
         }
         `;
 
+    // Initialize a shader program; this is where all the lighting
+    // for the vertices and so forth is established.
     const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+
+    gl.useProgram(shaderProgram);
 
     return {
         program: shaderProgram,
@@ -105,7 +110,8 @@ function getProgramInfo(gl) {
         },
         uniformLocations: {
             projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
-            modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+            viewMatrix: gl.getUniformLocation(shaderProgram, 'uViewMatrix'),
+            modelMatrix: gl.getUniformLocation(shaderProgram, 'uModelMatrix'),
             normalMatrix: gl.getUniformLocation(shaderProgram, 'uNormalMatrix'),
             usePointLighting: gl.getUniformLocation(shaderProgram, 'uUsePointLighting'),
             useTexture: gl.getUniformLocation(shaderProgram, 'uUseTexture'),
@@ -119,20 +125,24 @@ function getProgramInfo(gl) {
             uSampler: gl.getUniformLocation(shaderProgram, 'uSampler'),
         },
     };
-
-
 }
 
-function getProjectionMatrix(gl){
-    const fieldOfView = 45 * Math.PI / 180;   // in radians
-    const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-    console.log("aspect : " + aspect)
-    const zNear = 0.1;
-    const zFar = 100.0;
-    const projectionMatrix = mat4.create();
-    mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
-
-    return projectionMatrix;
+function getMatrixInfo(){
+    return {
+        eye: vec3.fromValues(0.0, 0.0, 5.0),
+        // eye:[0.0,0.0,0.5],
+        at: vec3.fromValues(0.0, 0.0, 0.0),
+        up: vec3.fromValues(0.0, 1.0, 0.0),
+        bPersp: true,
+        fov: 45.0,
+        near: 0.1,
+        far: 100.0,
+        width: 10.0,
+        height: 10.0,
+        currentAngle: [0.0, 0.0],
+        projectionMatrix: mat4.create(),
+        viewMatrix: mat4.create()
+    };
 }
 
 function getLightSources() {
@@ -162,23 +172,20 @@ function getAmbientLight() {
     return [0.2, 0.2, 0.2];
 }
 
-function getEyePosition() {
-    return [0, 0, 5];
-}
-
 function display() {
     const canvas = document.querySelector("#glcanvas");
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 
     const programInfo = getProgramInfo(gl);
 
-    function render(cnt) {
-        let projectionMatrix = getProjectionMatrix(gl);
+
+    function render() {
+        //console.log(1)
+        let matrixInfo = getMatrixInfo();
         let ambientLight = getAmbientLight();
         let lightSources = getLightSources();
-        let eyePosition = getEyePosition();
 
-        drawScene(gl, programInfo, projectionMatrix, ambientLight, lightSources, eyePosition);
+        drawScene(gl, programInfo, matrixInfo, ambientLight, lightSources);
 
         requestAnimationFrame(render);
     }
@@ -186,7 +193,7 @@ function display() {
 
 }
 
-function drawScene(gl, programInfo, projectionMatrix, ambientLight, lightSources, eyePosition) {
+function drawScene(gl, programInfo, matrixInfo, ambientLight, lightSources) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
     gl.clearDepth(1.0);                 // Clear everything
     gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -194,27 +201,35 @@ function drawScene(gl, programInfo, projectionMatrix, ambientLight, lightSources
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     for (let item in ObjectPool){
+        //let object = Object.create(ObjectPool[item].ObjectInfo);
+        //object["texture"] = texture1;
+        //console.log(ObjectPool[item].ObjectInfo)
+        //console.log(programInfo)
+        let object = Object.create(ObjectPool[item].ObjectInfo);
+        //ObjectPool[item].ObjectInfo.texture = texture1;
+        //console.log(object);
         switch (ObjectPool[item].type){
+
             case "cube":
-                drawCube(gl, programInfo, projectionMatrix, ObjectPool[item].ObjectInfo, ambientLight, lightSources, eyePosition);
+                drawCube(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
                 break;
             case "sphere":
-                drawSphere(gl, programInfo, projectionMatrix, ObjectPool[item].ObjectInfo, ambientLight, lightSources, eyePosition);
+                drawSphere(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
                 break;
             case "cylinder":
-                drawCylinder(gl, programInfo, projectionMatrix, ObjectPool[item].ObjectInfo, ambientLight, lightSources, eyePosition);
+                drawCylinder(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
                 break;
             case "cone":
-                drawCone(gl, programInfo, projectionMatrix, ObjectPool[item].ObjectInfo, ambientLight, lightSources, eyePosition);
+                drawCone(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
                 break;
             case "prism":
-                drawPrism(gl, programInfo, projectionMatrix, ObjectPool[item].ObjectInfo, ambientLight, lightSources, eyePosition);
+                drawPrism(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
                 break;
             case "trustumofapyramid":
-                drawTrustumOfAPyramid(gl, programInfo, projectionMatrix, ObjectPool[item].ObjectInfo, ambientLight, lightSources, eyePosition);
+                drawTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
                 break;
             case "obj":
-                objDisplay(gl, programInfo, projectionMatrix, ObjectPool[item].ObjectInfo, ambientLight, lightSources, eyePosition);
+                objDisplay(gl, programInfo, matrixInfo, ObjectPool[item].ObjectInfo, ambientLight, lightSources);
                 break;
             default:
                 console.log("CGTWError :: undefined ObjectPool type")

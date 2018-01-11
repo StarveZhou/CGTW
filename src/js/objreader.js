@@ -62,12 +62,8 @@ function insertObjIntoHtml(file){
     {
         return null;
     }
-<<<<<<< HEAD
-    return name;
-=======
     console.log("import finish");
     return name + "_obj";
->>>>>>> 7f1abea1f7b49e82691f44cec8e0bc716356d853
 }
 
 
@@ -88,17 +84,6 @@ function objReader(){
 * 删除 <div id="obj-info"> 标签下的 id 为 name_id 的<info>标签
 * */
 
-<<<<<<< HEAD
-function deleteObjFromHtml(name){
-    if (file == null) return;
-    let info = document.getElementById("obj-info");
-    let tag = document.getElementById(name);
-    if (typeof tag !== "undefined"){
-        info.removeChild(tag);
-        let index = ObjSelector.name.indexOf(name);
-        ObjSelector.name.splice(index, 1);
-        ObjSelector.number --;
-=======
 function deleteObjFromHtml(objname){
     if (objname == null) return;
 
@@ -117,7 +102,6 @@ function deleteObjFromHtml(objname){
             ObjSelector.number --;
             delete ObjSelector.cnt[objname];
         }
->>>>>>> 7f1abea1f7b49e82691f44cec8e0bc716356d853
     }
 
 }

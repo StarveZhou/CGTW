@@ -161,6 +161,7 @@ function createModel()
     model_num++;
     Obj = {type:"model", ObjectInfo:Obj};
     ObjectPool["model"+model_num] = Obj;
+    addItemToObjectPool("model"+model_num);
     addModel("model"+model_num);
 }
 

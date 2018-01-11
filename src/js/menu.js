@@ -136,7 +136,7 @@ function create(type)
 {
     const canvas = document.querySelector("#glcanvas");
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    tempTexture = loadTexture(gl, '../images/cubetexture.png');
+    tempTexture = loadTexture(gl, '1_img');
 
     let Obj = {
         positions: null,
@@ -146,14 +146,17 @@ function create(type)
             scale: [1.0, 1.0, 1.0],
             rotation: {x:0.0, y: 0.0, z: 0.0}
         },
-        textureCoordinates: null,
+        textureCoordinates:[0, 1,
+            0, 0,
+            1, 0,
+            1, 1,],
         textureIndices: null,
         vertexNormals: null,
         normalIndices: null,
         ambientColor: [0.1, 0.1, 0.1, 1.0],
         diffuseColor: [1.0, 1.0, 1.0, 1.0],
         specularColor: [0.3, 0.3, 0.3, 1.0],
-        useTexture: false,
+        useTexture: true,
         texture: tempTexture,
         shiness: 10,
         sideNum: null,

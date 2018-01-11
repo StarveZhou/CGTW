@@ -13,10 +13,10 @@ function drawPolygon(gl, programInfo,matrixInfo, object, ambientLight, lightSour
 
     const modelMatrix = mat4.create();
 
-    mat4.translate(
-        modelMatrix,     // destination matrix
-        modelMatrix,     // matrix to translate
-        [-0.0, 0.0, -6.0]);  // amount to translate
+    // mat4.translate(
+    //     modelMatrix,     // destination matrix
+    //     modelMatrix,     // matrix to translate
+    //     [-0.0, 0.0, -6.0]);  // amount to translate
 
     if (object.transformation) {
         if (object.transformation.translation)
@@ -52,7 +52,6 @@ function drawPolygon(gl, programInfo,matrixInfo, object, ambientLight, lightSour
                 [0, 0, 1]);       // axis to rotate around (Z)
         }
     }
-
 
     const normalMatrix = mat4.create();
     // normal matrix should transform the invert transpose matrix of modelMatrix
@@ -139,7 +138,7 @@ function drawPolygon(gl, programInfo,matrixInfo, object, ambientLight, lightSour
     // Tell WebGL how to pull out the texture coordinates from
     // the texture coordinate buffer into the textureCoord attribute.
     //if (object.textureCoordinates) {
-    if (object.textureCoordinates) {
+    // if (object.textureCoordinates) {
         const numComponents = 2;
         const type = gl.FLOAT;
         const normalize = false;
@@ -155,7 +154,7 @@ function drawPolygon(gl, programInfo,matrixInfo, object, ambientLight, lightSour
             offset);
         gl.enableVertexAttribArray(
             programInfo.attribLocations.textureCoord);
-    }
+    // }
 
     // Tell WebGL how to pull out the normals 
     {
@@ -177,7 +176,6 @@ function drawPolygon(gl, programInfo,matrixInfo, object, ambientLight, lightSour
     }
 
     // // Tell WebGL which indices to use to index the vertices
-    // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
 
     // console.log(matrixInfo.viewMatrix);
     // console.log(matrixInfo.projectionMatrix);
@@ -219,8 +217,8 @@ function drawPolygon(gl, programInfo,matrixInfo, object, ambientLight, lightSour
             programInfo.uniformLocations.pointLightingLocation,
             pointLightingLocation);
         gl.uniform3fv(
-            programInfo.uniformLocations.pointLightingLocation,
-            pointLightingLocation);
+            programInfo.uniformLocations.pointLightingSpecularColor,
+            pointLightingSpecularColor);
         gl.uniform3fv(
             programInfo.uniformLocations.pointLightingDiffuseColor,
             pointLightingDiffuseColor);
@@ -291,17 +289,11 @@ function drawCube(gl, programInfo, matrixInfo, object, ambientLight, lightSource
         0, 1, 2, 0, 2, 3,
         0, 1, 2, 0, 2, 3,
     ];
-    let textureCoordinate = [
-        0, 0,
-        1, 0,
-        1, 1,
-        0, 1,];
     object.positions = vertexPositionData;
     object.indices = indexData;
     object.vertexNormals = normalData;
     object.normalIndices = normalIndex;
     object.textureIndices = textureIndex;
-    object.textureCoordinates = textureCoordinate;
     //drawPolygon(gl, programInfo, projectionMatrix, vertexPositionData, [[1, 1, 1, 1]], indexData, translation, scale, rotation);
     drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
 }
@@ -800,9 +792,7 @@ function initBuffers(gl, object) {
     gl.bindBuffer(gl.ARRAY_BUFFER, specularColorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(specularColors), gl.STATIC_DRAW);
 
-
-    //const textureCoordBuffer = null;
-    //if (object.useTexture) {
+    // if (object.useTexture) {
         // the real textureCoordinates used in draw_array
         // it is expaned from textureCoordinates and indices
         let real_textureCoordinates = [];
@@ -815,7 +805,7 @@ function initBuffers(gl, object) {
         const textureCoordBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(real_textureCoordinates), gl.STATIC_DRAW);
-    //}
+    // }
 
 
     // the real normal used in draw_array
@@ -889,7 +879,7 @@ function isPowerOf2(value) {
 // load the texture from given url 
 // note that you should enable read local file in your browser 
 // return texture
-function loadTexture(gl, url) {
+function loadTexture(gl, imgId) {
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
@@ -905,7 +895,11 @@ function loadTexture(gl, url) {
         width, height, border, srcFormat, srcType,
         pixel);
 
-    let image = new Image();
+    let image = document.getElementById(imgId);
+    var src = image.src;
+   
+    image.src = src;
+    // console.log(image.src);
     image.onload = function () {
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
@@ -921,7 +915,6 @@ function loadTexture(gl, url) {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         }
     };
-    image.src = url;
 
     return texture;
 }

@@ -1,11 +1,13 @@
 let item_num = 0;
+let model_num = 0;
+let light_num = 0;
 
 function addItem(id)
 {
     let type = ObjectPool[id].type;
     if (type === "cube" || type === "sphere" || type == "cylinder" || type === "cone" || type === "prism" || type === "trustum")
     {
-        $("#itemList").append("<li id=\"" + id + "\"><a href=\"#form-container\" onclick=\"selectItem('" + id + "')\">" + id + "</a>" +
+        $("#itemList").append("<li id=\"" + id + "\"><a href=\"#form-container\" onclick=\"selectObj('" + id + "')\">" + id + "</a>" +
             "<span class=\"fa fa-times\" onclick=\"removeItem('" + id + "')\"></span></li>");
     }
     /*
@@ -24,69 +26,22 @@ function addItem(id)
     */
 }
 
-function addModel(Obj)
+function addModel(id)
 {
-    let res = $("#modelList").find(">ul #" + Obj.id);
-    if (res.length)
-    {
-        //a model with same id
-        return false;
-    }
-    else
-    {
-        $("#modelList").find(">ul").append("<li id=\""+Obj.id+"\"><a href=\"#\">"+Obj.id+"</a>\
-                                    <span class=\"fa fa-times\"></span></li>");
-        res = $("#modelList").find(">ul #" + Obj.id);
-        res.find("a")[0].onclick=function(a){
-            return function(){
-                selectModel(a);
-            }
-        }(Obj);//通过一个匿名函数（这个匿名函数接受一个参数，接受的参数是Obj，返回一个函数）构造出一个函数
-
-        res.find("span")[0].onclick=function(a){
-            return function(){
-                removeModel(a);
-            }
-        }(Obj);
-    }
-    return true;
+    $("#modelList").append("<li id=\"" + id + "\"><a href=\"#form-container\" onclick=\"selectObj('" + id + "')\">" + id + "</a>" +
+        "<span class=\"fa fa-times\" onclick=\"removeModel('" + id + "')\"></span></li>");
 }
 
-function addLight(Obj)
+function addLight(id)
 {
-    let res = $("#lightList").find(">ul #" + Obj.id);
-    if (res.length)
-    {
-        //a light with same id
-        return false;
-    }
-    else
-    {
-        $("#lightList").find(">ul").append("<li id=\""+Obj.id+"\"><a href=\"#\">"+Obj.id+"</a>\
-                                    <span class=\"fa fa-times\"></span></li>");
-        res = $("#lightList").find(">ul #" + Obj.id);
-        res.find("a")[0].onclick=function(a){
-            return function(){
-                selectLight(a);
-            }
-        }(Obj);//通过一个匿名函数（这个匿名函数接受一个参数，接受的参数是Obj，返回一个函数）构造出一个函数
-
-        res.find("span")[0].onclick=function(a){
-            return function(){
-                removeLight(a);
-            }
-        }(Obj);
-    }
-    return true;
+    $("#lightList").append("<li id=\"" + id + "\"><a href=\"#form-container\" onclick=\"selectObj('" + id + "')\">" + id + "</a>" +
+        "<span class=\"fa fa-times\" onclick=\"removeLight('" + id + "')\"></span></li>");
 }
 
-function selectItem(id)
+function selectObj(id)
 {
-    let type = ObjectPool[id].type;
-    if (type === "cube" || type === "sphere" || type == "cylinder" || type === "cone" || type === "prism" ||type === "trustum") {
-        current = id;
-        showForm();
-    }
+    current = id;
+    showForm();
 }
 
 function removeItem(id)
@@ -106,27 +61,27 @@ function removeItem(id)
     //res.onclick=null;
 }
 
-function selectModel(Obj)
+function removeModel(id)
 {
-    console.log("Model"+Obj.id);
-}
-
-function removeModel(Obj)
-{
-    let res = $("#modelList").find(">ul #" + Obj.id);
-    res.onclick=null;
+    let res = $("#modelList").find("#" + id);
+    if (id === current)
+    {
+        unshowBasicForm();
+        current = null;
+    }
+    delete ObjectPool[id];
     res.remove();
 }
 
-function selectLight(Obj)
+function removeLight(id)
 {
-    console.log("Light"+Obj.id);
-}
-
-function removeLight(Obj)
-{
-    let res = $("#lightList").find(">ul #" + Obj.id);
-    res.onclick=null;
+    let res = $("#lightList").find("#" + id);
+    if (id === current)
+    {
+        unshowBasicForm();
+        current = null;
+    }
+    delete ObjectPool[id];
     res.remove();
 }
 
@@ -175,4 +130,50 @@ function create(type)
         ObjectPool[type+item_num] = Obj;
         addItem(type+item_num);
     }
+}
+
+function createModel()
+{
+    let Obj = {
+        positions: null,
+        indices: null,
+        transformation: {
+            translation: [0.0, 0.0, 0.0],
+            scale: [1.0, 1.0, 1.0],
+            rotation: {x:0.0, y: 0.0, z: 0.0}
+        },
+        textureCoordinates: null,
+        textureIndices: null,
+        vertexNormals: null,
+        normalIndices: null,
+        ambientColor: [0.1, 0.1, 0.1, 1.0],
+        diffuseColor: [1.0, 1.0, 1.0, 1.0],
+        specularColor: [0.3, 0.3, 0.3, 1.0],
+        useTexture: true,
+        texture: null,
+        shiness: 10,
+        sideNum: null,
+        upBottomRatio: null,
+        objFile: null
+    };
+
+    model_num++;
+    Obj = {type:"model", ObjectInfo:Obj};
+    ObjectPool["model"+model_num] = Obj;
+    addModel("model"+model_num);
+}
+
+function createLight()
+{
+    let Obj = {
+        usePointLighting: true,
+        pointLightingLocation: [0, 10, 4],
+        pointLightingSpecularColor: [0.5, 0.5, 0.5],
+        pointLightingDiffuseColor: [1, 1, 1]
+    };
+
+    light_num++;
+    Obj = {type:"light", ObjectInfo:Obj};
+    ObjectPool["light"+light_num] = Obj;
+    addLight("light"+light_num);
 }

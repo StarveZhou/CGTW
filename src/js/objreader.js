@@ -27,9 +27,9 @@ function objStrAna(str){
 * 并根据传入文件的文件名，将obj文件中的内容输入到 <div id="obj-info"> 标签中
 * 存储方式为<info id="filename_obj">...</info>
 * */
-function insertObjIntoHtml(files){
-    let file = files[0];
-
+function insertObjIntoHtml(file){
+    //let file = files[0];
+    if (file == null) return null;
     let reader = new FileReader();
 
     let strs = new Array();
@@ -57,9 +57,8 @@ function insertObjIntoHtml(files){
     }
     else
     {
-        console.log("this is not an obj file");
+        return null;
     }
-    console.log("import finish");
     return name;
 }
 
@@ -81,8 +80,8 @@ function objReader(){
 * 删除 <div id="obj-info"> 标签下的 id 为 name_id 的<info>标签
 * */
 
-function deleteObjFromHtml(objname){
-    let name = objname;
+function deleteObjFromHtml(name){
+    if (file == null) return;
     let info = document.getElementById("obj-info");
     let tag = document.getElementById(name);
     if (typeof tag !== "undefined"){

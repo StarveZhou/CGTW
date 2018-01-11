@@ -81,13 +81,12 @@ ObjectPool = {
             texture: null,
             shiness: 10,
             sideNum: null,
-            upBottomRatio: null
+            upBottomRatio: null,
+            objFIle: null
         }
     }
 };
 */
-
-
 
 current = null;
 ObjectPool = {};
@@ -100,5 +99,6 @@ $(function() {
     let gl = c.getContext('webgl');
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
+    //display();
 });
 

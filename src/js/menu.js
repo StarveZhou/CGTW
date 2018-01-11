@@ -134,6 +134,10 @@ function removeLight(Obj)
 //right bar
 function create(type)
 {
+    const canvas = document.querySelector("#glcanvas");
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    tempTexture = loadTexture(gl, '../images/cubetexture.png');
+
     let Obj = {
         positions: null,
         indices: null,
@@ -150,7 +154,7 @@ function create(type)
         diffuseColor: [1.0, 1.0, 1.0, 1.0],
         specularColor: [0.3, 0.3, 0.3, 1.0],
         useTexture: false,
-        texture: null,
+        texture: tempTexture,
         shiness: 10,
         sideNum: null,
         upBottomRatio: null

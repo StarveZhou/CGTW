@@ -358,7 +358,7 @@
             ambientColor: [0.1, 0.1, 0.1, 1.0],
             diffuseColor: [1.0, 1.0, 1.0, 1.0],
             specularColor: [0.3, 0.3, 0.3, 1.0],
-            useTexture: false,
+            useTexture: true,
             texture: texture,
             shiness: 10,
             sideNum: null,
@@ -369,18 +369,18 @@
         // const eyePosition = [0, 0, 5];
 
         //object.transformation.translation = [-1, -1, 0];
-        drawCylinder(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+        drawCube(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
         object.transformation.translation = [-1, -1, 0 ];
         object.transformation.scale = [1, 0.7, 1];
         object.transformation.rotation = {x:0.2, y:0.0, z:0.0};
         object.sideNum = 5;
         object.upBottomRatio = 0.6;
-<<<<<<< HEAD
-        drawTrustumOfAPyramid(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
-=======
+//<<<<<< HEAD
+//        drawTrustumOfAPyramid(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
+//=======
         drawTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
 
->>>>>>> 5b410712e19dd467c7b7c2c659bc3d4f6f80aba4
+//>>>>>>> 5b410712e19dd467c7b7c2c659bc3d4f6f80aba4
     }
 </script>
 </html>

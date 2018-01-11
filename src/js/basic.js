@@ -1,5 +1,4 @@
-
-
+/*
 ObjectPool = {
     cubic1: {
         type: "cube",
@@ -86,6 +85,12 @@ ObjectPool = {
         }
     }
 };
+*/
+
+
+
+current = null;
+ObjectPool = {};
 
 $(function() {
     $('#leftMenu').metisMenu();      
@@ -97,5 +102,3 @@ $(function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
 });
 
-current = null;
-ObjectPool = {};

@@ -291,11 +291,17 @@ function drawCube(gl, programInfo, matrixInfo, object, ambientLight, lightSource
         0, 1, 2, 0, 2, 3,
         0, 1, 2, 0, 2, 3,
     ];
+    let textureCoordinate = [
+        0, 0,
+        1, 0,
+        1, 1,
+        0, 1,];
     object.positions = vertexPositionData;
     object.indices = indexData;
     object.vertexNormals = normalData;
     object.normalIndices = normalIndex;
     object.textureIndices = textureIndex;
+    object.textureCoordinates = textureCoordinate;
     //drawPolygon(gl, programInfo, projectionMatrix, vertexPositionData, [[1, 1, 1, 1]], indexData, translation, scale, rotation);
     drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
 }

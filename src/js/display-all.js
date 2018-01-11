@@ -202,7 +202,7 @@ function drawScene(gl, programInfo, matrixInfo, ambientLight, lightSources) {
     gl.enable(gl.DEPTH_TEST);           // Enable depth testing
     gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
+    //console.log(ObjectPool);
     for (let item in ObjectPool){
         //let object = Object.create(ObjectPool[item].ObjectInfo);
         //object["texture"] = texture1;
@@ -228,10 +228,11 @@ function drawScene(gl, programInfo, matrixInfo, ambientLight, lightSources) {
             case "prism":
                 drawPrism(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
                 break;
-            case "trustumofapyramid":
+            case "trustum":
                 drawTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
                 break;
             case "obj":
+                //TODO 修改为和draw相同的
                 objDisplay(gl, programInfo, matrixInfo, ObjectPool[item].ObjectInfo, ambientLight, lightSources);
                 break;
             default:

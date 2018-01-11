@@ -185,6 +185,7 @@ function display() {
         let ambientLight = getAmbientLight();
         let lightSources = getLightSources();
 
+        updateMatrix(gl,canvas,programInfo,matrixInfo) 
         drawScene(gl, programInfo, matrixInfo, ambientLight, lightSources);
 
         requestAnimationFrame(render);

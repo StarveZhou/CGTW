@@ -27,7 +27,7 @@ function updateMatrix(gl,canvas,programInfo,matrixInfo) {
     else{
         mat4.ortho(matrixInfo.projectionMatrix, -matrixInfo.width,matrixInfo.width,-matrixInfo.height,matrixInfo.height,matrixInfo.near,matrixInfo.far);
     }
-    //gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix,false,matrixInfo.projectionMatrix);
+    gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix,false,matrixInfo.projectionMatrix);
 
     // update view matrix
     mat4.lookAt(matrixInfo.viewMatrix, matrixInfo.eye, matrixInfo.at, matrixInfo.up);
@@ -36,7 +36,7 @@ function updateMatrix(gl,canvas,programInfo,matrixInfo) {
     mat4.rotateX(allModelMatrix,allModelMatrix,-(Math.PI/180)*matrixInfo.currentAngle[0]);
     mat4.rotateY(allModelMatrix,allModelMatrix,-(Math.PI/180)*matrixInfo.currentAngle[1]);
     mat4.multiply(matrixInfo.viewMatrix,matrixInfo.viewMatrix,allModelMatrix);
-    //gl.uniformMatrix4fv(programInfo.uniformLocations.viewMatrix, false,matrixInfo.viewMatrix);
+    gl.uniformMatrix4fv(programInfo.uniformLocations.viewMatrix, false,matrixInfo.viewMatrix);
 
     // update model matrix
     // mat4.rotateX(matrixInfo.modelViewMatrix,mat4.create(),-(Math.PI/180)*matrixInfo.currentAngle[0]);

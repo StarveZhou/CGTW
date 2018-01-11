@@ -369,7 +369,8 @@
         // const eyePosition = [0, 0, 5];
 
         //object.transformation.translation = [-1, -1, 0];
-        drawCube(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+        //drawCube(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+        //drawCone(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
         object.transformation.translation = [-1, -1, 0 ];
         object.transformation.scale = [1, 0.7, 1];
         object.transformation.rotation = {x:0.2, y:0.0, z:0.0};
@@ -379,6 +380,7 @@
 //        drawTrustumOfAPyramid(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
 //=======
         drawTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+
 
 //>>>>>>> 5b410712e19dd467c7b7c2c659bc3d4f6f80aba4
     }

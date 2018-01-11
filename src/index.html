@@ -1,6 +1,8 @@
 <!doctype html>
 <html>
 <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+
     <link href="https://cdn.bootcss.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.bootcss.com/metisMenu/2.7.1/metisMenu.min.css" rel="stylesheet">
     <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -21,6 +23,9 @@
     <script src = "js/basic.js" type = "text/javascript"></script>
     <script src = "js/gl-matrix.js" type = "text/javascript"></script>
     <script src = "js/menu.js" type = "text/javascript"></script>
+    <script src = "js/draw_basic_object.js" type="text/javascript"></script>
+    <script src = "js/view.js" type="text/javascript"></script>
+    <script src = "js/display-all.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -82,7 +87,7 @@
         </div>
         <div id="middle">
             <div id="canvas-container">
-            <canvas id="glcanvas" >
+            <canvas id="glcanvas"  width="640" height="480">
                 Your browser doesn't appear to support the <code>&lt;canvas&gt;</code> element.
             </canvas>
             </div>
@@ -231,4 +236,13 @@
         </div>
     </div>
 </body>
+
+<script>
+    const canvas = document.querySelector("#glcanvas");
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    texture1 = loadTexture(gl, '../images/cubetexture.png');
+    ObjectPool.cubic1.ObjectInfo.texture = texture1;
+    ObjectPool.cubic2.ObjectInfo.texture = texture1;
+    display();
+</script>
 </html>

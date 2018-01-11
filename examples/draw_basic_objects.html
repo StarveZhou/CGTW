@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <title>WebGL Demo</title>
     <script src="../src/js/gl-matrix.js"></script>
-    <!-- <script src="../src/js/basic_object_with_texture.js"></script> -->
     <script src="../src/js/draw_basic_object.js"></script>
     <script src="../src/js/view.js"></script>
 </head>
@@ -25,6 +24,42 @@
             alert('Unable to initialize WebGL. Your browser or machine may not support it.');
             return;
         }
+
+        // vertex shader to determine shadow
+        const shadowVsSource = `
+        precision lowp float;
+        attribute vec4 aVertexPosition;
+
+        uniform mat4 uModelViewMatrix;
+        uniform mat4 uProjectionMatrix;
+
+        void main(void) {
+            gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+        }
+        `;
+
+        // Fragment shader to determine shadow 
+        const shadowFsSource = `
+        void main(void) {
+            gl_FragColor = vec4( 0.0, 0.0, 0.0,gl_FragCoord.z);
+        }
+        `;
+
+        // Initialize a shader program; this is where all the lighting
+        // for the vertices and so forth is established.
+        const shadowShaderProgram = initShaderProgram(gl, shadowVsSource, shadowFsSource);
+        // the program info used for shadow 
+        const shadowProgramInfo = {
+            program: shadowShaderProgram,
+            attribLocations: {
+                vertexPosition: gl.getAttribLocation(shadowShaderProgram, 'aVertexPosition'),
+            },
+            uniformLocations: {
+                projectionMatrix: gl.getUniformLocation(shadowShaderProgram, 'uProjectionMatrix'),
+                modelViewMatrix: gl.getUniformLocation(shadowShaderProgram, 'uModelViewMatrix'),
+            },
+        };
+
 
         // Vertex shader program
 
@@ -125,9 +160,6 @@
         // for the vertices and so forth is established.
         const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
 
-        gl.useProgram(shaderProgram);
-
-
         // Collect all the info needed to use the shader program.
         // Look up which attributes our shader program is using
         // for aVertexPosition, aVevrtexColor and also
@@ -160,42 +192,6 @@
             },
         };
 
-        // vertex shader to determine shadow
-        const shadowVsSource = `
-        precision lowp float;
-        attribute vec4 aVertexPosition;
-
-        uniform mat4 uModelViewMatrix;
-        uniform mat4 uProjectionMatrix;
-
-        void main(void) {
-            gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-        }
-        `;
-
-        // Fragment shader to determine shadow 
-        const shadowFsSource = `
-        void main(void) {
-            gl_FragColor = vec4( 0.0, 0.0, 0.0,gl_FragCoord.z);
-        }
-        `;
-
-        // Initialize a shader program; this is where all the lighting
-        // for the vertices and so forth is established.
-        const shadowShaderProgram = initShaderProgram(gl, shadowVsSource, shadowFsSource);
-        // the program info used for shadow 
-        const shadowProgramInfo = {
-            program: shadowShaderProgram,
-            attribLocations: {
-                vertexPosition: gl.getAttribLocation(shadowShaderProgram, 'aVertexPosition'),
-            },
-            uniformLocations: {
-                projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
-                modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
-            },
-        };
-
-
         // info used by projectionMatrix and viewMatrix
         let matrixInfo={
             eye:vec3.fromValues(0.0, 0.0, 5.0),
@@ -215,27 +211,46 @@
 
         const texture = loadTexture(gl, '../images/cubetexture.png');
 
-        // Here's where we call the routine that builds all the
-        // objects we'll be drawing.
-        // drawScene(gl, programInfo);
-        // 
-        let then = 0;
+        gl.useProgram(shadowShaderProgram)
 
+        // var shadowFramebuffer = gl.createFramebuffer()
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, shadowFramebuffer)
 
+        // var shadowDepthTexture = gl.createTexture()
+        // gl.bindTexture(gl.TEXTURE_2D, shadowDepthTexture)
+        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+        // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, shadowDepthTextureSize,
+        // shadowDepthTextureSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
 
+        // var renderBuffer = gl.createRenderbuffer()
+        // gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer)
+        // gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16,
+        // shadowDepthTextureSize, shadowDepthTextureSize)
+
+        // gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
+        // gl.TEXTURE_2D, shadowDepthTexture, 0)
+        // gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT,
+        // gl.RENDERBUFFER, renderBuffer)
+
+        // gl.bindTexture(gl.TEXTURE_2D, null)
+        // gl.bindRenderbuffer(gl.RENDERBUFFER, null)
 
         //init event handlers
         initDocumentHandlers(document,matrixInfo);
         initCanvasHandlers(canvas,matrixInfo);
 
+        let then = 0;
 
         // Draw the scene repeatedly
         function render(now) {
             now *= 0.001;  // convert to seconds
             const deltaTime = now - then;
             then = now;
+            // gl.useProgram(shadowShaderProgram);
+
             updateMatrix(gl,canvas,programInfo,matrixInfo);
-            drawScene(gl, programInfo,matrixInfo, texture);
+            drawScene(gl,shaderProgram, programInfo,matrixInfo, texture);
 
             requestAnimationFrame(render);
         }
@@ -248,7 +263,7 @@
     //
     // Draw the scene.
     //
-    function drawScene(gl,programInfo,matrixInfo, texture) {
+    function drawScene(gl,program,programInfo,matrixInfo, texture) {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
         gl.clearDepth(1.0);                 // Clear everything
         gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -270,6 +285,20 @@
         // note: glmatrix.js always has the first argument
         // as the destination to receive the result.
         // mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
+        // 
+        // 
+        // 
+    
+        // var triangle = initVertexBuffersForTriangle(gl);
+        // var sphere = initVertexBuffersForSphere(gl);
+
+        // var fbo = initFramebufferObject(gl);
+        // gl.activeTexture(gl.TEXTURE0);
+        // gl.bindTexture(gl.TEXTURE_2D, fbo.texture);
+
+        // var viewProjMatrixFromLight = new Matrix4();
+        //    viewProjMatrixFromLight.setPerspective(70.0, OFFSCREEN_WIDTH/OFFSCREEN_HEIGHT, 1.0, 200.0);
+        //    viewProjMatrixFromLight.lookAt(LIGHT[0], LIGHT[1], LIGHT[2], 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);  
 
         let ambientLight = [0.2, 0.2, 0.2];
 
@@ -293,7 +322,7 @@
         lightSources = lightSources.concat(lightSource2);
 
 
-
+        gl.useProgram(program);
 
         // the object to be rendered 
         let ObjectInfo = {
@@ -329,7 +358,7 @@
             ambientColor: [0.1, 0.1, 0.1, 1.0],
             diffuseColor: [1.0, 1.0, 1.0, 1.0],
             specularColor: [0.3, 0.3, 0.3, 1.0],
-            useTexture: true,
+            useTexture: false,
             texture: texture,
             shiness: 10,
             sideNum: null,
@@ -338,7 +367,6 @@
 
         let object = Object.create(ObjectInfo);
         // const eyePosition = [0, 0, 5];
-        // drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
 
         //object.transformation.translation = [-1, -1, 0];
         drawCylinder(gl, programInfo, matrixInfo, object, ambientLight, lightSources);

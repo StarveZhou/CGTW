@@ -7,8 +7,8 @@
  * @param ambientLight
  * @param lightSources
  */
-function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources) {
-    const buffers = initBuffers(gl, object);
+function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers) {
+    //const buffers = initBuffers(gl, object);
 
 
     const modelMatrix = mat4.create();
@@ -1001,40 +1001,40 @@ function createTrustumOfAPyramidData(object) {
     return object;
 }
 
-function drawCube(gl, programInfo, matrixInfo, object, ambientLight, lightSources) {
-    object = createCubeData(object);
-    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+function drawCube(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers) {
+    //object = createCubeData(object);
+    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
 }
 
-function drawSphere(gl, programInfo, matrixInfo, object, ambientLight, lightSources) {
-    object = createSphereData(object);
-    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
-
-}
-
-function drawCylinder(gl, programInfo, matrixInfo, object, ambientLight, lightSources) {
-    object = createCylinderData(object);
-
-    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+function drawSphere(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers) {
+    //object = createSphereData(object);
+    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
 
 }
 
-function drawCone(gl, programInfo, matrixInfo, object, ambientLight, lightSources) {
+function drawCylinder(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers) {
+    //object = createCylinderData(object);
 
-    object = createConeData(object);
-    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
 
 }
 
-function drawPrism(gl, programInfo, matrixInfo, object, ambientLight, lightSources) {
-    object = createPrismData(object);
-    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+function drawCone(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers) {
+
+    //object = createConeData(object);
+    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
+
 }
 
-function drawTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight, lightSources) {
+function drawPrism(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers) {
+    //object = createPrismData(object);
+    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
+}
 
-    object = createTrustumOfAPyramidData(object);
-    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+function drawTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers) {
+
+    //object = createTrustumOfAPyramidData(object);
+    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
 }
 
 // initBuffers

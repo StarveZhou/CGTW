@@ -242,6 +242,55 @@
 
         let then = 0;
 
+        let ObjectInfo = {
+            positions: [
+                1, 1, 1,
+                1, -1, 1,
+                -1, -1, 1,
+                -1, 1, 1,],
+            indices: [
+                0, 1, 2,
+                0, 2, 3,
+            ],
+            transformation: {
+                translation: [0.0, 0.0, -1.0],
+                scale: [1.0, 1.0, 1.0],
+                rotation: {x:0.0, y: 1.0, z: 0.0}
+            },
+            textureCoordinates: [
+                0, 0,
+                1, 0,
+                1, 1,
+                0, 1,],
+            textureIndices: [
+                0, 1, 2,
+                0, 2, 3,
+            ],
+            vertexNormals: [
+                0.0, 0.0, 1.0,
+            ],
+            normalIndices: [
+                0, 0, 0, 0, 0, 0
+            ],
+            ambientColor: [0.1, 0.1, 0.1, 1.0],
+            diffuseColor: [1.0, 1.0, 1.0, 1.0],
+            specularColor: [0.3, 0.3, 0.3, 1.0],
+            useTexture: true,
+            texture: texture,
+            shiness: 10,
+            sideNum: null,
+            upBottomRatio: null
+        };
+
+        let object = Object.create(ObjectInfo);
+
+        object.transformation.translation = [-1, -1, 0 ];
+        object.transformation.scale = [1, 0.7, 1];
+        object.transformation.rotation = {x:0.2, y:0.0, z:0.0};
+
+        object = createSphereData(object);
+        let buffers = initBuffers(gl, object);
+
         // Draw the scene repeatedly
         function render(now) {
             now *= 0.001;  // convert to seconds
@@ -250,7 +299,7 @@
             // gl.useProgram(shadowShaderProgram);
 
             updateMatrix(gl,canvas,programInfo,matrixInfo);
-            drawScene(gl,shaderProgram, programInfo,matrixInfo, texture);
+            drawScene(gl,shaderProgram, programInfo,matrixInfo, texture, object, buffers);
 
             requestAnimationFrame(render);
         }
@@ -263,7 +312,7 @@
     //
     // Draw the scene.
     //
-    function drawScene(gl,program,programInfo,matrixInfo, texture) {
+    function drawScene(gl,program,programInfo,matrixInfo, texture, object, buffers) {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
         gl.clearDepth(1.0);                 // Clear everything
         gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -325,61 +374,22 @@
         gl.useProgram(program);
 
         // the object to be rendered 
-        let ObjectInfo = {
-            positions: [
-                1, 1, 1,
-                1, -1, 1,
-                -1, -1, 1,
-                -1, 1, 1,],
-            indices: [
-                0, 1, 2,
-                0, 2, 3,
-            ],
-            transformation: {
-                translation: [0.0, 0.0, -1.0],
-                scale: [1.0, 1.0, 1.0],
-                rotation: {x:0.0, y: 1.0, z: 0.0}
-            },
-            textureCoordinates: [
-                0, 0,
-                1, 0,
-                1, 1,
-                0, 1,],
-            textureIndices: [
-                0, 1, 2,
-                0, 2, 3,
-            ],
-            vertexNormals: [
-                0.0, 0.0, 1.0,
-            ],
-            normalIndices: [
-                0, 0, 0, 0, 0, 0
-            ],
-            ambientColor: [0.1, 0.1, 0.1, 1.0],
-            diffuseColor: [1.0, 1.0, 1.0, 1.0],
-            specularColor: [0.3, 0.3, 0.3, 1.0],
-            useTexture: true,
-            texture: texture,
-            shiness: 10,
-            sideNum: null,
-            upBottomRatio: null
-        };
 
-        let object = Object.create(ObjectInfo);
         // const eyePosition = [0, 0, 5];
 
         //object.transformation.translation = [-1, -1, 0];
         //drawCube(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
         //drawCone(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
-        object.transformation.translation = [-1, -1, 0 ];
-        object.transformation.scale = [1, 0.7, 1];
-        object.transformation.rotation = {x:0.2, y:0.0, z:0.0};
-        object.sideNum = 5;
-        object.upBottomRatio = 0.6;
+
+        /*object.sideNum = 5;
+        object.upBottomRatio = 0.6;*/
 //<<<<<< HEAD
 //        drawTrustumOfAPyramid(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
 //=======
-        drawTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+
+
+
+        drawSphere(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
 
 
 //>>>>>>> 5b410712e19dd467c7b7c2c659bc3d4f6f80aba4

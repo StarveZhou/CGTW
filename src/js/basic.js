@@ -1,4 +1,3 @@
-/*
 ObjectPool = {
     cubic1: {
         type: "cube",
@@ -43,7 +42,7 @@ ObjectPool = {
         }
     },
     cubic2 : {
-        type : "cylinder",
+        type : "sphere",
         ObjectInfo : {
             positions: [
                 1, 1, 1,
@@ -85,12 +84,13 @@ ObjectPool = {
         }
     }
 };
-*/
+
 
 
 
 current = null;
-ObjectPool = {};
+//ObjectPool = {};
+BufferPool = {};
 
 $(function() {
     $('#leftMenu').metisMenu();      

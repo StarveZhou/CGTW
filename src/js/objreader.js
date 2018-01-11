@@ -231,7 +231,8 @@ function getObjInfo(objName) {
         texture: null,
         shiness: 10,
         sideNum: null,
-        upBottomRatio: null
+        upBottomRatio: null,
+        objFile : objName
     };
 }
 

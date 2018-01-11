@@ -52,12 +52,14 @@ function removeItemFromObjectPool(name) {
         mType === "cone"     ||
         mType === "prism"    ||
         mType === "trustum"  ||
-        mType === "obj"){
+        mType === "model"){
 
         delete BufferPool[name];
-        let objName = ObjectPool[name].ObjectInfo.objFile;
-        deleteObjFromHtml(objName);
-        delete ObjectPool[name];
+        if (mType === "model") {
+            let objName = ObjectPool[name].ObjectInfo.objFile;
+            deleteObjFromHtml(objName);
+            delete ObjectPool[name];
+        }
     }
     else if (mType === "light"){
         for (let i=0; i<LightSources.length; i=i+1){

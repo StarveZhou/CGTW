@@ -158,7 +158,7 @@ function display() {
     function render() {
         //console.log(1)
 
-
+        console.log(LightSources);
         updateMatrix(gl,canvas,programInfo,matrixInfo) 
         drawScene(gl, programInfo, matrixInfo, AmbientLight, LightSources);
 
@@ -203,7 +203,7 @@ function drawScene(gl, programInfo, matrixInfo, ambientLight, lightSources) {
             case "trustum":
                 drawTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
                 break;
-            case "obj":
+            case "model":
                 objDisplay(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
                 break;
             default:

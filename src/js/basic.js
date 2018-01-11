@@ -1,4 +1,4 @@
-ObjectPool = {
+/*ObjectPool = {
     cubic1: {
         type: "cube",
         ObjectInfo: {
@@ -84,11 +84,11 @@ ObjectPool = {
             objFIle: null
         }
     }
-};
+};*/
 
 
 current = null;
-//ObjectPool = {};
+ObjectPool = {};
 BufferPool = {};
 LightSources = [];
 AmbientLight = [0.2, 0.2, 0.2];

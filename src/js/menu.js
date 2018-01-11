@@ -129,6 +129,7 @@ function create(type)
         }
         Obj = {type:type, ObjectInfo:Obj};
         ObjectPool[type+item_num] = Obj;
+        addItemToObjectPool(type+item_num);
         addItem(type+item_num);
     }
 }

@@ -177,11 +177,13 @@ function display() {
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 
     const programInfo = getProgramInfo(gl);
-
+    let matrixInfo = getMatrixInfo();
+    initDocumentHandlers(document, matrixInfo);
+    initCanvasHandlers(canvas, matrixInfo);
 
     function render() {
         //console.log(1)
-        let matrixInfo = getMatrixInfo();
+
         let ambientLight = getAmbientLight();
         let lightSources = getLightSources();
 

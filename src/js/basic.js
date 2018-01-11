@@ -2,7 +2,7 @@
 
 ObjectPool = {
     cubic1: {
-        type: "cylinder",
+        type: "cube",
         ObjectInfo: {
             positions: [
                 1, 1, 1,
@@ -14,7 +14,7 @@ ObjectPool = {
                 0, 2, 3,
             ],
             transformation: {
-                translation: [0.0, 0.0, -1.0],
+                translation: [0.0, 2.0, -1.0],
                 scale: [1.0, 1.0, 1.0],
                 rotation: {x: 0.0, y: 1.0, z: 0.0}
             },

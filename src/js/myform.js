@@ -165,6 +165,7 @@ function changeScale()
     obj_scale[0] = basic_scale.find("#basic-scalex").spinner("value");
     obj_scale[1] = basic_scale.find("#basic-scaley").spinner("value");
     obj_scale[2] = basic_scale.find("#basic-scalez").spinner("value");
+    refreshItemInObjectPool(current);
 }
 
 function changeRot()
@@ -174,6 +175,7 @@ function changeRot()
     obj_rot.x = basic_rot.find("#basic-rotx").spinner("value") / 360 * 6.28;
     obj_rot.y = basic_rot.find("#basic-roty").spinner("value") / 360 * 6.28;
     obj_rot.z = basic_rot.find("#basic-rotz").spinner("value") / 360 * 6.28;
+    refreshItemInObjectPool(current);
 }
 
 function changeLoc()
@@ -193,6 +195,7 @@ function changeLoc()
         obj_trans[1] = basic_loc.find("#basic-y").spinner("value");
         obj_trans[2] = basic_loc.find("#basic-z").spinner("value");
     }
+    refreshItemInObjectPool(current);
 }
 
 function changeTC()
@@ -235,6 +238,7 @@ function changeTC()
         basic_tc.find(".input-texture").hide();
         basic_tc.find(".input-color").fadeIn();
     }
+    refreshItemInObjectPool(current);
 }
 
 function changeSideNum()
@@ -242,6 +246,7 @@ function changeSideNum()
     if (current == null) return ;
     let obj_info = ObjectPool[current].ObjectInfo;
     obj_info.sideNum = basic_sideNum.find("#sideNum").spinner("value");
+    refreshItemInObjectPool(current);
 }
 
 function changeUpBotRatio()
@@ -249,6 +254,7 @@ function changeUpBotRatio()
     if (current == null) return ;
     let obj_info = ObjectPool[current].ObjectInfo;
     obj_info.upBottomRatio = basic_upBotRatio.find("#upBottomRatio").spinner("value");
+    refreshItemInObjectPool(current);
 }
 
 function changeModelObj()
@@ -259,6 +265,7 @@ function changeModelObj()
     if (obj_info.objFile != null)
         deleteObjFromHtml(obj_info.objFile);
     obj_info.objFile = insertObjIntoHtml(model_arg.find("#model-obj").files[0]);
+    refreshItemInObjectPool(current);
 }
 
 function changeModelTex()
@@ -267,6 +274,7 @@ function changeModelTex()
     let obj_info = ObjectPool[current].ObjectInfo;
     //Todo
     obj_info.texture = model_arg.find("#model-texture").files[0];
+    refreshItemInObjectPool(current);
 }
 
 function changeEnLight()
@@ -275,6 +283,7 @@ function changeEnLight()
     let obj_info = ObjectPool[current].ObjectInfo;
 
     obj_info.usePointLighting = !!basic_light.find("#basic-enlight").is(':checked');
+    refreshItemInObjectPool(current);
 }
 
 function changeDLight()
@@ -289,6 +298,7 @@ function changeDLight()
     obj_info.pointLightingDiffuseColor[1] = parseInt(a, 16) / 255;
     a = s.substring(5, 7);
     obj_info.pointLightingDiffuseColor[2] = parseInt(a, 16) / 255;
+    refreshItemInObjectPool(current);
 }
 
 function changeSLight()
@@ -303,6 +313,7 @@ function changeSLight()
     obj_info.pointLightingSpecularColor[1] = parseInt(a, 16) / 255;
     a = s.substring(5, 7);
     obj_info.pointLightingSpecularColor[2] = parseInt(a, 16) / 255;
+    refreshItemInObjectPool(current);
 }
 
 jQuery.fn.myform=function()

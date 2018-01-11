@@ -158,7 +158,8 @@ function display() {
     function render() {
         //console.log(1)
 
-        console.log(LightSources);
+        //console.log(AmbientLight);
+        //console.log(LightSources);
         updateMatrix(gl,canvas,programInfo,matrixInfo) 
         drawScene(gl, programInfo, matrixInfo, AmbientLight, LightSources);
 

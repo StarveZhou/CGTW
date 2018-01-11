@@ -10,6 +10,7 @@ function addItem(id)
         $("#itemList").append("<li id=\"" + id + "\"><a href=\"#form-container\" onclick=\"selectObj('" + id + "')\">" + id + "</a>" +
             "<span class=\"fa fa-times\" onclick=\"removeItem('" + id + "')\"></span></li>");
     }
+
     /*
     res = $("#itemList>ul #" + id);
     res.find("a")[0].onclick=function(a){
@@ -69,7 +70,7 @@ function removeModel(id)
         unshowBasicForm();
         current = null;
     }
-    delete ObjectPool[id];
+    removeItemFromObjectPool(id);
     res.remove();
 }
 
@@ -81,7 +82,7 @@ function removeLight(id)
         unshowBasicForm();
         current = null;
     }
-    delete ObjectPool[id];
+    removeItemFromObjectPool(id);
     res.remove();
 }
 
@@ -129,6 +130,7 @@ function create(type)
         }
         Obj = {type:type, ObjectInfo:Obj};
         ObjectPool[type+item_num] = Obj;
+        addItemToObjectPool(type+item_num);
         addItem(type+item_num);
     }
 }
@@ -177,5 +179,6 @@ function createLight()
     light_num++;
     Obj = {type:"light", ObjectInfo:Obj};
     ObjectPool["light"+light_num] = Obj;
+    addItemToObjectPool("light"+light_num);
     addLight("light"+light_num);
 }

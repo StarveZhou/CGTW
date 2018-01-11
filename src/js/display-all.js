@@ -1,3 +1,4 @@
+//TODO 也许渲染器可以更厉害一点
 function getProgramInfo(gl) {
     const vsSource = `
         precision lowp float;
@@ -145,33 +146,6 @@ function getMatrixInfo(){
     };
 }
 
-function getLightSources() {
-    let lightSource1 = {
-        usePointLighting: true,
-        pointLightingLocation: [0, 10, 4],
-        pointLightingSpecularColor: [0.5, 0.5, 0.5],
-        pointLightingDiffuseColor: [1, 1, 1],
-    };
-
-    let lightSource2 = {
-        usePointLighting: true,
-        pointLightingLocation: [0, 10, -4],
-        pointLightingSpecularColor: [0.5, 0.5, 0.5],
-        pointLightingDiffuseColor: [0.4, 0.4, 0.4],
-    };
-
-
-    let lightSources = [];
-    lightSources = lightSources.concat(lightSource1);
-    lightSources = lightSources.concat(lightSource2);
-
-    return lightSources;
-}
-
-function getAmbientLight() {
-    return [0.2, 0.2, 0.2];
-}
-
 function display() {
     const canvas = document.querySelector("#glcanvas");
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
@@ -185,10 +159,9 @@ function display() {
         //console.log(1)
 
         let ambientLight = getAmbientLight();
-        let lightSources = getLightSources();
 
         updateMatrix(gl,canvas,programInfo,matrixInfo) 
-        drawScene(gl, programInfo, matrixInfo, ambientLight, lightSources);
+        drawScene(gl, programInfo, matrixInfo, AmbientLight, LightSources);
 
         requestAnimationFrame(render);
     }

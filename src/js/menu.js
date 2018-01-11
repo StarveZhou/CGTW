@@ -55,7 +55,7 @@ function removeItem(id)
             unshowBasicForm();
             current = null;
         }
-        delete ObjectPool[id];
+        removeItemFromObjectPool(id);
         res.remove();
     }
     //res.onclick=null;
@@ -69,7 +69,7 @@ function removeModel(id)
         unshowBasicForm();
         current = null;
     }
-    delete ObjectPool[id];
+    removeItemFromObjectPool(id);
     res.remove();
 }
 
@@ -81,7 +81,7 @@ function removeLight(id)
         unshowBasicForm();
         current = null;
     }
-    delete ObjectPool[id];
+    removeItemFromObjectPool(id);
     res.remove();
 }
 
@@ -129,6 +129,7 @@ function create(type)
         }
         Obj = {type:type, ObjectInfo:Obj};
         ObjectPool[type+item_num] = Obj;
+        addItemToObjectPool(type+item_num);
         addItem(type+item_num);
     }
 }
@@ -177,5 +178,6 @@ function createLight()
     light_num++;
     Obj = {type:"light", ObjectInfo:Obj};
     ObjectPool["light"+light_num] = Obj;
+    addItemToObjectPool("light"+light_num);
     addLight("light"+light_num);
 }

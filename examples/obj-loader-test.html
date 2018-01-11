@@ -17,6 +17,7 @@
 <script src="../src/dist/js/jquery.min.js"></script>
 <script src="../src/js/gl-matrix.js"></script>
 <script src="../src/js/draw_basic_object.js"></script>
+<script src="../src/js/view.js"></script>
 <!--<script src="../src/js/basic_object_with_texture.js"></script>-->
 <script src="../src/js/objreader.js"></script>
 <script>
@@ -27,7 +28,43 @@
             alert('Unable to initialize WebGL. Your browser or machine may not support it.');
             return;
         }
-        //console.log("Running");
+
+        // vertex shader to determine shadow
+        const shadowVsSource = `
+        precision lowp float;
+        attribute vec4 aVertexPosition;
+
+        uniform mat4 uModelViewMatrix;
+        uniform mat4 uProjectionMatrix;
+
+        void main(void) {
+            gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+        }
+        `;
+
+        // Fragment shader to determine shadow
+        const shadowFsSource = `
+        void main(void) {
+            gl_FragColor = vec4( 0.0, 0.0, 0.0,gl_FragCoord.z);
+        }
+        `;
+
+        // Initialize a shader program; this is where all the lighting
+        // for the vertices and so forth is established.
+        const shadowShaderProgram = initShaderProgram(gl, shadowVsSource, shadowFsSource);
+        // the program info used for shadow
+        const shadowProgramInfo = {
+            program: shadowShaderProgram,
+            attribLocations: {
+                vertexPosition: gl.getAttribLocation(shadowShaderProgram, 'aVertexPosition'),
+            },
+            uniformLocations: {
+                projectionMatrix: gl.getUniformLocation(shadowShaderProgram, 'uProjectionMatrix'),
+                modelViewMatrix: gl.getUniformLocation(shadowShaderProgram, 'uModelViewMatrix'),
+            },
+        };
+
+
         // Vertex shader program
 
         const vsSource = `
@@ -40,7 +77,8 @@
         attribute vec3 aVertexNormal;
         attribute vec2 aTextureCoord;
 
-        uniform mat4 uModelViewMatrix;
+        uniform mat4 uModelMatrix;
+        uniform mat4 uViewMatrix;
         uniform mat4 uProjectionMatrix;
         uniform mat4 uNormalMatrix;
 
@@ -53,11 +91,11 @@
         varying vec4 vTransformedNormal;
 
         void main(void) {
-            vPosition = uModelViewMatrix * aVertexPosition;
+            vPosition = uModelMatrix * aVertexPosition;
             vAmbientColor = aVertexAmbientColor;
             vDiffuseColor = aVertexDiffuseColor;
             vSpecularColor = aVertexSpecularColor;
-            gl_Position = uProjectionMatrix * vPosition;
+            gl_Position = uProjectionMatrix * uViewMatrix * vPosition;
             vTextureCoord = aTextureCoord;
             vTransformedNormal = uNormalMatrix*vec4(aVertexNormal,1.0);
         }
@@ -142,7 +180,8 @@
             },
             uniformLocations: {
                 projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
-                modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+                viewMatrix:gl.getUniformLocation(shaderProgram,'uViewMatrix'),
+                modelMatrix: gl.getUniformLocation(shaderProgram, 'uModelMatrix'),
                 normalMatrix: gl.getUniformLocation(shaderProgram, 'uNormalMatrix'),
                 usePointLighting: gl.getUniformLocation(shaderProgram, 'uUsePointLighting'),
                 useTexture: gl.getUniformLocation(shaderProgram, 'uUseTexture'),
@@ -157,42 +196,57 @@
             },
         };
 
-        let ObjectInfo = getObjInfo('a_obj');
-        let faceColors = [1.0, 1.0, 1.0, 1.0];
+        // info used by projectionMatrix and viewMatrix
+        let matrixInfo={
+            eye:vec3.fromValues(0.0, 0.0, 5.0),
+            // eye:[0.0,0.0,0.5],
+            at:vec3.fromValues(0.0, 0.0, 0.0),
+            up: vec3.fromValues(0.0, 1.0, 0.0),
+            bPersp:true,
+            fov:45.0,
+            near:0.1,
+            far:100.0,
+            width:10.0,
+            height:10.0,
+            currentAngle:[0.0,0.0],
+            projectionMatrix:mat4.create(),
+            viewMatrix:mat4.create()
+        };
 
-        //console.log(gl);
-        //console.log(objInfo);
-        /*var objInfo = {
-            verPosition : [
-                0, 0, 0,
-                1, 0, 0,
-                1, 1, 0,
-                0, 1, 0,],
-            indicesForVer : [ 0, 1, 2, 0, 2, 3,]
-        };*/
         const texture = loadTexture(gl, '../images/cubetexture.png');
 
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
-        gl.clearDepth(1.0);                 // Clear everything
-        gl.enable(gl.DEPTH_TEST);           // Enable depth testing
-        gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        // Create a perspective matrix, a special matrix that is
-        // used to simulate the distortion of perspective in a camera.
-        // Our field of view is 45 degrees, with a width/height
-        // ratio that matches the display size of the canvas
-        // and we only want to see objects between 0.1 units
-        // and 100 units away from the camera.
+        gl.useProgram(shadowShaderProgram)
 
-        const fieldOfView = 45 * Math.PI / 180;   // in radians
-        const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-        const zNear = 0.1;
-        const zFar = 100.0;
-        const projectionMatrix = mat4.create();
+        // var shadowFramebuffer = gl.createFramebuffer()
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, shadowFramebuffer)
 
-        // note: glmatrix.js always has the first argument
-        // as the destination to receive the result.
-        mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
+        // var shadowDepthTexture = gl.createTexture()
+        // gl.bindTexture(gl.TEXTURE_2D, shadowDepthTexture)
+        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+        // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, shadowDepthTextureSize,
+        // shadowDepthTextureSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+
+        // var renderBuffer = gl.createRenderbuffer()
+        // gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer)
+        // gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16,
+        // shadowDepthTextureSize, shadowDepthTextureSize)
+
+        // gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
+        // gl.TEXTURE_2D, shadowDepthTexture, 0)
+        // gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT,
+        // gl.RENDERBUFFER, renderBuffer)
+
+        // gl.bindTexture(gl.TEXTURE_2D, null)
+        // gl.bindRenderbuffer(gl.RENDERBUFFER, null)
+
+        //init event handlers
+        initDocumentHandlers(document,matrixInfo);
+        initCanvasHandlers(canvas,matrixInfo);
+
+
+        let objectInfo = getObjInfo("a_obj");
+        let object = Object.create(objectInfo);
 
         let ambientLight = [0.2, 0.2, 0.2];
 
@@ -215,25 +269,12 @@
         lightSources = lightSources.concat(lightSource1);
         lightSources = lightSources.concat(lightSource2);
 
-        ObjectInfo.ambientColor = [0.1, 0.1, 0.1, 1.0];
-        ObjectInfo.diffuseColor = [1.0, 1.0, 1.0, 1.0];
-        ObjectInfo.specularColor = [0.3, 0.3, 0.3, 1.0];
-        ObjectInfo.useTexture = true;
-        ObjectInfo.texture = texture;
-        ObjectInfo.shiness = 10;
-
-        ObjectInfo.transformation = {
-            translation : [0.0, 0.0, -1.0],
-            scale : [4.0, 4.0, 4.0],
-            rotation : {x : 0.0, y : 1.0, z : 0.0}
-        };
-
-        const eyePosition = [0, 0, 5];
-
+        gl.useProgram(shaderProgram);
 
         function render() {
 
-            objDisplay(gl, programInfo, projectionMatrix, ObjectInfo, ambientLight, lightSources, eyePosition);
+            updateMatrix(gl,canvas,programInfo,matrixInfo);
+            objDisplay(gl, programInfo,matrixInfo, object, ambientLight, lightSources);
 
             requestAnimationFrame(render);
         }

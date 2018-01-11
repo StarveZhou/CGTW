@@ -233,7 +233,7 @@ function drawScene(gl, programInfo, matrixInfo, ambientLight, lightSources) {
                 break;
             case "obj":
                 //TODO 修改为和draw相同的
-                objDisplay(gl, programInfo, matrixInfo, ObjectPool[item].ObjectInfo, ambientLight, lightSources);
+                objDisplay(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
                 break;
             default:
                 console.log("CGTWError :: undefined ObjectPool type")

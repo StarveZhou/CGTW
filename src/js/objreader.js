@@ -201,10 +201,25 @@ function getObjInfo(objName) {
         textureIndices: objInfo.indicesForTex,
         vertexNormals: objInfo.norPosition,
         normalIndices: objInfo.indicesForNor,
+
+        transformation: {
+            translation: [0.0, 0.0, -1.0],
+            scale: [3.0, 3.0, 3.0],
+            rotation: {x:0.0, y: 1.0, z: 0.0}
+        },
+
+        ambientColor: [0.1, 0.1, 0.1, 1.0],
+        diffuseColor: [1.0, 1.0, 1.0, 1.0],
+        specularColor: [0.3, 0.3, 0.3, 1.0],
+        useTexture: false,
+        texture: null,
+        shiness: 10,
+        sideNum: null,
+        upBottomRatio: null
     };
 }
 
 
-function objDisplay(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition) {
-    drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
+function objDisplay(gl, programInfo,matrixInfo, object, ambientLight, lightSources) {
+    drawPolygon(gl, programInfo,matrixInfo, object, ambientLight, lightSources);
 }

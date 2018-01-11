@@ -37,9 +37,14 @@ function addItemToObjectPool(name) {
         let buffer = initBuffers(gl, ObjectPool[name].ObjectInfo);
         BufferPool[name] = buffer;
     }
+    else if (mType == "light"){
+        let lightSource = ObjectPool[name].ObjectInfo;
+        lightSource["name"] = name;
+        LightSources.concat(lightSource);
+    }
 }
 
-function removeItemFromObjectPool() {
+function removeItemFromObjectPool(name) {
     let mType = ObjectPool[name].type;
     if (mType === "cube"     ||
         mType === "sphere"   ||
@@ -53,5 +58,45 @@ function removeItemFromObjectPool() {
         let objName = ObjectPool[name].ObjectInfo.objFile;
         deleteObjFromHtml(objName);
         delete ObjectPool[name];
+    }
+    else if (mType === "light"){
+        for (let i=0; i<LightSources.length; i=i+1){
+            if (LightSources[i].name === name){
+                LightSources.splice(i, 1);
+                break;
+            }
+        }
+    }
+}
+
+function refreshItemInObjectPool(name){
+    const canvas = document.querySelector("#glcanvas");
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+    let mType = ObjectPool[name].type;
+    if (mType === "cube"     ||
+        mType === "sphere"   ||
+        mType === "cylinder" ||
+        mType === "cone"     ||
+        mType === "prism"    ||
+        mType === "trustum"  ||
+        mType === "obj"){
+        let buffer = initBuffers(gl, ObjectPool[name].ObjectInfo);
+        BufferPool[name] = buffer;
+    }
+    else if (mType === "light"){
+        for (let i=0; i<LightSources.length; i=i+1){
+            if (LightSources[i].name === name){
+                LightSources.splice(i, 1);
+                break;
+            }
+        }
+
+        let lightSource = ObjectPool[name].ObjectInfo;
+        lightSource["name"] = name;
+        LightSources.concat(lightSource);
+    }
+    else if (mType === "ambient-light"){
+        AmbientLight = ObjectPool[name].ObjectInfo["ambient-light"].slice();
     }
 }

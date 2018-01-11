@@ -90,6 +90,8 @@ ObjectPool = {
 current = null;
 //ObjectPool = {};
 BufferPool = {};
+LightSources = [];
+AmbientLight = [0.2, 0.2, 0.2];
 
 $(function() {
     $('#leftMenu').metisMenu();      

@@ -1,6 +1,7 @@
 let ObjSelector = {
     number : 0,
-    name : []
+    name : [],
+    cnt : {}
 };
 
 function objStrAna(str){
@@ -34,7 +35,7 @@ function insertObjIntoHtml(file){
 
     let strs = new Array();
 
-    let name;
+    let name = null;
     strs = (file.name).split(".");
     //console.log(strs[0]);
     if (strs[1] === "obj"){
@@ -43,6 +44,8 @@ function insertObjIntoHtml(file){
                 return;
             }
             ObjSelector.name.push(strs[0] + '_obj');
+            ObjSelector.number ++;
+            ObjSelector.cnt[name + "_obj"] = 0;
             let info = document.createElement("info");
             name = strs[0] + '_obj';
             info.setAttribute("id", strs[0]+"_obj");
@@ -59,7 +62,12 @@ function insertObjIntoHtml(file){
     {
         return null;
     }
+<<<<<<< HEAD
     return name;
+=======
+    console.log("import finish");
+    return name + "_obj";
+>>>>>>> 7f1abea1f7b49e82691f44cec8e0bc716356d853
 }
 
 
@@ -70,7 +78,7 @@ function insertObjIntoHtml(file){
 * */
 function objReader(){
     let files = document.getElementById("files").files;
-    alert(files);
+    //alert(files);
     if (files.length){
         let name = insertObjIntoHtml(files);
     }
@@ -80,6 +88,7 @@ function objReader(){
 * 删除 <div id="obj-info"> 标签下的 id 为 name_id 的<info>标签
 * */
 
+<<<<<<< HEAD
 function deleteObjFromHtml(name){
     if (file == null) return;
     let info = document.getElementById("obj-info");
@@ -89,7 +98,28 @@ function deleteObjFromHtml(name){
         let index = ObjSelector.name.indexOf(name);
         ObjSelector.name.splice(index, 1);
         ObjSelector.number --;
+=======
+function deleteObjFromHtml(objname){
+    if (objname == null) return;
+
+    if (ObjSelector.name.indexOf(objname) == -1) return;
+    if (ObjSelector.cnt[objname] > 1){
+        ObjSelector.cnt[objname] --;
     }
+    else{
+        let name = objname;
+        let info = document.getElementById("obj-info");
+        let tag = document.getElementById(name);
+        if (typeof tag !== "undefined"){
+            info.removeChild(tag);
+            let index = ObjSelector.name.indexOf(name);
+            ObjSelector.name.splice(index, 1);
+            ObjSelector.number --;
+            delete ObjSelector.cnt[objname];
+        }
+>>>>>>> 7f1abea1f7b49e82691f44cec8e0bc716356d853
+    }
+
 }
 
 
@@ -109,13 +139,16 @@ function testDelete(){
     deleteObjFromHtml(name);
 }
 
-/**
- *
- * @param objName
- * @returns {{positions: Array, indices: Array, textureCoordinates: Array, textureIndices: Array, vertexNormals: Array, normalIndices: Array}}
- */
+
 function getObjInfo(objName) {
+    if (objName == null) return null;
+
     let content = document.getElementById(objName).innerHTML;
+
+    if (content == null) return null;
+
+    ObjSelector.cnt[objName] ++;
+
     let lines = content.split('=');
 
     let objInfo = {
@@ -200,10 +233,26 @@ function getObjInfo(objName) {
         textureIndices: objInfo.indicesForTex,
         vertexNormals: objInfo.norPosition,
         normalIndices: objInfo.indicesForNor,
+
+        transformation: {
+            translation: [0.0, 0.0, -1.0],
+            scale: [3.0, 3.0, 3.0],
+            rotation: {x:0.0, y: 1.0, z: 0.0}
+        },
+
+        ambientColor: [0.1, 0.1, 0.1, 1.0],
+        diffuseColor: [1.0, 1.0, 1.0, 1.0],
+        specularColor: [0.3, 0.3, 0.3, 1.0],
+        useTexture: false,
+        texture: null,
+        shiness: 10,
+        sideNum: null,
+        upBottomRatio: null,
+        objFile : objName
     };
 }
 
 
-function objDisplay(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition) {
-    drawPolygon(gl, programInfo, projectionMatrix, object, ambientLight, lightSources, eyePosition);
+function objDisplay(gl, programInfo,matrixInfo, object, ambientLight, lightSources) {
+    drawPolygon(gl, programInfo,matrixInfo, object, ambientLight, lightSources);
 }

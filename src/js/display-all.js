@@ -214,29 +214,28 @@ function drawScene(gl, programInfo, matrixInfo, ambientLight, lightSources) {
         switch (ObjectPool[item].type){
 
             case "cube":
-                drawCube(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+                drawCube(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
                 break;
             case "sphere":
-                drawSphere(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+                drawSphere(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
                 break;
             case "cylinder":
-                drawCylinder(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+                drawCylinder(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
                 break;
             case "cone":
-                drawCone(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+                drawCone(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
                 break;
             case "prism":
-                drawPrism(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+                drawPrism(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
                 break;
             case "trustum":
-                drawTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight, lightSources);
+                drawTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
                 break;
             case "obj":
-                //TODO 修改为和draw相同的
-                objDisplay(gl, programInfo, matrixInfo, ObjectPool[item].ObjectInfo, ambientLight, lightSources);
+                objDisplay(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
                 break;
             default:
-                console.log("CGTWError :: undefined ObjectPool type")
+                break;
         }
     }
 

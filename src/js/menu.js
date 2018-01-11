@@ -89,6 +89,7 @@ function removeLight(id)
 //right bar
 function create(type)
 {
+    // TODO 将会变为真的纹理
     const canvas = document.querySelector("#glcanvas");
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     tempTexture = loadTexture(gl, '../images/cubetexture.png');

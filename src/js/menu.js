@@ -96,17 +96,17 @@ function create(type)
     tempTexture = loadTexture(gl, '../images/cubetexture.png');
 
     let Obj = {
-        positions: null,
-        indices: null,
+        positions: [],
+        indices: [],
         transformation: {
             translation: [0.0, 0.0, 0.0],
             scale: [1.0, 1.0, 1.0],
             rotation: {x:0.0, y: 0.0, z: 0.0}
         },
-        textureCoordinates: null,
-        textureIndices: null,
-        vertexNormals: null,
-        normalIndices: null,
+        textureCoordinates: [],
+        textureIndices: [],
+        vertexNormals: [],
+        normalIndices: [],
         ambientColor: [0.1, 0.1, 0.1, 1.0],
         diffuseColor: [1.0, 1.0, 1.0, 1.0],
         specularColor: [0.3, 0.3, 0.3, 1.0],
@@ -138,17 +138,17 @@ function create(type)
 function createModel()
 {
     let Obj = {
-        positions: null,
-        indices: null,
+        positions: [],
+        indices: [],
         transformation: {
             translation: [0.0, 0.0, 0.0],
             scale: [1.0, 1.0, 1.0],
             rotation: {x:0.0, y: 0.0, z: 0.0}
         },
-        textureCoordinates: null,
-        textureIndices: null,
-        vertexNormals: null,
-        normalIndices: null,
+        textureCoordinates: [],
+        textureIndices: [],
+        vertexNormals: [],
+        normalIndices: [],
         ambientColor: [0.1, 0.1, 0.1, 1.0],
         diffuseColor: [1.0, 1.0, 1.0, 1.0],
         specularColor: [0.3, 0.3, 0.3, 1.0],

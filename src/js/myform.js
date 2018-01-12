@@ -261,10 +261,9 @@ function changeModelObj()
 {
     if (current == null) return ;
     let obj_info = ObjectPool[current].ObjectInfo;
-    //Todo
     if (obj_info.objFile != null)
         deleteObjFromHtml(obj_info.objFile);
-    obj_info.objFile = insertObjIntoHtml(model_arg.find("#model-obj").files[0]);
+    obj_info.objFile = insertObjIntoHtml(model_arg.find("#model-obj")[0].files[0]);
     refreshItemInObjectPool(current);
 }
 

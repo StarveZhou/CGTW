@@ -28,26 +28,24 @@ function objStrAna(str){
 * 并根据传入文件的文件名，将obj文件中的内容输入到 <div id="obj-info"> 标签中
 * 存储方式为<info id="filename_obj">...</info>
 * */
-function insertObjIntoHtml(files){
-    let file = files[0];
+function insertObjIntoHtml(file){
+    //let file = files[0];
     if (file == null) return null;
     let reader = new FileReader();
 
     let strs = new Array();
 
-    let name = null;
     strs = (file.name).split(".");
     //console.log(strs[0]);
     if (strs[1] === "obj"){
         reader.onload = function () {
-            if (document.getElementById(strs[0] + '_obj') != undefined){
-                return;
+            if (document.getElementById(strs[0] + '_obj') !== null){
+                return null;
             }
             ObjSelector.name.push(strs[0] + '_obj');
             ObjSelector.number ++;
             ObjSelector.cnt[name + "_obj"] = 0;
             let info = document.createElement("info");
-            name = strs[0] + '_obj';
             info.setAttribute("id", strs[0]+"_obj");
             let res = objStrAna(this.result);
             let textNode = document.createTextNode(res);
@@ -62,8 +60,8 @@ function insertObjIntoHtml(files){
     {
         return null;
     }
-    console.log("import finish");
-    return name + "_obj";
+    //console.log("import finish");
+    return strs[0] + "_obj";
 }
 
 
@@ -95,7 +93,7 @@ function deleteObjFromHtml(objname){
         let name = objname;
         let info = document.getElementById("obj-info");
         let tag = document.getElementById(name);
-        if (typeof tag !== "undefined"){
+        if (tag !== null){
             info.removeChild(tag);
             let index = ObjSelector.name.indexOf(name);
             ObjSelector.name.splice(index, 1);

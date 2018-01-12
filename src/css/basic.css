@@ -58,3 +58,7 @@ body {
     right: 0px;
     width: var(--menu-width);
 }
+
+#obj-info{
+    display:none;
+}

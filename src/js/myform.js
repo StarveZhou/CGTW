@@ -189,7 +189,7 @@ function changeScale()
     obj_scale[0] = basic_scale.find("#basic-scalex").spinner("value");
     obj_scale[1] = basic_scale.find("#basic-scaley").spinner("value");
     obj_scale[2] = basic_scale.find("#basic-scalez").spinner("value");
-    refreshItemInObjectPool(current);
+    //refreshItemInObjectPool(current);
 }
 
 function changeRot()
@@ -199,7 +199,7 @@ function changeRot()
     obj_rot.x = basic_rot.find("#basic-rotx").spinner("value") / 360 * 6.28;
     obj_rot.y = basic_rot.find("#basic-roty").spinner("value") / 360 * 6.28;
     obj_rot.z = basic_rot.find("#basic-rotz").spinner("value") / 360 * 6.28;
-    refreshItemInObjectPool(current);
+    //refreshItemInObjectPool(current);
 }
 
 function changeLoc()
@@ -219,7 +219,7 @@ function changeLoc()
         obj_trans[1] = basic_loc.find("#basic-y").spinner("value");
         obj_trans[2] = basic_loc.find("#basic-z").spinner("value");
     }
-    refreshItemInObjectPool(current);
+    //refreshItemInObjectPool(current);
 }
 
 function changeTC()
@@ -262,7 +262,7 @@ function changeTC()
         basic_tc.find(".input-texture").hide();
         basic_tc.find(".input-color").fadeIn();
     }
-    refreshItemInObjectPool(current);
+    //refreshItemInObjectPool(current);
 }
 
 function changeSideNum()
@@ -287,6 +287,7 @@ function changeModelObj()
     let obj_info = ObjectPool[current].ObjectInfo;
     obj_info.objFile = loadObj(current, model_obj.find(".input-file-file")[0].files[0]);
     showModelObj();
+    console.log(ObjectPool[current].ObjectInfo.indices.length);
     refreshItemInObjectPool(current);
 }
 
@@ -296,7 +297,7 @@ function changeModelTex()
     let obj_info = ObjectPool[current].ObjectInfo;
     //Todo
     obj_info.texture = model_arg.find("#model-texture").files[0];
-    refreshItemInObjectPool(current);
+    //refreshItemInObjectPool(current);
 }
 
 function changeEnLight()

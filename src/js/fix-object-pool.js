@@ -37,6 +37,9 @@ function addItemToObjectPool(name) {
             let buffer = initBuffers(gl, ObjectPool[name].ObjectInfo);
             BufferPool[name] = buffer;
         }
+        else{
+            BufferPool[name] = null;
+        }
 
     }
     else if (mType === "light"){
@@ -94,7 +97,7 @@ function refreshItemInObjectPool(name){
     else if (mType === "light"){
         for (let i=0; i<LightSources.length; i=i+1){
             if (LightSources[i].name === name){
-                console.log("7");
+                //console.log("7");
                 LightSources.splice(i, 1);
                 break;
             }

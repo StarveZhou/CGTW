@@ -231,12 +231,12 @@ function getObjInfo(objName) {
 /*
 * load positions, indices, textureCoordnates, textureIndices,
 * vertexNormals, normalIndices from objfile file to ObjectPool[id].ObjectInfo
-* @pram file the objfile
-* @pram id load info into ObjectPool[id]
+* @param file the objfile
+* @param name load info into ObjectPool[id]
  */
-function loadObj(id, file)
+function loadObj(name, file)
 {
-    let obj_info = ObjectPool[id].ObjectInfo;
+    let obj_info = ObjectPool[name].ObjectInfo;
     if (obj_info == null) return null;
 
     if (file == null)
@@ -266,9 +266,8 @@ function loadObj(id, file)
             indicesForTex : [],
             indicesForNor : []
         };
-
-        for (let i in lines){
-            let line = lines[i];
+        for (let id in lines){
+            let line = lines[id];
             let items = line.split(' ');
             switch (items[0]){
                 case 'v' :
@@ -290,8 +289,8 @@ function loadObj(id, file)
                     break;
 
                 case 'f' :
-                    for (let j=1; j<=3; j++) {
-                        let iitems = items[j].split('\/');
+                    for (let i=1; i<=3; i++) {
+                        let iitems = items[i].split('\/');
                         objInfo.indicesForVer.push(parseInt(iitems[0]) - 1);
                         if (iitems[1].length > 0)
                             objInfo.indicesForTex.push(parseInt(iitems[1]) - 1);
@@ -303,21 +302,23 @@ function loadObj(id, file)
 
                 default :
                     let list = [];
-                    for (let j=1; j<items.length; j++){
-                        list.push(items[j]);
+                    for (let i=1; i<items.length; i++){
+                        list.push(items[i]);
                     }
                     if (items[0] === '') break;
                     objInfo[items[0]] = list;
                     break;
+
             }
+
         }
 
         let maxVer = [-1000000.0, -1000000.0, -1000000.0];
         let minVer = [1000000.0, 1000000.0, 1000000.0];
-        for (let i in objInfo.verPosition){
-            let item = objInfo.verPosition[i];
-            if (maxVer[i%3] < item) maxVer[i%3] = item;
-            if (minVer[i%3] > item) minVer[i%3] = item;
+        for (let id in objInfo.verPosition){
+            let item = objInfo.verPosition[id];
+            if (maxVer[id%3] < item) maxVer[id%3] = item;
+            if (minVer[id%3] > item) minVer[id%3] = item;
         }
         let delta = 0;
         for (let i=0; i<3; i++){
@@ -326,9 +327,9 @@ function loadObj(id, file)
             }
         }
 
-        for (let i in objInfo.verPosition){
-            let item = objInfo.verPosition[i];
-            objInfo.verPosition[i] = item / delta;
+        for (let id in objInfo.verPosition){
+            let item = objInfo.verPosition[id];
+            objInfo.verPosition[id] = item / delta;
         }
 
         obj_info.positions = objInfo.verPosition;

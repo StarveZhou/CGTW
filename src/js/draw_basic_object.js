@@ -316,6 +316,72 @@ function createCubeData(object) {
     return object;
 }
 
+function createInsideCudeData(object)
+{
+    // cube data
+    let cubeVertexPositionData;
+    let cubeIndexData;
+    let cubeNormalData;
+    let cubeNormalIndex;
+    let cubeTextureIndex;
+    let cubeTextureCoordinate;
+    cubeVertexPositionData = [
+        1, 1, 1,
+        1, -1, 1,
+        -1, -1, 1,
+        -1, 1, 1,
+        1, 1, -1,
+        1, -1, -1,
+        -1, -1, -1,
+        -1, 1, -1,
+    ];
+    cubeIndexData = [
+        0, 1, 2, 0, 2, 3,   //front
+        4, 5, 6, 4, 6, 7,   //back
+        4, 0, 3, 4, 3, 7,   //up
+        5, 1, 2, 5, 2, 6,   //bottom
+        4, 5, 1, 4, 1, 0,   //right
+        3, 2, 6, 3, 6, 7,   //left
+    ];
+    cubeNormalData = [
+        -1, 0, 0,
+        1, 0, 0,
+        0, -1, 0,
+        0, 1, 0,
+        0, 0, -1,
+        0, 0, 1
+    ];
+    cubeNormalIndex = [
+        4, 4, 4, 4, 4, 4,
+        5, 5, 5, 5, 5, 5,
+        2, 2, 2, 2, 2, 2,
+        3, 3, 3, 3, 3, 3,
+        0, 0, 0, 0, 0, 0,
+        1, 1, 1, 1, 1, 1,
+    ];
+    cubeTextureIndex = [
+        0, 1, 2, 0, 2, 3,
+        0, 1, 2, 0, 2, 3,
+        0, 1, 2, 0, 2, 3,
+        0, 1, 2, 0, 2, 3,
+        0, 1, 2, 0, 2, 3,
+        0, 1, 2, 0, 2, 3,
+    ];
+    cubeTextureCoordinate = [
+        0, 0,
+        1, 0,
+        1, 1,
+        0, 1,];
+    object.positions = cubeVertexPositionData;
+    object.indices = cubeIndexData;
+    object.vertexNormals = cubeNormalData;
+    object.normalIndices = cubeNormalIndex;
+    object.textureIndices = cubeTextureIndex;
+    object.textureCoordinates = cubeTextureCoordinate;
+
+    return object;
+}
+
 function createSphereData(object) {
     //sphere data
     let sphereVertexPositionData = [];

@@ -69,6 +69,7 @@ function removeItemFromObjectPool(name) {
         for (let i=0; i<LightSources.length; i=i+1){
             if (LightSources[i].name === name){
                 LightSources.splice(i, 1);
+                delete ObjectPool[name];
                 break;
             }
         }

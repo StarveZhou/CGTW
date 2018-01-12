@@ -136,7 +136,7 @@ function showLight()
 function showForm()
 {
     let type = ObjectPool[current].type;
-    $("#form-container").find(".form-title").text(type + " form");
+    base_form.find("#myform-title").text(current + ' form');
 
     if (type === "cube" || type === "sphere" || type === "cylinder" || type === "cone")
     {
@@ -189,7 +189,6 @@ function changeScale()
     obj_scale[0] = basic_scale.find("#basic-scalex").spinner("value");
     obj_scale[1] = basic_scale.find("#basic-scaley").spinner("value");
     obj_scale[2] = basic_scale.find("#basic-scalez").spinner("value");
-    refreshItemInObjectPool(current);
 }
 
 function changeRot()
@@ -199,7 +198,6 @@ function changeRot()
     obj_rot.x = basic_rot.find("#basic-rotx").spinner("value") / 360 * 6.28;
     obj_rot.y = basic_rot.find("#basic-roty").spinner("value") / 360 * 6.28;
     obj_rot.z = basic_rot.find("#basic-rotz").spinner("value") / 360 * 6.28;
-    refreshItemInObjectPool(current);
 }
 
 function changeLoc()
@@ -219,15 +217,32 @@ function changeLoc()
         obj_trans[1] = basic_loc.find("#basic-y").spinner("value");
         obj_trans[2] = basic_loc.find("#basic-z").spinner("value");
     }
+}
+
+function changeTexture()
+{
+    if (current == null) return ;
+    let obj_info = ObjectPool[current].ObjectInfo;
+    obj_info.useTexture = !!basic_tc.find("#basic-entex").is(':checked');
+    //Todo
+    if (obj_info.useTexture)
+    {
+        basic_tc.find(".input-color").hide();
+        basic_tc.find(".input-texture").fadeIn();
+    }
+    else
+    {
+        basic_tc.find(".input-texture").hide();
+        basic_tc.find(".input-color").fadeIn();
+    }
     refreshItemInObjectPool(current);
 }
 
-function changeTC()
+function changeColor()
 {
     if (current == null) return ;
     let obj_info = ObjectPool[current].ObjectInfo;
 
-    obj_info.useTexture = !!basic_tc.find("#basic-entex").is(':checked');
     let s = basic_tc.find("#basic-color").colorpicker("getValue");
     let a = s.substring(1, 3);
     obj_info.diffuseColor[0] = parseInt(a, 16)/255;
@@ -236,6 +251,8 @@ function changeTC()
     a = s.substring(5, 7);
     obj_info.diffuseColor[2] = parseInt(a, 16)/255;
     obj_info.diffuseColor[3] = 1;
+
+    refreshItemInObjectPool(current);
     /*
     let s = basic_tc.find("#basic-color").colorpicker("getValue");
     s = s.substring(5);
@@ -251,18 +268,6 @@ function changeTC()
     a = s.substring(0, s.indexOf(')'));
     obj_info.diffuseColor[3] = parseFloat(a);
     */
-    //Todo
-    if (obj_info.useTexture)
-    {
-        basic_tc.find(".input-color").hide();
-        basic_tc.find(".input-texture").fadeIn();
-    }
-    else
-    {
-        basic_tc.find(".input-texture").hide();
-        basic_tc.find(".input-color").fadeIn();
-    }
-    refreshItemInObjectPool(current);
 }
 
 function changeSideNum()
@@ -287,7 +292,6 @@ function changeModelObj()
     let obj_info = ObjectPool[current].ObjectInfo;
     obj_info.objFile = loadObj(current, model_obj.find(".input-file-file")[0].files[0]);
     showModelObj();
-    refreshItemInObjectPool(current);
 }
 
 function changeModelTex()
@@ -354,7 +358,7 @@ jQuery.fn.myform=function()
         color: "#FFFFFF"
     }).on('changeColor',
         function(ev) {
-            changeTC();
+            changeColor();
         });
     basic_sideNum.find(".spinner").spinner({spin:changeSideNum, stop:changeSideNum});
     basic_upBotRatio.find(".spinner").spinner({spin:changeUpBotRatio, stop:changeUpBotRatio});

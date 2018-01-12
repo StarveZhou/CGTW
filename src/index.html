@@ -54,13 +54,13 @@
             </nav>
         </div>
         <div id="middle">
-            <div id="canvas-container">
-            <canvas id="glcanvas"  width="640" height="480">
+            <div id="canvas-container" onmousedown="unshowBasicForm()">
+            <canvas id="glcanvas">
                 Your browser doesn't appear to support the <code>&lt;canvas&gt;</code> element.
             </canvas>
             </div>
             <div id="form-container" class="myform">
-                <div class="form-title"></div>
+                <div class="form-title"><span id="myform-title"></span><span class="fa fa-times" onclick="unshowBasicForm()"></span></div>
                 <div role="form">
                     <div id="basic-scale" class="form-inline form-group">
                         <div class="form-group input-scale">
@@ -117,14 +117,14 @@
                     <div id="basic-tc">
                         <div class="form-inline form-group en-texture">
                             <label for="basic-entex" class="input-title">使用纹理：</label>
-                            <input id="basic-entex" type="checkbox" onclick="changeTC()">
+                            <input id="basic-entex" type="checkbox" onclick="changeTexture()">
                         </div>
                         <div class="form-inline form-group input-texture">
                             <label for="basic-texture" class="input-title">纹理：</label>
                             <div id="basic-texture" class="input-file">
                                 <input type='button' class="input-file-btn" value='选择文件' onclick='javascript: $("#basic-texture-file").click()'/>
                                 <label class="input-file-label">aaaaaaaaaaa</label>
-                                <input id="basic-texture-file" type="file" class="input-file-file" accept=".obj" onchange='changeTC()' />
+                                <input id="basic-texture-file" type="file" class="input-file-file" accept=".obj" onchange='changeTexture()' />
                             </div>
                         </div>
                         <div class="form-inline form-group input-color">

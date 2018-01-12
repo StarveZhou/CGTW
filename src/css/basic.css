@@ -9,6 +9,7 @@ body {
     color: #333333;
     background-color: #24303d;
 }
+
 #editor{
     position: absolute;
     top: 50px;
@@ -36,7 +37,8 @@ body {
 }
 
 #canvas-container{
-    width: 100%;
+    position:fixed;
+    width: calc(100vw - 2*var(--menu-width) - 40px);
     height: calc(100vh - 100px);
 }
 

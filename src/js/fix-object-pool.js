@@ -33,9 +33,11 @@ function addItemToObjectPool(name) {
             default:
                 break;
         }
+        if (mType !== "model" || ObjectPool[name].objFile !== null){
+            let buffer = initBuffers(gl, ObjectPool[name].ObjectInfo);
+            BufferPool[name] = buffer;
+        }
 
-        let buffer = initBuffers(gl, ObjectPool[name].ObjectInfo);
-        BufferPool[name] = buffer;
     }
     else if (mType === "light"){
         let lightSource = ObjectPool[name].ObjectInfo;
@@ -85,7 +87,7 @@ function refreshItemInObjectPool(name){
         mType === "cone"     ||
         mType === "prism"    ||
         mType === "trustum"  ||
-        mType === "obj"){
+        mType === "model"){
         let buffer = initBuffers(gl, ObjectPool[name].ObjectInfo);
         BufferPool[name] = buffer;
     }

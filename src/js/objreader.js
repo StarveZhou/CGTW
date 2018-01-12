@@ -28,8 +28,8 @@ function objStrAna(str){
 * 并根据传入文件的文件名，将obj文件中的内容输入到 <div id="obj-info"> 标签中
 * 存储方式为<info id="filename_obj">...</info>
 * */
-function insertObjIntoHtml(file){
-    //let file = files[0];
+function insertObjIntoHtml(files){
+    let file = files[0];
     if (file == null) return null;
     let reader = new FileReader();
 
@@ -237,6 +237,6 @@ function getObjInfo(objName) {
 }
 
 
-function objDisplay(gl, programInfo,matrixInfo, object, ambientLight, lightSources) {
-    drawPolygon(gl, programInfo,matrixInfo, object, ambientLight, lightSources);
+function objDisplay(gl, programInfo,matrixInfo, object, ambientLight, lightSources, buffers) {
+    drawPolygon(gl, programInfo,matrixInfo, object, ambientLight, lightSources, buffers);
 }

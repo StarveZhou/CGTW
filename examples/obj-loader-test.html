@@ -270,11 +270,11 @@
         lightSources = lightSources.concat(lightSource2);
 
         gl.useProgram(shaderProgram);
-
+        let buffers = initBuffers(gl, object);
         function render() {
 
             updateMatrix(gl,canvas,programInfo,matrixInfo);
-            objDisplay(gl, programInfo,matrixInfo, object, ambientLight, lightSources);
+            objDisplay(gl, programInfo,matrixInfo, object, ambientLight, lightSources, buffers);
 
             requestAnimationFrame(render);
         }

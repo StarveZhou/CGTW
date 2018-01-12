@@ -17,6 +17,7 @@
  *  function of updateMatrix
  * @param gl
  * @param canvas
+ * @param programInfo
  * @param matrixInfo
  */
 function updateMatrix(gl,canvas,programInfo,matrixInfo) {
@@ -64,12 +65,12 @@ function keydown(ev,matrixInfo) {
         }
         case 'W': {
             matrixInfo.eye[1] += 0.05;
-            matrixInfo.at[1]+=0.01;
+            matrixInfo.at[1]+=0.05;
             break;
         }
         case 'S': {
             matrixInfo.eye[1] -= 0.05;
-            matrixInfo.at[1]-=0.01;
+            matrixInfo.at[1]-=0.05;
             break;
         }
         case 'A': {

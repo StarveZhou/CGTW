@@ -13,11 +13,6 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
 
     const modelMatrix = mat4.create();
 
-    mat4.translate(
-        modelMatrix,     // destination matrix
-        modelMatrix,     // matrix to translate
-        [-0.0, 0.0, -6.0]);  // amount to translate
-
     if (object.transformation) {
         if (object.transformation.translation)
             mat4.translate(

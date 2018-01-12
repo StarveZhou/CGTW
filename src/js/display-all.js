@@ -181,7 +181,8 @@ function drawScene(gl, programInfo, matrixInfo, ambientLight, lightSources) {
         //object["texture"] = texture1;
         //console.log(ObjectPool[item].ObjectInfo)
         //console.log(programInfo)
-        let object = Object.create(ObjectPool[item].ObjectInfo);
+        //let object = Object.create(ObjectPool[item].ObjectInfo);
+        let object = ObjectPool[item].ObjectInfo;
         //ObjectPool[item].ObjectInfo.texture = texture1;
         //console.log(object);
         switch (ObjectPool[item].type){

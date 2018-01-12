@@ -205,6 +205,7 @@ function drawScene(gl, programInfo, matrixInfo, ambientLight, lightSources) {
                 drawTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
                 break;
             case "model":
+                //console.log(object);
                 if (ObjectPool[item].ObjectInfo.objFile !== null) {
                     objDisplay(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
                 }

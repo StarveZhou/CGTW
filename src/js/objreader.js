@@ -1,8 +1,10 @@
+/*
 let ObjSelector = {
     number : 0,
     name : [],
     cnt : {}
 };
+*/
 
 function objStrAna(str){
     let lines = str.split('\r\n');
@@ -28,6 +30,7 @@ function objStrAna(str){
 * 并根据传入文件的文件名，将obj文件中的内容输入到 <div id="obj-info"> 标签中
 * 存储方式为<info id="filename_obj">...</info>
 * */
+/*
 function insertObjIntoHtml(file){
     //let file = files[0];
     if (file == null) return null;
@@ -63,13 +66,14 @@ function insertObjIntoHtml(file){
     //console.log("import finish");
     return strs[0] + "_obj";
 }
-
+*/
 
 
 /**
 * 由<input>标签调用
 * 读取文件内容
 * */
+/*
 function objReader(){
     let files = document.getElementById("files").files;
     //alert(files);
@@ -77,11 +81,13 @@ function objReader(){
         let name = insertObjIntoHtml(files);
     }
 }
+*/
+
 /**
 * 传入需要删除的obj名称
 * 删除 <div id="obj-info"> 标签下的 id 为 name_id 的<info>标签
 * */
-
+/*
 function deleteObjFromHtml(objname){
     if (objname == null) return;
 
@@ -103,23 +109,27 @@ function deleteObjFromHtml(objname){
     }
 
 }
-
+*/
 
 /**
 * 调试用的展示按钮
 * */
+/*
 function objShow(){
     let s = document.getElementsByTagName("info");
     console.log(s);
 }
+*/
 
 /**
 * 调试删除用的展示按钮
 * */
+/*
 function testDelete(){
     let name = "a";
     deleteObjFromHtml(name);
 }
+*/
 
 
 function getObjInfo(objName) {
@@ -215,23 +225,122 @@ function getObjInfo(objName) {
         textureIndices: objInfo.indicesForTex,
         vertexNormals: objInfo.norPosition,
         normalIndices: objInfo.indicesForNor,
-
-        transformation: {
-            translation: [0.0, 0.0, -1.0],
-            scale: [3.0, 3.0, 3.0],
-            rotation: {x:0.0, y: 1.0, z: 0.0}
-        },
-
-        ambientColor: [0.1, 0.1, 0.1, 1.0],
-        diffuseColor: [1.0, 1.0, 1.0, 1.0],
-        specularColor: [0.3, 0.3, 0.3, 1.0],
-        useTexture: false,
-        texture: null,
-        shiness: 10,
-        sideNum: null,
-        upBottomRatio: null,
-        objFile : objName
     };
+}
+
+/*
+* load positions, indices, textureCoordnates, textureIndices,
+* vertexNormals, normalIndices from objfile file to ObjectPool[id].ObjectInfo
+* @pram file the objfile
+* @pram id load info into ObjectPool[id]
+ */
+function loadObj(id, file)
+{
+    let obj_info = ObjectPool[id].ObjectInfo;
+    if (obj_info == null) return null;
+
+    if (file == null)
+    {
+        obj_info.positions = [];
+        obj_info.indices = [];
+        obj_info.textureCoordinates = [];
+        obj_info.textureIndices = [];
+        obj_info.vertexNormals = [];
+        obj_info.normalIndices = [];
+        return null;
+    }
+
+    let strs = (file.name).split(".");
+    if (strs[1] !== "obj") return null;
+
+    let reader = new FileReader();
+
+    reader.onload = function () {
+        let res = objStrAna(this.result);
+        let lines = res.split('=');
+        let objInfo = {
+            verPosition : [],
+            texPosition : [],
+            norPosition : [],
+            indicesForVer : [],
+            indicesForTex : [],
+            indicesForNor : []
+        };
+
+        for (let i in lines){
+            let line = lines[i];
+            let items = line.split(' ');
+            switch (items[0]){
+                case 'v' :
+                    objInfo.verPosition.push(parseFloat(items[1]));
+                    objInfo.verPosition.push(parseFloat(items[2]));
+                    objInfo.verPosition.push(parseFloat(items[3]));
+                    break;
+
+                case 'vt' :
+                    objInfo.texPosition.push(parseFloat(items[1]));
+                    objInfo.texPosition.push(parseFloat(items[2]));
+                    objInfo.texPosition.push(parseFloat(items[3]));
+                    break;
+
+                case 'vn' :
+                    objInfo.norPosition.push(parseFloat(items[1]));
+                    objInfo.norPosition.push(parseFloat(items[2]));
+                    objInfo.norPosition.push(parseFloat(items[3]));
+                    break;
+
+                case 'f' :
+                    for (let j=1; j<=3; j++) {
+                        let iitems = items[j].split('\/');
+                        objInfo.indicesForVer.push(parseInt(iitems[0]) - 1);
+                        if (iitems[1].length > 0)
+                            objInfo.indicesForTex.push(parseInt(iitems[1]) - 1);
+                        if (iitems[2].length > 0)
+                            objInfo.indicesForNor.push(parseInt(iitems[2]) - 1);
+                    }
+
+                    break;
+
+                default :
+                    let list = [];
+                    for (let j=1; j<items.length; j++){
+                        list.push(items[j]);
+                    }
+                    if (items[0] === '') break;
+                    objInfo[items[0]] = list;
+                    break;
+            }
+        }
+
+        let maxVer = [-1000000.0, -1000000.0, -1000000.0];
+        let minVer = [1000000.0, 1000000.0, 1000000.0];
+        for (let i in objInfo.verPosition){
+            let item = objInfo.verPosition[i];
+            if (maxVer[i%3] < item) maxVer[i%3] = item;
+            if (minVer[i%3] > item) minVer[i%3] = item;
+        }
+        let delta = 0;
+        for (let i=0; i<3; i++){
+            if (maxVer[i] - minVer[i] > delta){
+                delta = maxVer[i] - minVer[i];
+            }
+        }
+
+        for (let i in objInfo.verPosition){
+            let item = objInfo.verPosition[i];
+            objInfo.verPosition[i] = item / delta;
+        }
+
+        obj_info.positions = objInfo.verPosition;
+        obj_info.indices = objInfo.indicesForVer;
+        obj_info.textureCoordinates = objInfo.texPosition;
+        obj_info.textureIndices = objInfo.indicesForTex;
+        obj_info.vertexNormals = objInfo.norPosition;
+        obj_info.normalIndices = objInfo.indicesForNor;
+    };
+
+    reader.readAsText(file);
+    return file.name;
 }
 
 

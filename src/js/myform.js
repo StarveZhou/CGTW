@@ -7,6 +7,8 @@ let extra_arg = base_form.find("#extra-arg");
 let basic_sideNum = extra_arg.find("#basic-sideNum");
 let basic_upBotRatio = extra_arg.find("#basic-upBotRatio");
 let model_arg = base_form.find("#model-arg");
+let model_obj = model_arg.find("#model-obj");
+let model_tex = model_arg.find("#model-texture");
 let basic_light = base_form.find("#basic-light");
 
 function hideAll()
@@ -20,6 +22,8 @@ function hideAll()
     basic_sideNum.hide();
     basic_upBotRatio.hide();
     model_arg.hide();
+    model_obj.hide();
+    model_tex.hide();
     basic_light.hide();
 }
 
@@ -91,10 +95,30 @@ function showUpBotRatio()
     extra_arg.show();
 }
 
-function showModel()
+function showModelObj()
 {
     let Obj = ObjectPool[current].ObjectInfo;
+    if (Obj.objFile == null) {
+        model_obj.find(".input-file-label")[0].innerText = "未选择文件";
+    }
+    else {
+       model_obj.find(".input-file-label")[0].innerText = Obj.objFile;
+    }
+    model_obj.show();
+    model_arg.show();
+}
+
+function showModelTex()
+{
     //Todo
+    /*let Obj = ObjectPool[current].ObjectInfo;
+    if (Obj.objFile == null) {
+        model_obj.find("#input-file-label")[0].innerText = "未选择文件";
+    }
+    else {
+        model_obj.find("#input-file-label")[0].innerText = Obj.objFile;
+    }*/
+    model_tex.show();
     model_arg.show();
 }
 
@@ -141,7 +165,7 @@ function showForm()
     {
         hideAll();
         showScale(); showRot(); showLoc();
-        showModel();
+        showModelObj(); showModelTex();
         base_form.fadeIn();
     }
     else if (type === "light")
@@ -261,9 +285,8 @@ function changeModelObj()
 {
     if (current == null) return ;
     let obj_info = ObjectPool[current].ObjectInfo;
-    if (obj_info.objFile != null)
-        deleteObjFromHtml(obj_info.objFile);
-    obj_info.objFile = insertObjIntoHtml(model_arg.find("#model-obj")[0].files[0]);
+    obj_info.objFile = loadObj(current, model_obj.find(".input-file-file")[0].files[0]);
+    showModelObj();
     refreshItemInObjectPool(current);
 }
 

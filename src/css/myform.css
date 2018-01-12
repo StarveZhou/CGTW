@@ -4,17 +4,38 @@
     text-align:center;
 }
 
+.input-title{
+    width:100px;
+    text-align:left;
+}
+
+.input-file{
+    width:250px;
+}
+
+.input-file .input-file-btn{
+
+}
+
+.input-file .input-file-label{
+    display:inline-block;
+}
+
+.input-file .input-file-file{
+    display:none;
+}
+
+.spinner{
+    width:30px;
+}
+
+
+
+
+
 .input-scale{
     margin-left:10px;
     width:30%;
-}
-
-.input-scale label{
-    width:100px;
-}
-
-.input-scale .spinner{
-    width:30px;
 }
 
 .input-loc{
@@ -22,25 +43,9 @@
     width:30%;
 }
 
-.input-loc label{
-    width:100px;
-}
-
-.input-loc .spinner{
-    width:30px;
-}
-
 .input-rot{
     margin-left:10px;
     width:30%;
-}
-
-.input-rot label{
-    width:100px;
-}
-
-.input-rot .spinner{
-    width:30px;
 }
 
 .input-sideNum{
@@ -48,25 +53,9 @@
     width:30%;
 }
 
-.input-sideNum label{
-    width:100px;
-}
-
-.input-sideNum .spinner{
-    width:30px;
-}
-
 .input-upBottomRatio{
     margin-left:10px;
     width:30%;
-}
-
-.input-upBottomRatio label{
-    width:100px;
-}
-
-.input-upBottomRatio .spinner{
-    width:30px;
 }
 
 .en-texture{
@@ -74,21 +63,9 @@
     width:100%;
 }
 
-.en-texture label{
-    width:100px;
-}
-
 .input-texture{
     margin-left:10px;
     width:100%;
-}
-
-.input-texture label{
-    width:100px;
-}
-
-.input-texture input{
-    width:250px;
 }
 
 .input-obj{
@@ -96,26 +73,26 @@
     width:100%;
 }
 
-.input-obj label{
-    width:100px;
-}
-
-.input-obj input{
-    width:250px;
-}
-
 .input-color{
+    margin-left:10px;
     width:100%;
 }
 
-.input-color label{
-    width:100px;
+.input-color .colorpicker-component{
+    width:200px;
 }
 
-.input-color .colorpicker-component{
-    width:250px;
+.en-light{
+    margin-left:10px;
+    width:100%;
 }
+
+
 
 #form-container{
+    display:none;
+}
+
+#hiddenFile{
     display:none;
 }

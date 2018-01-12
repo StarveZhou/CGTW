@@ -62,7 +62,6 @@ function removeItemFromObjectPool(name) {
         delete BufferPool[name];
         if (mType === "model") {
             let objName = ObjectPool[name].ObjectInfo.objFile;
-            deleteObjFromHtml(objName);
             delete ObjectPool[name];
         }
     }

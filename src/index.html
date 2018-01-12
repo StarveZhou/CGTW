@@ -64,67 +64,71 @@
                 <div role="form">
                     <div id="basic-scale" class="form-inline form-group">
                         <div class="form-group input-scale">
-                            <label for="basic-scalex">x方向缩放：</label>
+                            <label for="basic-scalex" class="input-title">x方向缩放：</label>
                             <input id="basic-scalex" class="spinner" value="0">
                         </div>
                         <div class="form-group input-scale">
-                            <label for="basic-scaley">y方向缩放：</label>
+                            <label for="basic-scaley" class="input-title">y方向缩放：</label>
                             <input id="basic-scaley" class="spinner" value="0">
                         </div>
                         <div class="form-group input-scale">
-                            <label for="basic-scalez">z方向缩放：</label>
+                            <label for="basic-scalez" class="input-title">z方向缩放：</label>
                             <input id="basic-scalez" class="spinner" value="0">
                         </div>
                     </div>
                     <div id="basic-rot" class="form-inline form-group">
                         <div class="form-group input-rot">
-                            <label for="basic-rotx">x方向旋转：</label>
+                            <label for="basic-rotx" class="input-title">x方向旋转：</label>
                             <input id="basic-rotx" class="spinner" value="0">
                         </div>
                         <div class="form-group input-rot">
-                            <label for="basic-roty">y方向旋转：</label>
+                            <label for="basic-roty" class="input-title">y方向旋转：</label>
                             <input id="basic-roty" class="spinner" value="0">
                         </div>
                         <div class="form-group input-rot">
-                            <label for="basic-rotz">z方向旋转：</label>
+                            <label for="basic-rotz" class="input-title">z方向旋转：</label>
                             <input id="basic-rotz" class="spinner" value="0">
                         </div>
                     </div>
                     <div id="basic-loc" class="form-inline form-group">
                         <div class="form-group input-loc">
-                            <label for="basic-x">x坐标：</label>
+                            <label for="basic-x" class="input-title">x坐标：</label>
                             <input id="basic-x" class="spinner" value="0">
                         </div>
                         <div class="form-group input-loc">
-                            <label for="basic-y">y坐标：</label>
+                            <label for="basic-y" class="input-title">y坐标：</label>
                             <input id="basic-y" class="spinner" value="0">
                         </div>
                         <div class="form-group input-loc">
-                            <label for="basic-z">z坐标：</label>
+                            <label for="basic-z" class="input-title">z坐标：</label>
                             <input id="basic-z" class="spinner" value="0">
                         </div>
                     </div>
                     <div id="extra-arg" class="form-inline form-group">
                         <div id="basic-sideNum" class="form-group input-sideNum">
-                            <label for="sideNum">边数：</label>
+                            <label for="sideNum" class="input-title">边数：</label>
                             <input id="sideNum" class="spinner" value="3">
                         </div>
                         <div id="basic-upBotRatio" class="form-group input-upBottomRatio">
-                            <label for="upBottomRatio">上下比：</label>
+                            <label for="upBottomRatio" class="input-title">上下比：</label>
                             <input id="upBottomRatio" class="spinner" value="0.5">
                         </div>
                     </div>
                     <div id="basic-tc">
                         <div class="form-inline form-group en-texture">
-                            <label for="basic-entex">使用纹理：</label>
+                            <label for="basic-entex" class="input-title">使用纹理：</label>
                             <input id="basic-entex" type="checkbox" onclick="changeTC()">
                         </div>
                         <div class="form-inline form-group input-texture">
-                            <label for="basic-texture">纹理：</label>
-                            <input id="basic-texture" type="file" onchange="changeTC()">
+                            <label for="basic-texture" class="input-title">纹理：</label>
+                            <div id="basic-texture" class="input-file">
+                                <input type='button' class="input-file-btn" value='选择文件' onclick='javascript: $("#basic-texture-file").click()'/>
+                                <label class="input-file-label">aaaaaaaaaaa</label>
+                                <input id="basic-texture-file" type="file" class="input-file-file" accept=".obj" onchange='changeTC()' />
+                            </div>
                         </div>
                         <div class="form-inline form-group input-color">
-                            <label for="basic-color">颜色:</label>
+                            <label for="basic-color" class="input-title">颜色:</label>
                             <div id="basic-color" class="input-group colorpicker-component">
                                 <input type="text" class="form-control input-lg"/>
                                 <span class="input-group-addon"><i></i></span>
@@ -133,28 +137,37 @@
                     </div>
                     <div id="model-arg">
                         <div class="form-inline form-group input-obj">
-                            <label for="model-obj">Obj文件：</label>
-                            <input id="model-obj" type="file" onchange="changeModelObj()">
+                            <label for="model-obj" class="input-title">Obj文件：</label>
+                            <div id="model-obj" class="input-file">
+                                <input type='button' class="input-file-btn" value='选择文件' onclick='javascript: $("#model-obj-file").click()'/>
+                                <label class="input-file-label">aaaaaaaaaaa</label>
+                                <input id="model-obj-file" type="file" class="input-file-file" accept=".obj" onchange='changeModelObj()' />
+                            </div>
+                            <!--<input id="model-obj" type="file" accept=".obj" onchange="changeModelObj()">-->
                         </div>
                         <div class="form-inline form-group input-texture">
-                            <label for="model-texture">纹理：</label>
-                            <input id="model-texture" type="file" onchange="changeModelTex()">
+                            <label for="model-texture" class="input-title">纹理：</label>
+                            <div id="model-texture" class="input-file">
+                                <input type='button' class="input-file-btn" value='选择文件' onclick='javascript: $("#model-texture-file").click()'/>
+                                <label class="input-file-label">aaaaaaaaaaa</label>
+                                <input id="model-texture-file" type="file" class="input-file-file" accept=".obj" onchange='changeModelTex()' />
+                            </div>
                         </div>
                     </div>
                     <div id="basic-light">
                         <div class="form-inline form-group en-light">
-                            <label for="basic-enlight">使用光源：</label>
+                            <label for="basic-enlight" class="input-title">使用光源：</label>
                             <input id="basic-enlight" type="checkbox" onclick="changeEnLight()">
                         </div>
                         <div class="form-inline form-group input-color">
-                            <label for="basic-DColor">Diffuse Color:</label>
+                            <label for="basic-DColor" class="input-title">Diffuse Color:</label>
                             <div id="basic-DColor" class="input-group colorpicker-component">
                                 <input type="text" class="form-control input-lg"/>
                                 <span class="input-group-addon"><i></i></span>
                             </div>
                         </div>
                         <div class="form-inline form-group input-color">
-                            <label for="basic-SColor">Specular Color:</label>
+                            <label for="basic-SColor" class="input-title">Specular Color:</label>
                             <div id="basic-SColor" class="input-group colorpicker-component">
                                 <input type="text" class="form-control input-lg"/>
                                 <span class="input-group-addon"><i></i></span>

@@ -207,6 +207,7 @@ function drawScene(gl, programInfo, matrixInfo, ambientLight, lightSources) {
             case "model":
                 //console.log(object);
                 if (ObjectPool[item].ObjectInfo.objFile !== null) {
+                    //console.log("yy");
                     objDisplay(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
                 }
                 break;

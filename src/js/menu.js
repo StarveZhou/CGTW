@@ -93,7 +93,7 @@ function create(type)
     // TODO 将会变为真的纹理
     const canvas = document.querySelector("#glcanvas");
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    let tempTexture = loadTexture(gl, '../images/cubetexture.png');
+    //let tempTexture = loadTexture(gl, '../images/cubetexture.png');
 
     let Obj = {
         positions: [],
@@ -111,7 +111,7 @@ function create(type)
         diffuseColor: [1.0, 1.0, 1.0, 1.0],
         specularColor: [0.3, 0.3, 0.3, 1.0],
         useTexture: false,
-        texture: tempTexture,
+        texture: null,
         shiness: 10,
         sideNum: null,
         upBottomRatio: null
@@ -157,7 +157,7 @@ function createModel()
         ambientColor: [0.1, 0.1, 0.1, 1.0],
         diffuseColor: [1.0, 1.0, 1.0, 1.0],
         specularColor: [0.3, 0.3, 0.3, 1.0],
-        useTexture: true,
+        useTexture: false,
         texture: tempTexture,
         shiness: 10,
         sideNum: null,

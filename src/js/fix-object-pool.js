@@ -33,7 +33,7 @@ function addItemToObjectPool(name) {
             default:
                 break;
         }
-        if (mType !== "model" || ObjectPool[name].objFile !== null){
+        if (mType !== "model" || ObjectPool[name].ObjectInfo.objFile !== null){
             let buffer = initBuffers(gl, ObjectPool[name].ObjectInfo);
             BufferPool[name] = buffer;
         }
@@ -72,6 +72,7 @@ function removeItemFromObjectPool(name) {
                 break;
             }
         }
+        delete ObjectPool[name];
     }
 }
 

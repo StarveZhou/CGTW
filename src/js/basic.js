@@ -36,9 +36,11 @@
             specularColor: [0.3, 0.3, 0.3, 1.0],
             useTexture: false,
             texture: null,
+            textureFile: null
             shiness: 10,
             sideNum: null,
             upBottomRatio: null
+            objFile: null
         }
     },
     cubic2 : {

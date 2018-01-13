@@ -49,6 +49,7 @@ function removeItem(id)
 {
     let res = $("#itemList").find("#" + id);
     let type = ObjectPool[id].type;
+    let obj_info = ObjectPool[id].ObjectInfo;
     if (type === "cube" || type === "sphere" || type === "cylinder" || type == "cone" || type === "prism" ||type === "trustum")
     {
         if (id === current)
@@ -90,10 +91,9 @@ function removeLight(id)
 //right bar
 function create(type)
 {
-    // TODO 将会变为真的纹理
-    const canvas = document.querySelector("#glcanvas");
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    let tempTexture = loadTexture(gl, '../images/cubetexture.png');
+    //const canvas = document.querySelector("#glcanvas");
+    //const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    //let tempTexture = loadTexture(gl, '../images/cubetexture.png');
 
     let Obj = {
         positions: [],
@@ -111,10 +111,12 @@ function create(type)
         diffuseColor: [1.0, 1.0, 1.0, 1.0],
         specularColor: [0.3, 0.3, 0.3, 1.0],
         useTexture: false,
-        texture: tempTexture,
+        texture: null,
+        textureFile: null,
         shiness: 10,
         sideNum: null,
-        upBottomRatio: null
+        upBottomRatio: null,
+        objFile: null
     };
     if (type === "cube" || type === "sphere" || type === "cylinder" || type === "cone" ||type === "prism" || type === "trustum")
     {
@@ -137,10 +139,9 @@ function create(type)
 
 function createModel()
 {
-    //todo
-    const canvas = document.querySelector("#glcanvas");
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    let tempTexture = loadTexture(gl, '../images/cubetexture.png');
+    //const canvas = document.querySelector("#glcanvas");
+    //const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    //let tempTexture = loadTexture(gl, '../images/cubetexture.png');
 
     let Obj = {
         positions: [],
@@ -158,7 +159,8 @@ function createModel()
         diffuseColor: [1.0, 1.0, 1.0, 1.0],
         specularColor: [0.3, 0.3, 0.3, 1.0],
         useTexture: true,
-        texture: tempTexture,
+        texture: null,
+        textureFile: null,
         shiness: 10,
         sideNum: null,
         upBottomRatio: null,

@@ -343,7 +343,8 @@ function loadObj(name, file)
     };
 
     reader.readAsText(file);
-    return file.name;
+
+    return file;
 }
 
 

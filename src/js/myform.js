@@ -65,15 +65,27 @@ function showLoc()
 
 function showTC()
 {
-    let Obj = ObjectPool[current].ObjectInfo;
+    let obj_info = ObjectPool[current].ObjectInfo;
 
-    basic_tc.find("#basic-entex").prop("checked", Obj.useTexture);
-    basic_tc.find("#basic-color").colorpicker("setValue","#"+(Obj.diffuseColor[0]*255).toString(16) + (Obj.diffuseColor[1]*255).toString(16) + (Obj.diffuseColor[2]*255).toString(16));
+    basic_tc.find("#basic-entex").prop("checked", obj_info.useTexture);
+
+    basic_tc.find(".input-texture").find(".input-file-file").val(null);
+    if (obj_info.textureFile == null)
+    {
+        basic_tc.find(".input-texture").find(".input-file-label")[0].innerText = "未选择文件";
+    }
+    else
+    {
+        basic_tc.find(".input-texture").find(".input-file-label")[0].innerText = obj_info.textureFile;
+    }
+    basic_tc.find("#basic-color").colorpicker("setValue","#"+(obj_info.diffuseColor[0]*255).toString(16) + (obj_info.diffuseColor[1]*255).toString(16) + (obj_info.diffuseColor[2]*255).toString(16));
 
     basic_tc.find(".input-color").hide();
     basic_tc.find(".input-texture").hide();
-    if (ObjectPool[current].ObjectInfo.useTexture)
+    if (obj_info.useTexture)
+    {
         basic_tc.find(".input-texture").show();
+    }
     else
         basic_tc.find(".input-color").show();
     basic_tc.show();
@@ -97,12 +109,13 @@ function showUpBotRatio()
 
 function showModelObj()
 {
-    let Obj = ObjectPool[current].ObjectInfo;
-    if (Obj.objFile == null) {
+    let obj_info = ObjectPool[current].ObjectInfo;
+    model_obj.find(".input-file-file").val(null);
+    if (obj_info.objFile == null || obj_info.objFile.name == null) {
         model_obj.find(".input-file-label")[0].innerText = "未选择文件";
     }
     else {
-       model_obj.find(".input-file-label")[0].innerText = Obj.objFile;
+       model_obj.find(".input-file-label")[0].innerText = obj_info.objFile.name;
     }
     model_obj.show();
     model_arg.show();
@@ -110,14 +123,15 @@ function showModelObj()
 
 function showModelTex()
 {
-    //Todo
-    /*let Obj = ObjectPool[current].ObjectInfo;
-    if (Obj.objFile == null) {
-        model_obj.find("#input-file-label")[0].innerText = "未选择文件";
+    let Obj = ObjectPool[current].ObjectInfo;
+
+    model_tex.find(".input-file-file").val(null);
+    if (Obj.textureFile == null) {
+        model_tex.find(".input-file-label")[0].innerText = "未选择文件";
     }
     else {
-        model_obj.find("#input-file-label")[0].innerText = Obj.objFile;
-    }*/
+        model_tex.find(".input-file-label")[0].innerText = Obj.textureFile;
+    }
     model_tex.show();
     model_arg.show();
 }
@@ -219,22 +233,21 @@ function changeLoc()
     }
 }
 
-function changeTexture()
+function changeEnTexture()
 {
     if (current == null) return ;
     let obj_info = ObjectPool[current].ObjectInfo;
     obj_info.useTexture = !!basic_tc.find("#basic-entex").is(':checked');
-    //Todo
-    if (obj_info.useTexture)
-    {
-        basic_tc.find(".input-color").hide();
-        basic_tc.find(".input-texture").fadeIn();
-    }
-    else
-    {
-        basic_tc.find(".input-texture").hide();
-        basic_tc.find(".input-color").fadeIn();
-    }
+    showTC();
+}
+
+function changeTexture()
+{
+    console.log("changeTexture");
+    if (current == null) return ;
+    let obj_info = ObjectPool[current].ObjectInfo;
+    obj_info.textureFile = loadTexture(current, basic_tc.find("#basic-texture").find(".input-file-file")[0].files[0]);
+    showTC();
     refreshItemInObjectPool(current);
 }
 
@@ -288,18 +301,20 @@ function changeUpBotRatio()
 
 function changeModelObj()
 {
+    console.log("changeModelObj");
     if (current == null) return ;
     let obj_info = ObjectPool[current].ObjectInfo;
     obj_info.objFile = loadObj(current, model_obj.find(".input-file-file")[0].files[0]);
     showModelObj();
+    refreshItemInObjectPool(current);
 }
 
 function changeModelTex()
 {
     if (current == null) return ;
     let obj_info = ObjectPool[current].ObjectInfo;
-    //Todo
-    obj_info.texture = model_arg.find("#model-texture").files[0];
+    obj_info.textureFile = loadTexture(current, model_tex.find(".input-file-file")[0].files[0]);
+    showModelTex();
     refreshItemInObjectPool(current);
 }
 

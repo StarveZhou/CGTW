@@ -23,7 +23,7 @@
 function updateMatrix(gl,canvas,programInfo,matrixInfo) {
     // update projection matrix
     if(matrixInfo.bPersp) {
-        mat4.perspective(matrixInfo.projectionMatrix,matrixInfo.fov*Math.PI/180,canvas.width/canvas.height,matrixInfo.near,matrixInfo.far);
+        mat4.perspective(matrixInfo.projectionMatrix,matrixInfo.fov*Math.PI/180,canvas.clientWidth/canvas.clientHeight,matrixInfo.near,matrixInfo.far);
     }
     else{
         mat4.ortho(matrixInfo.projectionMatrix, -matrixInfo.width,matrixInfo.width,-matrixInfo.height,matrixInfo.height,matrixInfo.near,matrixInfo.far);

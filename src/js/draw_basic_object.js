@@ -214,8 +214,8 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
             programInfo.uniformLocations.pointLightingLocation,
             pointLightingLocation);
         gl.uniform3fv(
-            programInfo.uniformLocations.pointLightingLocation,
-            pointLightingLocation);
+            programInfo.uniformLocations.pointLightingSpecularColor,
+            pointLightingSpecularColor);
         gl.uniform3fv(
             programInfo.uniformLocations.pointLightingDiffuseColor,
             pointLightingDiffuseColor);

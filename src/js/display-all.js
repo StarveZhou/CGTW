@@ -14,6 +14,7 @@ function getProgramInfo(gl) {
         uniform mat4 uViewMatrix;
         uniform mat4 uProjectionMatrix;
         uniform mat4 uNormalMatrix;
+        uniform vec3 uEyePosition;
         
         varying vec4 vPosition; 
         varying vec4 vAmbientColor;
@@ -40,6 +41,7 @@ function getProgramInfo(gl) {
         #define MAX_LIGHT_NUM 5
         precision lowp float;
         uniform bool uUseTexture;
+        uniform bool uUseDepthTexture;
 
         uniform float uMaterialShiness;
         uniform vec3 uEyePosition;
@@ -59,13 +61,66 @@ function getProgramInfo(gl) {
         varying vec4 vTransformedNormal;
 
         uniform sampler2D uSampler;
-
+        uniform sampler2D uDepthSampler;
+        
+        
+        
+        
         void main(void) {
             vec3 lighting = uAmbientLight;
-            vec3 normal = normalize(vTransformedNormal.xyz);
+            vec3 normal;
             vec3 eyeDirection = normalize(uEyePosition - vec3(vPosition));
-            vec3 origColor = uAmbientLight*vAmbientColor.rgb;
+            vec3 origColor = uAmbientLight*vAmbientColor.rgb;    
+            vec2 texCoord;
+            
+            texCoord = vTextureCoord;
+            
+            if (uUseDepthTexture)
+            {
+            
+                vec3 normalDelta;
+                mat3 depth;
+                float offseti;
+                float offsetj;
+                float deltax;
+                float deltay;
+                
+                offseti = 0.0;
+                for (int i = 0; i<3; i++)
+                {
+                    offsetj = 0.0;
+                    for (int j = 0; j<3; j++)
+                    {
+                        texCoord = vTextureCoord + vec2(offseti - 0.015, offsetj - 0.015);  
+                        depth[i][j] = texture2D(uDepthSampler, texCoord).r;
+                        offsetj += 0.015;
+                    }
+                    offseti += 0.015;
+                }
+                
+                deltax = (depth[0][2] + 2.0 * depth[1][2] + depth[2][2]) - (depth[0][0] + 2.0 * depth[1][0] + depth[2][0]);
+                deltay = (depth[2][0] + 2.0 * depth[2][1] + depth[2][2]) - (depth[0][0] + 2.0 * depth[0][1] + depth[0][2]);
 
+                
+                /*
+                float depth0 = texture2D(uDepthSampler, texCoord).r;
+                texCoord = vTextureCoord + vec2(0.01, 0);
+                float depth1 = texture2D(uDepthSampler, texCoord).r;
+                texCoord = vTextureCoord + vec2(0, 0.01);
+                float depth2 = texture2D(uDepthSampler, texCoord).r;
+                deltax = depth1 - depth0;
+                deltay = depth2 - depth0;
+                */
+                
+                normalDelta = normalize(cross(vec3(1, 0, deltax), vec3(0, 1, deltay))) - vec3(0,0,1);
+                normal = normalize(vTransformedNormal.xyz + normalDelta);
+                
+                texCoord = vTextureCoord ;//- eyeUV.xy * (depth[0][0] * 0.02) / eyeUV.z;
+            }
+            else
+            {
+                normal = normalize(vTransformedNormal.xyz);
+            }
             for (int i = 0;i < MAX_LIGHT_NUM;i++) {
                 if (i < uLightNum) {
                     // the direction for point light
@@ -82,14 +137,27 @@ function getProgramInfo(gl) {
                     origColor +=  uPointLightingSpecularColor[i]*specularLightWeighting*vSpecularColor.rgb + uPointLightingDiffuseColor[i]*diffuseLightWeighting*vDiffuseColor.rgb;
                 }
             }
+            
 
             if (uUseTexture) {
-                vec4 texColor = texture2D(uSampler,vTextureCoord);
+                vec4 texColor = texture2D(uSampler,texCoord);
                 gl_FragColor = vec4(texColor.rgb*lighting,  texColor.a);
             } else {
                 gl_FragColor = vec4(origColor,vAmbientColor.a);
-                // gl_FragColor = vec4(vAmbientColor.rgb*lighting,1.0);     
+                // gl_FragColor = vec4(vAmbientColor.rgb*lighting,1.0);
             }
+            
+            const float LOG2 = 1.442695;
+            float z = gl_FragCoord.z / gl_FragCoord.w;
+            float fogFactor = exp2( -0.001 * 
+                               z * 
+                               z * 
+                               LOG2 );
+            fogFactor = clamp(fogFactor, 0.0, 1.0);
+            
+            gl_FragColor = mix(vec4(1.0,1.0,1.0,0.8), gl_FragColor, fogFactor );
+            
+            //gl_FragColor = vec4((normal.xyz + vec3(1,1,1))*0.5,1);
         }
         `;
 
@@ -116,6 +184,8 @@ function getProgramInfo(gl) {
             normalMatrix: gl.getUniformLocation(shaderProgram, 'uNormalMatrix'),
             usePointLighting: gl.getUniformLocation(shaderProgram, 'uUsePointLighting'),
             useTexture: gl.getUniformLocation(shaderProgram, 'uUseTexture'),
+            useDepthTexture: gl.getUniformLocation(shaderProgram, 'uUseDepthTexture'),
+            //depthScale: gl.getUniformLocation(shaderProgram, 'uDepthScale'),
             materialShiness: gl.getUniformLocation(shaderProgram, 'uMaterialShiness'),
             eyePosition: gl.getUniformLocation(shaderProgram, 'uEyePosition'),
             lightNum: gl.getUniformLocation(shaderProgram, 'uLightNum'),
@@ -124,6 +194,7 @@ function getProgramInfo(gl) {
             pointLightingDiffuseColor: gl.getUniformLocation(shaderProgram, 'uPointLightingDiffuseColor'),
             ambientLight: gl.getUniformLocation(shaderProgram, 'uAmbientLight'),
             uSampler: gl.getUniformLocation(shaderProgram, 'uSampler'),
+            uDepthSampler: gl.getUniformLocation(shaderProgram, 'uDepthSampler')
         },
     };
 }

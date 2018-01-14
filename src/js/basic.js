@@ -35,8 +35,11 @@
             diffuseColor: [1.0, 1.0, 1.0, 1.0],
             specularColor: [0.3, 0.3, 0.3, 1.0],
             useTexture: false,
+            useDepthTexture: false,
             texture: null,
-            textureFile: null
+            depthTexture: null,
+            textureFile: null,
+            depthTextureFile: null,
             shiness: 10,
             sideNum: null,
             upBottomRatio: null

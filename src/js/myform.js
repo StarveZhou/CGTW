@@ -70,6 +70,7 @@ function showTC()
     basic_tc.find("#basic-entex").prop("checked", obj_info.useTexture);
 
     basic_tc.find(".input-texture").find(".input-file-file").val(null);
+    basic_tc.find(".input-depthTexture").find(".input-file-file").val(null);
     if (obj_info.textureFile == null)
     {
         basic_tc.find(".input-texture").find(".input-file-label")[0].innerText = "未选择文件";
@@ -78,6 +79,16 @@ function showTC()
     {
         basic_tc.find(".input-texture").find(".input-file-label")[0].innerText = obj_info.textureFile;
     }
+
+    if (obj_info.depthTextureFile == null)
+    {
+        basic_tc.find(".input-depthTexture").find(".input-file-label")[0].innerText = "未选择文件";
+    }
+    else
+    {
+        basic_tc.find(".input-depthTexture").find(".input-file-label")[0].innerText = obj_info.depthTextureFile;
+    }
+
     basic_tc.find("#basic-color").colorpicker("setValue","#"+(obj_info.diffuseColor[0]*255).toString(16) + (obj_info.diffuseColor[1]*255).toString(16) + (obj_info.diffuseColor[2]*255).toString(16));
 
     basic_tc.find(".input-color").hide();
@@ -243,10 +254,21 @@ function changeEnTexture()
 
 function changeTexture()
 {
-    console.log("changeTexture");
+    //console.log("changeTexture");
     if (current == null) return ;
     let obj_info = ObjectPool[current].ObjectInfo;
     obj_info.textureFile = loadTexture(current, basic_tc.find("#basic-texture").find(".input-file-file")[0].files[0]);
+    showTC();
+    refreshItemInObjectPool(current);
+}
+
+function changeDepthTexture()
+{
+    console.log("changeDepthTexture");
+    if (current == null) return ;
+    let obj_info = ObjectPool[current].ObjectInfo;
+    obj_info.depthTextureFile = loadDepthTexture(current, basic_tc.find("#basic-depthTexture").find(".input-file-file")[0].files[0]);
+    if (obj_info.depthTextureFile != null) obj_info.useDepthTexture = true;
     showTC();
     refreshItemInObjectPool(current);
 }

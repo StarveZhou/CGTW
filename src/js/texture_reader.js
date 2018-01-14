@@ -208,3 +208,67 @@ function loadTexture(obj_name, file)
 
     return file.name;
 }
+
+function loadDepthTexture(obj_name, file)
+{
+    let obj_info = ObjectPool[obj_name].ObjectInfo;
+    if (obj_info == null) return null;
+
+    if (file == null)
+    {
+        return null;
+    }
+
+    let reader = new FileReader();
+    let strs = (file.name).split(".");
+
+    if (strs[1] !== "jpg" && strs[1] !== "png")
+    {
+        return null;
+    }
+
+    reader.onload = function (evt) {
+        const canvas = document.querySelector("#glcanvas");
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+        const texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+
+        const level = 0;
+        const internalFormat = gl.RGBA;
+        const width = 1;
+        const height = 1;
+        const border = 0;
+        const srcFormat = gl.RGBA;
+        const srcType = gl.UNSIGNED_BYTE;
+        const pixel = new Uint8Array([0, 0, 255, 255]);  // opaque blue
+        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+            width, height, border, srcFormat, srcType,
+            pixel);
+
+        let image = new Image();
+
+        image.src = evt.target.result;
+        // console.log(image.src);
+        image.onload = function () {
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+                srcFormat, srcType, image);
+
+            // if size of image is not power of 2, should do something
+            if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+                gl.generateMipmap(gl.TEXTURE_2D);
+            } else {
+                // wrapping to clamp to edge
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            }
+        };
+
+        obj_info.depthTexture = texture;
+    }
+    reader.readAsDataURL(file);
+
+    return file.name;
+}

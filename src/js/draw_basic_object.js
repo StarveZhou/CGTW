@@ -188,6 +188,8 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
         normalMatrix);
     gl.uniform1i(programInfo.uniformLocations.useTexture,
         object.useTexture);
+    gl.uniform1i(programInfo.uniformLocations.useDepthTexture,
+        object.useDepthTexture);
     gl.uniform1f(programInfo.uniformLocations.materialShiness,
         object.shiness);
     gl.uniform3fv(
@@ -234,6 +236,11 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
     // Tell the shader we bound the texture to texture unit 0
     gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
 
+    //Bind the depth texture
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, object.depthTexture);
+    gl.uniform1i(programInfo.uniformLocations.uDepthSampler, 1);//use texture 1
+    gl.uniform1f(programInfo.uniformLocations.depthScale, object.depthScale);
     {
         const vertexCount = object.indices.length;
         const type = gl.UNSIGNED_SHORT;
@@ -241,6 +248,8 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
         gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
         // gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
     }
+
+
 }
 
 function calculateNormal(i1, j1, k1, i2, j2, k2) {

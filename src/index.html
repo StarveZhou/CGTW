@@ -134,6 +134,14 @@
                                 <span class="input-group-addon"><i></i></span>
                             </div>
                         </div>
+                        <div class="form-inline form-group input-depthTexture">
+                            <label for="basic-depthTexture" class="input-title">深度纹理：</label>
+                            <div id="basic-depthTexture" class="input-file">
+                                <input type='button' class="input-file-btn" value='选择文件' onclick='javascript: $("#basic-depthTexture-file").click()'/>
+                                <label class="input-file-label">aaaaaaaaaaa</label>
+                                <input id="basic-depthTexture-file" type="file" class="input-file-file" accept="image/*" onchange='changeDepthTexture()' />
+                            </div>
+                        </div>
                     </div>
                     <div id="model-arg">
                         <div class="form-inline form-group input-obj">

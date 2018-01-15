@@ -195,6 +195,29 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
     gl.uniform3fv(
         programInfo.uniformLocations.eyePosition,
         matrixInfo.eye);
+    gl.uniform3fv(
+        programInfo.uniformLocations.eyeFacePoint,
+        matrixInfo.at);
+    gl.uniform3fv(
+        programInfo.uniformLocations.eyeUp,
+        matrixInfo.up);
+
+    //billboard
+    gl.uniform1i(
+        programInfo.uniformLocations.useBillboard,
+        object.useBillboard);
+    if (object.billboardPosition)
+    {
+        gl.uniform3fv(
+            programInfo.uniformLocations.billboardPosition,
+            object.billboardPosition);
+    }
+    if (object.billboardSize)
+    {
+        gl.uniform3fv(
+            programInfo.uniformLocations.billboardSize,
+            object.billboardSize);
+    }
 
     let pointLightingLocation = [];
     let pointLightingSpecularColor = [];

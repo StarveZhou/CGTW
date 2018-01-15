@@ -220,7 +220,8 @@ function createParticle()
         indices: [],
         transformation: {
             translation: [0.0, 0.0, 0.0],
-            scale: [1.0, 1.0, 1.0]
+            scale: [1.0, 1.0, 1.0],
+            rotation: {x:0.0, y: 0.0, z: 0.0}
         },
         textureCoordinates: [],
         textureIndices: [],
@@ -236,7 +237,9 @@ function createParticle()
         shiness: 10,
         sideNum: null,
         upBottomRatio: null,
-        objFile: null
+        objFile: null,
+        particleCenter: [0.0, 0.0, 0.0],
+        particleSize: 1.0
     };
     particle_num++;
     Obj = {type:"particle", ObjectInfo:Obj};

@@ -44,7 +44,9 @@
             shiness: 10,
             sideNum: null,
             upBottomRatio: null
-            objFile: null
+            objFile: null,
+            particleCenter:[0.0, 0.0, 0.0],
+            particleSize: 1.0
         }
     },
     cubic2 : {

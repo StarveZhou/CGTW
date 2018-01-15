@@ -1,6 +1,7 @@
 let item_num = 0;
 let model_num = 0;
 let light_num = 0;
+let particle_num = 0;
 
 function addItem(id)
 {
@@ -37,6 +38,12 @@ function addLight(id)
 {
     $("#lightList").append("<li id=\"" + id + "\"><a href=\"#form-container\" onclick=\"selectObj('" + id + "')\">" + id + "</a>" +
         "<span class=\"fa fa-times\" onclick=\"removeLight('" + id + "')\"></span></li>");
+}
+
+function addParticle(id)
+{
+    $("#particleList").append("<li id=\"" + id + "\"><a href=\"#form-container\" onclick=\"selectObj('" + id + "')\">" + id + "</a>" +
+        "<span class=\"fa fa-times\" onclick=\"removeParticle('" + id + "')\"></span></li>");
 }
 
 function selectObj(id)
@@ -87,6 +94,17 @@ function removeLight(id)
     res.remove();
 }
 
+function removeParticle(id)
+{
+    let res = $("#particleList").find("#" + id);
+    if (id === current)
+    {
+        unshowBasicForm();
+        current = null;
+    }
+    removeItemFromObjectPool(id);
+    res.remove();
+}
 
 //right bar
 function create(type)
@@ -110,6 +128,7 @@ function create(type)
         ambientColor: [0.1, 0.1, 0.1, 1.0],
         diffuseColor: [1.0, 1.0, 1.0, 1.0],
         specularColor: [0.3, 0.3, 0.3, 1.0],
+        useBillboard: false,
         useTexture: false,
         useDepthTexture: false,
         texture: null,
@@ -161,6 +180,7 @@ function createModel()
         ambientColor: [0.1, 0.1, 0.1, 1.0],
         diffuseColor: [1.0, 1.0, 1.0, 1.0],
         specularColor: [0.3, 0.3, 0.3, 1.0],
+        useBillboard: false,
         useTexture: true,
         texture: null,
         textureFile: null,
@@ -191,4 +211,36 @@ function createLight()
     ObjectPool["light"+light_num] = Obj;
     addItemToObjectPool("light"+light_num);
     addLight("light"+light_num);
+}
+
+function createParticle()
+{
+    let Obj = {
+        positions: [],
+        indices: [],
+        transformation: {
+            translation: [0.0, 0.0, 0.0],
+            scale: [1.0, 1.0, 1.0]
+        },
+        textureCoordinates: [],
+        textureIndices: [],
+        vertexNormals: [],
+        normalIndices: [],
+        ambientColor: [0.1, 0.1, 0.1, 1.0],
+        diffuseColor: [1.0, 1.0, 1.0, 1.0],
+        specularColor: [0.3, 0.3, 0.3, 1.0],
+        useBillboard: true,
+        useTexture: false,
+        texture: null,
+        textureFile: null,
+        shiness: 10,
+        sideNum: null,
+        upBottomRatio: null,
+        objFile: null
+    };
+    particle_num++;
+    Obj = {type:"particle", ObjectInfo:Obj};
+    ObjectPool["particle"+particle_num] = Obj;
+    addItemToObjectPool("particle"+particle_num);
+    addParticle("particle"+particle_num);
 }

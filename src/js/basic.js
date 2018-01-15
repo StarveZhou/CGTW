@@ -34,6 +34,7 @@
             ambientColor: [0.1, 0.1, 0.1, 1.0],
             diffuseColor: [1.0, 1.0, 1.0, 1.0],
             specularColor: [0.3, 0.3, 0.3, 1.0],
+            useBillboard: false,
             useTexture: false,
             useDepthTexture: false,
             texture: null,

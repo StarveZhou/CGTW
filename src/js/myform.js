@@ -200,6 +200,13 @@ function showForm()
         showLight();
         base_form.fadeIn();
     }
+    else if (type === "particle")
+    {
+        hideAll();
+        showScale(); showLoc();
+        showTC();
+        base_form.fadeIn();
+    }
 }
 
 function unshowBasicForm()

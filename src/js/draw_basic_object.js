@@ -325,6 +325,22 @@ function createCubeData(object) {
     return object;
 }
 
+function createParticleData(object) {
+    object.positions = [-1, -1, 0,
+                        1, -1, 0,
+                        1, 1, 0,
+                        -1, 1, 0];
+    object.indices = [0, 1, 2, 0, 2, 3];
+    object.vertexNormals = [0, 0, 1];
+    object.normalIndices = [0, 0, 0, 0, 0, 0];
+    object.textureIndices = [0, 1, 2, 0, 2, 3];
+    object.textureCoordinates = [0, 0,
+                                 1, 0,
+                                 1, 1,
+                                 0, 1];
+    return object;
+}
+
 function createInsideCudeData(object)
 {
     // cube data
@@ -1073,6 +1089,10 @@ function createTrustumOfAPyramidData(object) {
 
 function drawCube(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers) {
     //object = createCubeData(object);
+    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
+}
+
+function drawParticle(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers){
     drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
 }
 

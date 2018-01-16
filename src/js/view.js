@@ -20,7 +20,7 @@
  * @param programInfo
  * @param matrixInfo
  */
-let bRoam=true;
+let bRoam=false;
 function updateMatrix(gl,canvas,programInfo,matrixInfo) {
     // update projection matrix
     if(matrixInfo.bPersp) {
@@ -182,8 +182,13 @@ function initCanvasHandlers(canvas,matrixInfo){
     canvas.onmousewheel=function (ev) {
         if(ev.shiftKey&&(!bRoam)){
             let r=vec3.create();
+            let temp=vec3.create();
             vec3.sub(r,matrixInfo.at,matrixInfo.eye);
-            vec3.scaleAndAdd(matrixInfo.eye,matrixInfo.eye,r,-ev.wheelDelta/5000);
+            vec3.scaleAndAdd(temp,matrixInfo.eye,r,-ev.wheelDelta/5000);
+            if(!isOut(temp)){
+                vec3.copy(matrixInfo.eye,temp);
+            }
+            vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,r,-ev.wheelDelta/5000);
         }
     };
     let dragging = false;

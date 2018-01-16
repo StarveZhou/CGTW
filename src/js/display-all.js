@@ -37,16 +37,16 @@ function getProgramInfo(gl) {
         void main(void) {
             if (uUseBillboard)
             {
+                
                 float time = mod(uTime, aLifetime);
                 vec4 position = vec4(
-                    uBillboardPosition + aCenterOffset + (time * aVelocity),
+                    uBillboardPosition + aCenterOffset + time * aVelocity,
                     1.0
                 );
                 
                 vLifetime = 1.3 - (time / aLifetime);
                 vLifetime = clamp(vLifetime, 0.0, 1.0);
                 float size = (vLifetime * vLifetime) * 0.05;
-                
                 vec3 eyeFace = normalize(uEyeFacePoint - uEyePosition);
                 vec3 eyeUp = normalize(uEyeUp);
                 vec3 eyeRight = normalize(cross(eyeFace, eyeUp));
@@ -55,6 +55,7 @@ function getProgramInfo(gl) {
                 vTransformedNormal = vec4(uEyePosition - uBillboardPosition, 1.0);
                 
                 vLifetime = aLifetime;
+                
             }
             else
             {
@@ -111,7 +112,7 @@ function getProgramInfo(gl) {
             vec2 texCoord;
             
             texCoord = vTextureCoord;
-            if (uUseBillboard)
+            /*if (uUseBillboard)
             {
                 vec4 color;
                 if (uUseTexture) {
@@ -121,7 +122,7 @@ function getProgramInfo(gl) {
                 }
                 gl_FragColor.a *= vLifetime;
             }
-            else
+            else*/
             {
                 if (uUseDepthTexture)
                 {

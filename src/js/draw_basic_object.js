@@ -1,3 +1,6 @@
+let previousTime = new Date().getTime()
+let clockTime = 3;
+
 /*
  * @param gl
  * @param programInfo
@@ -10,6 +13,9 @@
 function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers) {
     //const buffers = initBuffers(gl, object);
 
+    let currentTime = new Date().getTime();
+    clockTime += (currentTime - previousTime) / 1000;
+    previousTime = currentTime;
 
     const modelMatrix = mat4.create();
 
@@ -206,13 +212,36 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
     gl.uniform1i(
         programInfo.uniformLocations.useBillboard,
         object.useBillboard);
-    if (object.transformation.translation)
-    {
-        gl.uniform3fv(
-            programInfo.uniformLocations.billboardPosition,
-            object.transformation.translation);
+
+    if (object.useBillboard) {
+        if (object.transformation.translation) {
+            gl.uniform3fv(
+                programInfo.uniformLocations.billboardPosition,
+                object.transformation.translation);
+        }
+        gl.uniform1f(programInfo.uniformLocations.time, clockTime);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.lifeTime);
+        gl.vertexAttribPointer(programInfo.attribLocations.lifeTime,
+            1,  gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(programInfo.attribLocations.lifeTime);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.centerOffset);
+        gl.vertexAttribPointer(programInfo.attribLocations.centerOffset,
+            3,  gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(programInfo.attribLocations.centerOffset);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.velocity);
+        gl.vertexAttribPointer(programInfo.attribLocations.velocity,
+            3,  gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(programInfo.attribLocations.velocity);
     }
-    gl.uniform1f(programInfo.uniformLocations.time, new Date().getTime());
+    else
+    {
+        gl.disableVertexAttribArray(programInfo.attribLocations.lifeTime);
+        gl.disableVertexAttribArray(programInfo.attribLocations.centerOffset);
+        gl.disableVertexAttribArray(programInfo.attribLocations.velocity);
+    }
 
     let pointLightingLocation = [];
     let pointLightingSpecularColor = [];
@@ -344,21 +373,22 @@ function createCubeData(object) {
 }
 
 function createParticleData(object) {
+    object.lifeTimes = [];
     object.positions = [-0.5, -0.5, 0,
                         0.5, -0.5, 0,
                         0.5, 0.5, 0,
                         -0.5, 0.5, 0];
-    object.indices = [0, 1, 2, 0, 2, 3];
+    const indices = [0, 1, 2, 0, 2, 3];
     object.vertexNormals = [0, 0, 1];
-    object.normalIndices = [0, 0, 0, 0, 0, 0];
-    object.textureIndices = [0, 1, 2, 0, 2, 3];
-    object.textureCoordinates = [0, 0,
+    const normalIndices = [0, 0, 0, 0, 0, 0];
+    object.textureCoordinates= [0, 0,
                                  1, 0,
                                  1, 1,
                                  0, 1];
-    /*
-    for (let i = 0; i < particle_num; i++) {
-        let lifetime = 8 * Math.random()
+    const textureIndices = [0, 1, 2, 0, 2, 3];
+
+    for (let i = 0; i < object.particle_num; i++) {
+        let lifetime = 8 * Math.random();
 
         let diameter = object.particle_size;
 
@@ -368,39 +398,34 @@ function createParticleData(object) {
 
         let zStartOffset = 0;
 
-        let upVelocity = object.transformation.scale[1] * Math.random();
+        let yVelocity = object.transformation.scale[1] * Math.random();
 
-        let xVelocity = object.transformation.scale[0] * Math.random() ;
+        let xVelocity = object.transformation.scale[0] * Math.random();
 
         let zVelocity = object.transformation.scale[2] * Math.random();
 
-        for (let j = 0; j < 4; j++) {
-            lifetimes.push(lifetime)
+        //let yVelocity = 0.1 * Math.random();
 
-            triCorners.push(triCornersCycle[j * 2])
-            triCorners.push(triCornersCycle[j * 2 + 1])
+        //let xVelocity = 0.02 * Math.random();
 
-            texCoords.push(texCoordsCycle[j * 2])
-            texCoords.push(texCoordsCycle[j * 2 + 1])
+        //let zVelocity = 0.02 * Math.random();
 
-            centerOffsets.push(xStartOffset)
-            centerOffsets.push(yStartOffset + Math.abs(xStartOffset / 2.0))
-            centerOffsets.push(zStartOffset)
+        for (let j = 0; j < 6; j++) {
+            object.lifeTimes.push(lifetime);
+            object.indices.push(indices[j]);
+            object.normalIndices.push(normalIndices[j]);
+            object.textureIndices.push(textureIndices[j]);
 
-            velocities.push(xSideVelocity)
-            velocities.push(upVelocity)
-            velocities.push(zSideVelocity)
+            object.centerOffsets.push(xStartOffset);
+            object.centerOffsets.push(yStartOffset);
+            object.centerOffsets.push(zStartOffset);
+
+            object.velocities.push(xVelocity);
+            object.velocities.push(yVelocity);
+            object.velocities.push(zVelocity);
         }
-
-        vertexIndices = vertexIndices.concat([
-            0, 1, 2, 0, 2, 3
-        ].map(function (num) { return num + 4 * i }))
     }
-    for (i = 0; i<particle_num; i++)
-    {
 
-    }
-    */
     return object;
 }
 
@@ -1273,6 +1298,32 @@ function initBuffers(gl, object) {
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(real_vertexNormals), gl.STATIC_DRAW);
 
+    if (object.useBillboard)
+    {
+        const lifeTimeBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, lifeTimeBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.lifeTimes), gl.STATIC_DRAW);
+
+        const centerOffsetBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, centerOffsetBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.centerOffsets), gl.STATIC_DRAW);
+
+        const velocityBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, velocityBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.velocities), gl.STATIC_DRAW);
+
+        return{
+            position: positionBuffer,
+            normal: normalBuffer,
+            textureCoord: textureCoordBuffer,
+            ambientColor: ambientColorBuffer,
+            diffuseColor: diffuseColorBuffer,
+            specularColor: specularColorBuffer,
+            lifeTime: lifeTimeBuffer,
+            centerOffset: centerOffsetBuffer,
+            velocity: velocityBuffer
+        }
+    }
     return {
         position: positionBuffer,
         normal: normalBuffer,

@@ -252,3 +252,55 @@ function createParticle()
     addItemToObjectPool("particle"+particle_num);
     addParticle("particle"+particle_num);
 }
+
+function preLoadScene()
+{
+    for (let x in ObjectPool)
+    {
+        let type = ObjectPool[x].type;
+        if(type === "cube" || type === "sphere" || type === "cylinder" || type == "cone" || type === "prism" ||type === "trustum")
+            removeItem(x);
+        else if (type === "model")
+            removeModel(x);
+        else if (type === "light")
+            removeLight(x);
+        else if (type === "particle")
+            removeParticle(x);
+
+        if (type !== "poly")
+            delete ObjectPool[x];
+    }
+    item_num = 0;
+    model_num = 0;
+    light_num = 0;
+    particle_num = 0;
+}
+
+function getListFromPool()
+{
+    for (let x in ObjectPool)
+    {
+        let type = ObjectPool[x].type;
+        if (type === "poly") continue;
+        if(type === "cube" || type === "sphere" || type === "cylinder" || type == "cone" || type === "prism" ||type === "trustum")
+        {
+            addItem(x);
+            item_num++;
+        }
+        else if (type === "model")
+        {
+            addModel(x);
+            model_num++;
+        }
+        else if (type === "light")
+        {
+            addLight(x);
+            light_num++;
+        }
+        else if (type === "particle")
+        {
+            addParticle(x);
+            particle_num++;
+        }
+    }
+}

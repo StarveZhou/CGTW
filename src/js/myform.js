@@ -250,7 +250,7 @@ function changeScale()
     obj_scale[0] = basic_scale.find("#basic-scalex").spinner("value");
     obj_scale[1] = basic_scale.find("#basic-scaley").spinner("value");
     obj_scale[2] = basic_scale.find("#basic-scalez").spinner("value");
-    if (current.type === "particle")
+    if (ObjectPool[current].type === "particle")
         refreshItemInObjectPool(current);
 }
 

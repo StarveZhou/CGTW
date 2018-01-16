@@ -37,9 +37,12 @@ function addItemToObjectPool(name) {
             default:
                 break;
         }
-        if (mType !== "model" || ObjectPool[name].objFile !== null){
+        if (mType !== "model" || ObjectPool[name].ObjectInfo.objFile !== null){
             let buffer = initBuffers(gl, ObjectPool[name].ObjectInfo);
             BufferPool[name] = buffer;
+        }
+        else{
+            BufferPool[name] = null;
         }
 
     }
@@ -75,6 +78,7 @@ function removeItemFromObjectPool(name) {
                 break;
             }
         }
+        delete ObjectPool[name];
     }
 }
 
@@ -103,7 +107,7 @@ function refreshItemInObjectPool(name){
     else if (mType === "light"){
         for (let i=0; i<LightSources.length; i=i+1){
             if (LightSources[i].name === name){
-                console.log("7");
+                //console.log("7");
                 LightSources.splice(i, 1);
                 break;
             }

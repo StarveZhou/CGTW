@@ -1379,7 +1379,7 @@ function isPowerOf2(value) {
 // load the texture from given url 
 // note that you should enable read local file in your browser 
 // return texture
-function loadTexture(gl, url) {
+function loadTextureFromUrl(gl, url) {
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
 

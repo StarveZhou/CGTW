@@ -344,9 +344,13 @@ function drawScene(gl, programInfo, matrixInfo, ambientLight, lightSources) {
             case "trustum":
                 drawTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
                 break;
+            case "poly":
+                drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
+                break;
             case "model":
                 //console.log(object);
                 if (ObjectPool[item].ObjectInfo.objFile !== null) {
+                    //console.log("yy");
                     objDisplay(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
                 }
                 break;

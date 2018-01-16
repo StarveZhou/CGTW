@@ -44,7 +44,9 @@
             shiness: 10,
             sideNum: null,
             upBottomRatio: null
-            objFile: null
+            objFile: null,
+            particleCenter:[0.0, 0.0, 0.0],
+            particleworldSize: 1.0
         }
     },
     cubic2 : {
@@ -98,6 +100,12 @@ BufferPool = {};
 LightSources = [];
 AmbientLight = [0.2, 0.2, 0.2];
 
+
+
+
+
+
+
 $(function() {
     $('#leftMenu').metisMenu();      
     $('#rightMenu').metisMenu();
@@ -107,5 +115,9 @@ $(function() {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     display();
+
+
+
 });
+
 

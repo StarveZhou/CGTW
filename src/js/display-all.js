@@ -20,7 +20,7 @@ function getProgramInfo(gl) {
         
         uniform bool uUseBillboard;
         uniform vec3 uBillboardPosition;
-        uniform vec3 uBillboardSize;
+        uniform float uBillboardSize;
         
         varying vec4 vPosition; 
         varying vec4 vAmbientColor;
@@ -35,13 +35,10 @@ function getProgramInfo(gl) {
             {
                 vec3 eyeFace = normalize(uEyeFacePoint - uEyePosition);
                 vec3 eyeUp = normalize(uEyeUp);
-                vec3 eyeRight = cross(eyeFace, eyeUp);
+                vec3 eyeRight = normalize(cross(eyeFace, eyeUp));
                 vPosition = vec4(uBillboardPosition.xyz + (eyeRight * aVertexPosition.x * uBillboardSize) + \
                             (eyeUp * aVertexPosition.y * uBillboardSize), 1.0);
                 vTransformedNormal = vec4(uEyePosition - uBillboardPosition, 1.0);
-                //vTransformedNormal = vec4(eyeRight, 1.0);
-                vPosition = uModelMatrix * aVertexPosition;
-                //vTransformedNormal = uNormalMatrix*vec4(aVertexNormal,1.0);
             }
             else
             {
@@ -182,7 +179,7 @@ function getProgramInfo(gl) {
             
             gl_FragColor = mix(vec4(1.0,1.0,1.0,0.8), gl_FragColor, fogFactor );
             
-            gl_FragColor = vec4((normal.xyz + vec3(1,1,1))*0.5,1);
+            //gl_FragColor = vec4((normal.xyz + vec3(1,1,1))*0.5,1);
         }
         `;
 
@@ -233,6 +230,7 @@ function getMatrixInfo(){
     return {
         eye: vec3.fromValues(0.0, 0.0, 5.0),
         // eye:[0.0,0.0,0.5],
+        //at: vec3.fromValues(0.0, 0.0, 0.0),
         at: vec3.fromValues(0.0, 0.0, 0.0),
         up: vec3.fromValues(0.0, 1.0, 0.0),
         bPersp: true,

@@ -206,17 +206,17 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
     gl.uniform1i(
         programInfo.uniformLocations.useBillboard,
         object.useBillboard);
-    if (object.billboardPosition)
+    if (object.particleCenter)
     {
         gl.uniform3fv(
             programInfo.uniformLocations.billboardPosition,
-            object.billboardPosition);
+            object.particleCenter);
     }
-    if (object.billboardSize)
+    if (object.particleSize)
     {
-        gl.uniform3fv(
+        gl.uniform1f(
             programInfo.uniformLocations.billboardSize,
-            object.billboardSize);
+            object.particleSize);
     }
 
     let pointLightingLocation = [];

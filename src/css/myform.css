@@ -1,88 +1,104 @@
-.form-title{
+.myform{//不能选中文字
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;
+}
+
+.myform .form-title{
     height:50px;
     font-size:2em;
     text-align:center;
 }
 
-.input-title{
+.myform .input-title{
     width:100px;
     text-align:left;
 }
 
-.input-file{
-    width:250px;
+.myform .input-file{
+    width:auto;
 }
 
-.input-file .input-file-btn{
+.myform .input-file .input-file-btn{
 
 }
 
-.input-file .input-file-label{
+.myform .input-file .input-file-label{
     display:inline-block;
 }
 
-.input-file .input-file-file{
+.myform .input-file .input-file-file{
     display:none;
 }
 
-.spinner{
+.myform .spinner{
     width:30px;
 }
 
+.myform .fa-times{
+    cursor:pointer;
+}
 
 
 
 
-.input-scale{
+.myform .input-scale{
     margin-left:10px;
     width:30%;
 }
 
-.input-loc{
+.myform .input-loc{
     margin-left:10px;
     width:30%;
 }
 
-.input-rot{
+.myform .input-rot{
     margin-left:10px;
     width:30%;
 }
 
-.input-sideNum{
+.myform .input-sideNum{
     margin-left:10px;
     width:30%;
 }
 
-.input-upBottomRatio{
+.myform .input-upBottomRatio{
     margin-left:10px;
     width:30%;
 }
 
-.en-texture{
+.myform .en-texture{
     margin-left:10px;
     width:100%;
 }
 
-.input-texture{
+.myform .input-texture{
     margin-left:10px;
     width:100%;
 }
 
-.input-obj{
+.myform .input-depthTexture{
     margin-left:10px;
     width:100%;
 }
 
-.input-color{
+.myform .input-obj{
     margin-left:10px;
     width:100%;
 }
 
-.input-color .colorpicker-component{
+.myform .input-color{
+    margin-left:10px;
+    width:100%;
+}
+
+.myform .input-color .colorpicker-component{
     width:200px;
 }
 
-.en-light{
+.myform .en-light{
     margin-left:10px;
     width:100%;
 }

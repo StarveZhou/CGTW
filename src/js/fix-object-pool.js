@@ -9,7 +9,8 @@ function addItemToObjectPool(name) {
         mType === "cone"     ||
         mType === "prism"    ||
         mType === "trustum"  ||
-        mType === "model"){
+        mType === "model"    ||
+        mType === "particle"){
 
         switch (mType){
             case "cube":
@@ -29,6 +30,9 @@ function addItemToObjectPool(name) {
                 break;
             case "trustum":
                 ObjectPool[name].ObjectInfo = createTrustumOfAPyramidData(ObjectPool[name].ObjectInfo);
+                break;
+            case "particle":
+                ObjectPool[name].ObjectInfo = createParticleData(ObjectPool[name].ObjectInfo);
                 break;
             default:
                 break;
@@ -60,7 +64,8 @@ function removeItemFromObjectPool(name) {
         mType === "cone"     ||
         mType === "prism"    ||
         mType === "trustum"  ||
-        mType === "model"){
+        mType === "model"    ||
+        mType === "particle"){
 
         delete BufferPool[name];
         if (mType === "model") {
@@ -72,6 +77,7 @@ function removeItemFromObjectPool(name) {
         for (let i=0; i<LightSources.length; i=i+1){
             if (LightSources[i].name === name){
                 LightSources.splice(i, 1);
+                delete ObjectPool[name];
                 break;
             }
         }

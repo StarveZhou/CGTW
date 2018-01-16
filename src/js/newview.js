@@ -20,8 +20,8 @@
  * @param programInfo
  * @param matrixInfo
  */
-let bRoam=false;
 function updateMatrix(gl,canvas,programInfo,matrixInfo) {
+    let temp = vec3.create();
     // update projection matrix
     if(matrixInfo.bPersp) {
         mat4.perspective(matrixInfo.projectionMatrix,matrixInfo.fov*Math.PI/180,canvas.clientWidth/canvas.clientHeight,matrixInfo.near,matrixInfo.far);
@@ -32,15 +32,13 @@ function updateMatrix(gl,canvas,programInfo,matrixInfo) {
     gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix,false,matrixInfo.projectionMatrix);
 
     // update view matrix
+    //let Y = vec3.fromValues(0, 1, 0);
     mat4.lookAt(matrixInfo.viewMatrix, matrixInfo.eye, matrixInfo.at, matrixInfo.up);
 
-    // let allModelMatrix=mat4.create();
-
-
-    // mat4.rotateX(allModelMatrix, allModelMatrix, -(Math.PI / 180) * matrixInfo.currentAngle[0]);
-    // mat4.rotateY(allModelMatrix, allModelMatrix, -(Math.PI / 180) * matrixInfo.currentAngle[1]);
-    // mat4.multiply(matrixInfo.viewMatrix,matrixInfo.viewMatrix,allModelMatrix);
-
+    //let allModelMatrix=mat4.create();
+    //mat4.rotateX(allModelMatrix,allModelMatrix,-(Math.PI/180)*matrixInfo.currentAngle[0]);
+    //mat4.rotateY(allModelMatrix,allModelMatrix,-(Math.PI/180)*matrixInfo.currentAngle[1]);
+    //mat4.multiply(matrixInfo.viewMatrix,matrixInfo.viewMatrix,allModelMatrix);
     gl.uniformMatrix4fv(programInfo.uniformLocations.viewMatrix, false,matrixInfo.viewMatrix);
 
     // update model matrix
@@ -62,45 +60,44 @@ function updateMatrix(gl,canvas,programInfo,matrixInfo) {
  * @param matrixInfo
  */
 function keydown(ev,matrixInfo) {
+    let from = vec3.create();
+    let right = vec3.create();
+    vec3.sub(from, matrixInfo.eye, matrixInfo.at);
+    vec3.cross(right, matrixInfo.up, from);
+    vec3.normalize(right, right);
+    vec3.scale(right, right, 0.05);
     switch (String.fromCharCode(ev.keyCode)) {
         case 'P':{
             matrixInfo.bPersp=!matrixInfo.bPersp;
             break;
         }
         case 'W': {
-            if(bRoam){
-                matrixInfo.eye[2]-=0.1;
-            }
-            else {
-                matrixInfo.eye[1] += 0.05;
-                matrixInfo.at[1] += 0.05;
-            }
+            matrixInfo.eye[1] += 0.05;
+            matrixInfo.at[1] += 0.05;
             break;
         }
         case 'S': {
-            if(bRoam){
-                matrixInfo.eye[2]+=0.1;
-            }
-            else {
-                matrixInfo.eye[1] -= 0.05;
-                matrixInfo.at[1] -= 0.05;
-            }
+            matrixInfo.eye[1] -= 0.05;
+            matrixInfo.at[1] -= 0.05;
             break;
         }
         case 'A': {
-            matrixInfo.eye[0] -= 0.05;
-            matrixInfo.at[0]-=0.05;
+            vec3.sub(matrixInfo.eye, matrixInfo.eye, right);
+            vec3.sub(matrixInfo.at, matrixInfo.at, right);
             break;
         }
         case 'D': {
-            matrixInfo.eye[0] += 0.05;
-            matrixInfo.at[0]+=0.05;
+            vec3.add(matrixInfo.eye, matrixInfo.eye, right);
+            vec3.add(matrixInfo.at, matrixInfo.at, right);
+            //matrixInfo.eye[0] += 0.05;
+            //matrixInfo.at[0] += 0.05;
             break;
         }
         case "F":{
             matrixInfo.eye=vec3.fromValues(0.0, 0.0, 5.0);
             matrixInfo.at=vec3.fromValues(0.0, 0.0, 0.0);
             matrixInfo.up=vec3.fromValues(0.0, 1.0, 0.0);
+            matrixInfo.right = vec3.fromValues(1.0, 0.0, 0.0);
             break;
         }
         default:
@@ -119,22 +116,7 @@ function initDocumentHandlers(document,matrixInfo) {
 }
 
 
-function rotateWith(inVec,s,angle){
-    let normalS=vec3.create();
-    vec3.normalize(normalS,s);
-    // vec3.cross(normalT,normalR,normalS);
-    let u=normalS[0];
-    let v=normalS[1];
-    let w=normalS[2];
-    let costheta=Math.cos(angle/180*Math.PI);
-    let sintheta=Math.sin(angle/180*Math.PI);
-    let M=mat3.fromValues(u*u+(1-u*u)*costheta,u*v*(1-costheta)+w*sintheta,u*w*(1-costheta)-v*sintheta,
-        u*v*(1-costheta)-w*sintheta,v*v+(1-v*v)*costheta,v*w*(1-costheta)+u*sintheta,
-        u*w*(1-costheta)+v*sintheta,v*w*(1-costheta)-u*sintheta,w*w+(1-w*w)*costheta);
-    let newS=vec3.create();
-    vec3.transformMat3(newS,inVec,M);
-    return newS;
-}
+
 
 
 /**
@@ -144,10 +126,16 @@ function rotateWith(inVec,s,angle){
  */
 function initCanvasHandlers(canvas,matrixInfo){
     canvas.onmousewheel=function (ev) {
-        if(ev.shiftKey&&(!bRoam)){
-            matrixInfo.eye[2]-=ev.wheelDelta/500;
+        if(ev.shiftKey){
+            let ratio = ev.wheelDelta/500;
+            let temp = vec3.create();
+            vec3.sub(temp, matrixInfo.at, matrixInfo.eye);
+            vec3.normalize(temp, temp);
+            vec3.scale(temp, temp, ratio);
+            vec3.add(matrixInfo.eye, matrixInfo.eye, temp);
         }
     };
+
     let dragging = false;
     let lastX=-1,lastY=-1;
     //push the button
@@ -161,44 +149,49 @@ function initCanvasHandlers(canvas,matrixInfo){
         }
     };
     //release the mouse
-    canvas.onclick=function (ev) {
-        if(bRoam){
-            matrixInfo.bRoam=!matrixInfo.bRoam;
-        }
-    };
     canvas.onmouseup=function (ev) {dragging=false};
     canvas.onmousemove=function(ev){
         let x=ev.clientX,y=ev.clientY;
         if(dragging){
-            let yFactor=100/canvas.height;
-            let xFactor=100/canvas.width;
+            let yFactor=10.0/canvas.height;
+            let xFactor=10.0/canvas.width;
             let dx=xFactor*(x-lastX);
             let dy=yFactor*(y-lastY);
-            let s=vec3.create();
-            let r=vec3.create();
-            let t=vec3.create();
-            vec3.sub(r,matrixInfo.eye,matrixInfo.at);
-            vec3.cross(s,r,matrixInfo.up);
-            vec3.cross(t,s,r);
-            let upPoint=vec3.create();
+            let right = vec3.create();
+            let from = vec3.create();
+            let r;
+            let angle;
+            let up = vec3.create();
+            let temp = vec3.create();
+            let move = vec3.create();
+            let delta = vec3.create();
+            let Y = vec3.fromValues(0, 1, 0);
+            vec3.sub(from, matrixInfo.eye, matrixInfo.at);
+            r = vec3.distance(matrixInfo.eye, matrixInfo.at);
+            vec3.normalize(from, from);
+            vec3.cross(right, matrixInfo.up, from);
+            vec3.normalize(up, matrixInfo.up);
+            vec3.normalize(right, right);
 
-            vec3.add(upPoint,matrixInfo.eye,matrixInfo.up);
-            matrixInfo.eye=rotateWith(matrixInfo.eye,s,dy);
-            let newPoint=rotateWith(upPoint,s,dy);
-            vec3.sub(matrixInfo.up,newPoint,matrixInfo.eye);
+            vec3.scale(move, right,dx);
+            vec3.scale(temp, up, dy);
+            vec3.add(move, move, temp);
+            angle = -vec3.length(move) / r;
+            vec3.normalize(move, move);
 
-            matrixInfo.eye=rotateWith(matrixInfo.eye,t,dx);
-            newPoint=rotateWith(newPoint,t,dx);
-            vec3.sub(matrixInfo.up,newPoint,matrixInfo.eye);
+            console.log(angle);
+            vec3.scale(delta, from, Math.cos(angle));
+            vec3.scale(temp, move, Math.sin(angle));
+            vec3.add(delta, delta, temp);
+            vec3.normalize(delta, delta);
+            vec3.scale(delta, delta, r);
+            vec3.add(matrixInfo.eye, matrixInfo.at, delta);
 
-        }
-        if(bRoam&&matrixInfo.bRoam){
-            let yFactor=1/canvas.height;
-            let xFactor=1/canvas.width;
-            let dx=xFactor*(x-lastX);
-            let dy=yFactor*(y-lastY);
-            // let s=le
-            // rotateWith(matrixInfo.eye,matrixInfo.eye,[]
+            vec3.cross(temp, delta, Y);
+            vec3.cross(matrixInfo.up, temp, delta);
+            vec3.normalize(matrixInfo.up, matrixInfo.up);
+            //vec3.cross(matrixInfo.up, delta, right);
+            //vec3.normalize(matrixInfo.up, matrixInfo.up);
         }
         lastX=x;
         lastY=y;

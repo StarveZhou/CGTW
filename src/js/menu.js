@@ -1,6 +1,7 @@
 let item_num = 0;
 let model_num = 0;
 let light_num = 0;
+let particle_num = 0;
 
 function addItem(id)
 {
@@ -39,6 +40,12 @@ function addLight(id)
         "<span class=\"fa fa-times\" onclick=\"removeLight('" + id + "')\"></span></li>");
 }
 
+function addParticle(id)
+{
+    $("#particleList").append("<li id=\"" + id + "\"><a href=\"#form-container\" onclick=\"selectObj('" + id + "')\">" + id + "</a>" +
+        "<span class=\"fa fa-times\" onclick=\"removeParticle('" + id + "')\"></span></li>");
+}
+
 function selectObj(id)
 {
     current = id;
@@ -49,6 +56,7 @@ function removeItem(id)
 {
     let res = $("#itemList").find("#" + id);
     let type = ObjectPool[id].type;
+    let obj_info = ObjectPool[id].ObjectInfo;
     if (type === "cube" || type === "sphere" || type === "cylinder" || type == "cone" || type === "prism" ||type === "trustum")
     {
         if (id === current)
@@ -86,13 +94,23 @@ function removeLight(id)
     res.remove();
 }
 
+function removeParticle(id)
+{
+    let res = $("#particleList").find("#" + id);
+    if (id === current)
+    {
+        unshowBasicForm();
+        current = null;
+    }
+    removeItemFromObjectPool(id);
+    res.remove();
+}
 
 //right bar
 function create(type)
 {
-    // TODO 将会变为真的纹理
-    const canvas = document.querySelector("#glcanvas");
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    //const canvas = document.querySelector("#glcanvas");
+    //const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     //let tempTexture = loadTexture(gl, '../images/cubetexture.png');
 
     let Obj = {
@@ -110,11 +128,17 @@ function create(type)
         ambientColor: [0.1, 0.1, 0.1, 1.0],
         diffuseColor: [1.0, 1.0, 1.0, 1.0],
         specularColor: [0.3, 0.3, 0.3, 1.0],
+        useBillboard: false,
         useTexture: false,
+        useDepthTexture: false,
         texture: null,
+        depthTexture: null,
+        textureFile: null,
+        depthTextureFile: null,
         shiness: 10,
         sideNum: null,
-        upBottomRatio: null
+        upBottomRatio: null,
+        objFile: null
     };
     if (type === "cube" || type === "sphere" || type === "cylinder" || type === "cone" ||type === "prism" || type === "trustum")
     {
@@ -137,10 +161,9 @@ function create(type)
 
 function createModel()
 {
-    //todo
-    const canvas = document.querySelector("#glcanvas");
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    let tempTexture = loadTexture(gl, '../images/cubetexture.png');
+    //const canvas = document.querySelector("#glcanvas");
+    //const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    //let tempTexture = loadTexture(gl, '../images/cubetexture.png');
 
     let Obj = {
         positions: [],
@@ -157,8 +180,10 @@ function createModel()
         ambientColor: [0.1, 0.1, 0.1, 1.0],
         diffuseColor: [1.0, 1.0, 1.0, 1.0],
         specularColor: [0.3, 0.3, 0.3, 1.0],
-        useTexture: false,
-        texture: tempTexture,
+        useBillboard: false,
+        useTexture: true,
+        texture: null,
+        textureFile: null,
         shiness: 10,
         sideNum: null,
         upBottomRatio: null,
@@ -186,4 +211,39 @@ function createLight()
     ObjectPool["light"+light_num] = Obj;
     addItemToObjectPool("light"+light_num);
     addLight("light"+light_num);
+}
+
+function createParticle()
+{
+    let Obj = {
+        positions: [],
+        indices: [],
+        transformation: {
+            translation: [0.0, 0.0, 0.0],
+            scale: [1.0, 1.0, 1.0],
+            rotation: {x:0.0, y: 0.0, z: 0.0}
+        },
+        textureCoordinates: [],
+        textureIndices: [],
+        vertexNormals: [],
+        normalIndices: [],
+        ambientColor: [0.1, 0.1, 0.1, 1.0],
+        diffuseColor: [1.0, 1.0, 1.0, 1.0],
+        specularColor: [0.3, 0.3, 0.3, 1.0],
+        useBillboard: true,
+        useTexture: false,
+        texture: null,
+        textureFile: null,
+        shiness: 10,
+        sideNum: null,
+        upBottomRatio: null,
+        objFile: null,
+        particleCenter: [0.0, 0.0, 0.0],
+        particleSize: 1.0
+    };
+    particle_num++;
+    Obj = {type:"particle", ObjectInfo:Obj};
+    ObjectPool["particle"+particle_num] = Obj;
+    addItemToObjectPool("particle"+particle_num);
+    addParticle("particle"+particle_num);
 }

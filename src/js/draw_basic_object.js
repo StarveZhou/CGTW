@@ -188,11 +188,36 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
         normalMatrix);
     gl.uniform1i(programInfo.uniformLocations.useTexture,
         object.useTexture);
+    gl.uniform1i(programInfo.uniformLocations.useDepthTexture,
+        object.useDepthTexture);
     gl.uniform1f(programInfo.uniformLocations.materialShiness,
         object.shiness);
     gl.uniform3fv(
         programInfo.uniformLocations.eyePosition,
         matrixInfo.eye);
+    gl.uniform3fv(
+        programInfo.uniformLocations.eyeFacePoint,
+        matrixInfo.at);
+    gl.uniform3fv(
+        programInfo.uniformLocations.eyeUp,
+        matrixInfo.up);
+
+    //billboard
+    gl.uniform1i(
+        programInfo.uniformLocations.useBillboard,
+        object.useBillboard);
+    if (object.particleCenter)
+    {
+        gl.uniform3fv(
+            programInfo.uniformLocations.billboardPosition,
+            object.particleCenter);
+    }
+    if (object.particleSize)
+    {
+        gl.uniform1f(
+            programInfo.uniformLocations.billboardSize,
+            object.particleSize);
+    }
 
     let pointLightingLocation = [];
     let pointLightingSpecularColor = [];
@@ -214,8 +239,8 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
             programInfo.uniformLocations.pointLightingLocation,
             pointLightingLocation);
         gl.uniform3fv(
-            programInfo.uniformLocations.pointLightingLocation,
-            pointLightingLocation);
+            programInfo.uniformLocations.pointLightingSpecularColor,
+            pointLightingSpecularColor);
         gl.uniform3fv(
             programInfo.uniformLocations.pointLightingDiffuseColor,
             pointLightingDiffuseColor);
@@ -234,6 +259,11 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
     // Tell the shader we bound the texture to texture unit 0
     gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
 
+    //Bind the depth texture
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, object.depthTexture);
+    gl.uniform1i(programInfo.uniformLocations.uDepthSampler, 1);//use texture 1
+    gl.uniform1f(programInfo.uniformLocations.depthScale, object.depthScale);
     {
         const vertexCount = object.indices.length;
         const type = gl.UNSIGNED_SHORT;
@@ -241,6 +271,8 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
         gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
         // gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
     }
+
+
 }
 
 function calculateNormal(i1, j1, k1, i2, j2, k2) {
@@ -284,6 +316,88 @@ function createCubeData(object) {
         0, -1, 0,
         0, 0, 1,
         0, 0, -1
+    ];
+    cubeNormalIndex = [
+        4, 4, 4, 4, 4, 4,
+        5, 5, 5, 5, 5, 5,
+        2, 2, 2, 2, 2, 2,
+        3, 3, 3, 3, 3, 3,
+        0, 0, 0, 0, 0, 0,
+        1, 1, 1, 1, 1, 1,
+    ];
+    cubeTextureIndex = [
+        0, 1, 2, 0, 2, 3,
+        0, 1, 2, 0, 2, 3,
+        0, 1, 2, 0, 2, 3,
+        0, 1, 2, 0, 2, 3,
+        0, 1, 2, 0, 2, 3,
+        0, 1, 2, 0, 2, 3,
+    ];
+    cubeTextureCoordinate = [
+        0, 0,
+        1, 0,
+        1, 1,
+        0, 1,];
+    object.positions = cubeVertexPositionData;
+    object.indices = cubeIndexData;
+    object.vertexNormals = cubeNormalData;
+    object.normalIndices = cubeNormalIndex;
+    object.textureIndices = cubeTextureIndex;
+    object.textureCoordinates = cubeTextureCoordinate;
+
+    return object;
+}
+
+function createParticleData(object) {
+    object.positions = [-1, -1, 0,
+                        1, -1, 0,
+                        1, 1, 0,
+                        -1, 1, 0];
+    object.indices = [0, 1, 2, 0, 2, 3];
+    object.vertexNormals = [0, 0, 1];
+    object.normalIndices = [0, 0, 0, 0, 0, 0];
+    object.textureIndices = [0, 1, 2, 0, 2, 3];
+    object.textureCoordinates = [0, 0,
+                                 1, 0,
+                                 1, 1,
+                                 0, 1];
+    return object;
+}
+
+function createInsideCudeData(object)
+{
+    // cube data
+    let cubeVertexPositionData;
+    let cubeIndexData;
+    let cubeNormalData;
+    let cubeNormalIndex;
+    let cubeTextureIndex;
+    let cubeTextureCoordinate;
+    cubeVertexPositionData = [
+        1, 1, 1,
+        1, -1, 1,
+        -1, -1, 1,
+        -1, 1, 1,
+        1, 1, -1,
+        1, -1, -1,
+        -1, -1, -1,
+        -1, 1, -1,
+    ];
+    cubeIndexData = [
+        0, 1, 2, 0, 2, 3,   //front
+        4, 5, 6, 4, 6, 7,   //back
+        4, 0, 3, 4, 3, 7,   //up
+        5, 1, 2, 5, 2, 6,   //bottom
+        4, 5, 1, 4, 1, 0,   //right
+        3, 2, 6, 3, 6, 7,   //left
+    ];
+    cubeNormalData = [
+        -1, 0, 0,
+        1, 0, 0,
+        0, -1, 0,
+        0, 1, 0,
+        0, 0, -1,
+        0, 0, 1
     ];
     cubeNormalIndex = [
         4, 4, 4, 4, 4, 4,
@@ -998,6 +1112,10 @@ function createTrustumOfAPyramidData(object) {
 
 function drawCube(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers) {
     //object = createCubeData(object);
+    drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
+}
+
+function drawParticle(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers){
     drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
 }
 

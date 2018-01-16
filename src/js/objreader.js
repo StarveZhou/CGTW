@@ -338,10 +338,13 @@ function loadObj(name, file)
         obj_info.textureIndices = objInfo.indicesForTex;
         obj_info.vertexNormals = objInfo.norPosition;
         obj_info.normalIndices = objInfo.indicesForNor;
+
+        refreshItemInObjectPool(name);
     };
 
     reader.readAsText(file);
-    return file.name;
+
+    return file;
 }
 
 

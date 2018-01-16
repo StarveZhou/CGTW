@@ -1,6 +1,6 @@
 worldNameList = ["miramar", "siege", "morning"];
 worldSize = 20;
-worldName = "morning";
+worldName = "miramar";
 
 const canvas = document.querySelector("#glcanvas");
 const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
@@ -128,10 +128,10 @@ ObjectPool['world-up'] = {
             rotation: {x:0.0, y: 0.0, z: 0.0}
         },
         textureCoordinates: [
-            1, 0,
-            0, 0,
+            1, 1,
             0, 1,
-            1, 1,],
+            0, 0,
+            1, 0,],
         textureIndices: [
             1, 2, 3,
             1, 3, 0,

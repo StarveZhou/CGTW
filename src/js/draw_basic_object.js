@@ -26,12 +26,14 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
                 modelMatrix,     // matrix to translate
                 object.transformation.translation);  // amount to translate
 
-        if (object.transformation.scale)
-            mat4.scale(
-                modelMatrix,
-                modelMatrix,
-                object.transformation.scale
-            );
+        if (!object.useBillboard) {
+            if (object.transformation.scale)
+                mat4.scale(
+                    modelMatrix,
+                    modelMatrix,
+                    object.transformation.scale
+                );
+        }
 
         if (object.transformation.rotation) {
             mat4.rotate(
@@ -220,6 +222,7 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
                 object.transformation.translation);
         }
         gl.uniform1f(programInfo.uniformLocations.time, clockTime);
+        gl.uniform1f(programInfo.uniformLocations.particleSize, object.particle_size);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, buffers.lifeTime);
         gl.vertexAttribPointer(programInfo.attribLocations.lifeTime,
@@ -387,28 +390,26 @@ function createParticleData(object) {
                                  0, 1];
     const textureIndices = [0, 1, 2, 0, 2, 3];
 
+    object.lifeTimes = [];
+    object.indices = [];
+    object.normalIndices = [];
+    object.textureIndices = [];
+    object.centerOffsets = [];
+    object.velocities = [];
     for (let i = 0; i < object.particle_num; i++) {
-        let lifetime = 8 * Math.random();
+        let lifetime = 8 * Math.random() + 2;
 
-        let diameter = object.particle_size;
+        let xStartOffset = 2 * object.transformation.scale[0] * Math.random() - object.transformation.scale[0] / 2;
 
-        let xStartOffset = diameter * Math.random() - diameter / 2;
+        let yStartOffset = Math.random();
 
-        let yStartOffset = diameter * Math.random() - diameter / 2;
+        let zStartOffset = 2 * object.transformation.scale[2] * Math.random() - object.transformation.scale[2] / 2;
 
-        let zStartOffset = 0;
+        let yVelocity = object.particle_velocity * object.transformation.scale[1] * Math.random();
 
-        let yVelocity = object.transformation.scale[1] * Math.random();
+        let xVelocity = object.particle_velocity * object.transformation.scale[0] * (Math.random() - 0.5);
 
-        let xVelocity = object.transformation.scale[0] * Math.random();
-
-        let zVelocity = object.transformation.scale[2] * Math.random();
-
-        //let yVelocity = 0.1 * Math.random();
-
-        //let xVelocity = 0.02 * Math.random();
-
-        //let zVelocity = 0.02 * Math.random();
+        let zVelocity = object.particle_velocity * object.transformation.scale[2] * (Math.random() - 0.5);
 
         for (let j = 0; j < 6; j++) {
             object.lifeTimes.push(lifetime);

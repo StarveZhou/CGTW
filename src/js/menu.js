@@ -220,7 +220,7 @@ function createParticle()
         indices: [],
         transformation: {
             translation: [0.0, 0.0, 0.0],
-            scale: [0.1, 0.1, 0.1],
+            scale: [1.0, 1.0, 1.0],
             rotation: {x:0.0, y: 0.0, z: 0.0}
         },
         textureCoordinates: [],
@@ -238,14 +238,14 @@ function createParticle()
         sideNum: null,
         upBottomRatio: null,
         objFile: null,
-        particle_num: 2,
-        particle_size: 0.5,
-        particle_height: 1,
+        particle_num: 100,
+        particle_velocity: 1.0,
+        particle_size: 0.1,
         lifeTimes:[],
         centerOffsets:[],
         velocities:[]
-
     };
+
     particle_num++;
     Obj = {type:"particle", ObjectInfo:Obj};
     ObjectPool["particle"+particle_num] = Obj;

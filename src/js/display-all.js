@@ -21,6 +21,7 @@ function getProgramInfo(gl) {
         uniform bool uUseBillboard;
         uniform vec3 uBillboardPosition;
         uniform float uTime;
+        uniform float uParticleSize;
         attribute float aLifetime;
         attribute vec3 aCenterOffset;
         attribute vec3 aVelocity;
@@ -37,25 +38,25 @@ function getProgramInfo(gl) {
         void main(void) {
             if (uUseBillboard)
             {
-                
                 float time = mod(uTime, aLifetime);
                 vec4 position = vec4(
-                    uBillboardPosition + aCenterOffset + time * aVelocity,
+                    aCenterOffset + time * aVelocity,
                     1.0
                 );
                 
                 vLifetime = 1.3 - (time / aLifetime);
                 vLifetime = clamp(vLifetime, 0.0, 1.0);
-                float size = (vLifetime * vLifetime) * 0.05;
+                float size = (vLifetime * vLifetime) * uParticleSize;
                 vec3 eyeFace = normalize(uEyeFacePoint - uEyePosition);
                 vec3 eyeUp = normalize(uEyeUp);
                 vec3 eyeRight = normalize(cross(eyeFace, eyeUp));
+                
+                position = uModelMatrix * position;
                 vPosition = vec4(position.xyz + (eyeRight * aVertexPosition.x * size) + \
                             (eyeUp * aVertexPosition.y * size), 1.0);
                 vTransformedNormal = vec4(uEyePosition - uBillboardPosition, 1.0);
                 
                 vLifetime = aLifetime;
-                
             }
             else
             {
@@ -112,17 +113,19 @@ function getProgramInfo(gl) {
             vec2 texCoord;
             
             texCoord = vTextureCoord;
-            /*if (uUseBillboard)
+            if (uUseBillboard)
             {
                 vec4 color;
                 if (uUseTexture) {
                     gl_FragColor = texture2D(uSampler,texCoord);
                 } else {
-                    gl_FragColor = vec4(origColor,vAmbientColor.a);
+                    gl_FragColor = vec4(vDiffuseColor);
                 }
+                if (gl_FragColor.r < 0.1 && gl_FragColor.g < 0.1 && gl_FragColor.b < 0.1)
+                    discard;
                 gl_FragColor.a *= vLifetime;
             }
-            else*/
+            else
             {
                 if (uUseDepthTexture)
                 {
@@ -249,6 +252,7 @@ function getProgramInfo(gl) {
             eyeUp: gl.getUniformLocation(shaderProgram, 'uEyeUp'),
             useBillboard: gl.getUniformLocation(shaderProgram, 'uUseBillboard'),
             billboardPosition: gl.getUniformLocation(shaderProgram, 'uBillboardPosition'),
+            particleSize: gl.getUniformLocation(shaderProgram, 'uParticleSize'),
             //billboardSize: gl.getUniformLocation(shaderProgram, 'uBillboardSize'),
             time: gl.getUniformLocation(shaderProgram, 'uTime'),
             lightNum: gl.getUniformLocation(shaderProgram, 'uLightNum'),

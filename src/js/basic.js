@@ -92,7 +92,6 @@
     }
 };*/
 
-
 current = null;
 ObjectPool = {};
 BufferPool = {};

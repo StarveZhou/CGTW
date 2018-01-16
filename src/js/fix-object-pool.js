@@ -65,10 +65,7 @@ function removeItemFromObjectPool(name) {
         mType === "particle"){
 
         delete BufferPool[name];
-        if (mType === "model") {
-            let objName = ObjectPool[name].ObjectInfo.objFile;
-            delete ObjectPool[name];
-        }
+        delete ObjectPool[name];
     }
     else if (mType == "light"){
         for (let i=0; i<LightSources.length; i=i+1){
@@ -92,7 +89,14 @@ function refreshItemInObjectPool(name){
         mType === "cone"     ||
         mType === "prism"    ||
         mType === "trustum"  ||
-        mType === "model"){
+        mType === "model"    ||
+        mType === "particle"){
+        if (mType === "prism")
+            ObjectPool[name].ObjectInfo = createPrismData(ObjectPool[name].ObjectInfo);
+        else if (mType === "trustum")
+            ObjectPool[name].ObjectInfo = createTrustumOfAPyramidData(ObjectPool[name].ObjectInfo);
+        else if (mType === "particle")
+            ObjectPool[name].ObjectInfo = createParticleData(ObjectPool[name].ObjectInfo);
         let buffer = initBuffers(gl, ObjectPool[name].ObjectInfo);
         BufferPool[name] = buffer;
     }

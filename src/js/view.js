@@ -36,7 +36,11 @@ function updateMatrix(gl,canvas,programInfo,matrixInfo) {
 }
 
 
-
+/**
+ * judge whether the eye is out of the sky box
+ * @param point
+ * @returns {boolean}
+ */
 function isOut(point) {
     let pad=1;
     let trueWorldSize=worldSize-pad;
@@ -47,10 +51,8 @@ function isOut(point) {
 }
 
 
-// followings are small handler
-
 /**
- *
+ * keydown function to handle document's onkeydown event
  * @param ev
  * @param matrixInfo
  */
@@ -58,10 +60,12 @@ function keydown(ev,matrixInfo) {
     let delta=0.05;
     let temp=vec3.create();
     switch (ev.keyCode) {
+        // change the way of projection
         case 'P'.charCodeAt():{
             matrixInfo.bPersp=!matrixInfo.bPersp;
             break;
         }
+        // move forward
         case 'W'.charCodeAt(): {
             let r=vec3.create();
             vec3.sub(r,matrixInfo.at,matrixInfo.eye);
@@ -72,6 +76,7 @@ function keydown(ev,matrixInfo) {
             vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,r,delta);
             break;
         }
+        // move backward
         case 'S'.charCodeAt(): {
             let r=vec3.create();
             vec3.sub(r,matrixInfo.at,matrixInfo.eye);
@@ -82,6 +87,7 @@ function keydown(ev,matrixInfo) {
             vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,r,-delta);
             break;
         }
+        // move left
         case 'A'.charCodeAt(): {
             vec3.scaleAndAdd(temp,matrixInfo.eye,matrixInfo.right,-delta);
             if(!isOut(temp)){
@@ -90,6 +96,7 @@ function keydown(ev,matrixInfo) {
             vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,matrixInfo.right,-delta);
             break;
         }
+        // move right
         case 'D'.charCodeAt(): {
             vec3.scaleAndAdd(temp,matrixInfo.eye,matrixInfo.right,delta);
             if(!isOut(temp)){
@@ -98,7 +105,7 @@ function keydown(ev,matrixInfo) {
             vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,matrixInfo.right,delta);
             break;
         }
-        //space key
+        //space key move up
         case 32:{
             vec3.scaleAndAdd(temp,matrixInfo.eye,matrixInfo.up,delta);
             if(!isOut(temp)){
@@ -107,7 +114,7 @@ function keydown(ev,matrixInfo) {
             vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,matrixInfo.up,delta);
             break;
         }
-        //shift key
+        //shift key move down
         case 16:{
             vec3.scaleAndAdd(temp,matrixInfo.eye,matrixInfo.up,-delta);
             if(!isOut(temp)){
@@ -116,6 +123,7 @@ function keydown(ev,matrixInfo) {
             vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,matrixInfo.up,-delta);
             break;
         }
+        // back to original view
         case 'F'.charCodeAt():{
             matrixInfo.eye=vec3.fromValues(0.0, 0.0, 5.0);
             matrixInfo.at=vec3.fromValues(0.0, 0.0, 0.0);
@@ -138,12 +146,11 @@ function initDocumentHandlers(document,matrixInfo) {
     };
 }
 
-
+// rotate a point with any axis through some point
 function rotateWith(inVec,origin,s,angle){
     vec3.sub(inVec,inVec,origin);
     let normalS=vec3.create();
     vec3.normalize(normalS,s);
-    // vec3.cross(normalT,normalR,normalS);
     let u=normalS[0];
     let v=normalS[1];
     let w=normalS[2];
@@ -165,84 +172,32 @@ function rotateWith(inVec,origin,s,angle){
  * @param matrixInfo
  */
 function initCanvasHandlers(canvas,matrixInfo){
-    // canvas.onmousewheel=function (ev) {
-    //     if(ev.shiftKey&&(!bRoam)){
-    //         let r=vec3.create();
-    //         let temp=vec3.create();
-    //         vec3.sub(r,matrixInfo.at,matrixInfo.eye);
-    //         vec3.scaleAndAdd(temp,matrixInfo.eye,r,-ev.wheelDelta/5000);
-    //         if(!isOut(temp)){
-    //             vec3.copy(matrixInfo.eye,temp);
-    //         }
-    //         vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,r,-ev.wheelDelta/5000);
-    //     }
-    // };
-    // let dragging = false;
     let lastX=0,lastY=0;
-    //push the button
-    // canvas.onmousedown=function (ev) {
-    //     let x= ev.clientX, y= ev.clientY;
-    //     let rect=ev.target.getBoundingClientRect();
-    //     if(rect.left<=x&&x<rect.right&&rect.top<=y&&y<rect.bottom){
-    //         lastX=x;
-    //         lastY=y;
-    //         dragging=true;
-    //     }
-    // };
-    //release the mouse
+    // click the mouse to make mouse move's action or not
     canvas.onclick=function (ev) {
         matrixInfo.bRoam=!matrixInfo.bRoam;
     };
     canvas.onmouseup=function (ev) {dragging=false};
     canvas.onmousemove=function(ev){
         let x=ev.clientX,y=ev.clientY;
-        // if(dragging&&(!bRoam)){
-        //     let yFactor=100/canvas.height;
-        //     let xFactor=100/canvas.width;
-        //     let dx=xFactor*(x-lastX);
-        //     let dy=yFactor*(y-lastY);
-        //     let r=vec3.create();
-        //     let t=vec3.create();
-        //     // vec3.sub(r,matrixInfo.eye,matrixInfo.at);
-        //     vec3.sub(r,matrixInfo.at,matrixInfo.eye);
-        //     vec3.cross(matrixInfo.right,r,matrixInfo.up);
-        //     vec3.cross(t,matrixInfo.right,r);
-        //     let upPoint=vec3.create();
-        //
-        //     vec3.add(upPoint,matrixInfo.eye,matrixInfo.up);
-        //     matrixInfo.eye=rotateWith(matrixInfo.eye,matrixInfo.at,matrixInfo.right,-dy);
-        //     let newPoint=rotateWith(upPoint,matrixInfo.at,matrixInfo.right,-dy);
-        //     vec3.sub(matrixInfo.up,newPoint,matrixInfo.eye);
-        //
-        //     matrixInfo.eye=rotateWith(matrixInfo.eye,matrixInfo.at,t,-dx);
-        //     newPoint=rotateWith(newPoint,matrixInfo.at,t,-dx);
-        //     vec3.sub(matrixInfo.up,newPoint,matrixInfo.eye);
-        //     // vec3.sub(r,matrixInfo.eye,matrixInfo.at);
-        //     vec3.sub(r,matrixInfo.at,matrixInfo.eye);
-        //     vec3.cross(matrixInfo.right,r,matrixInfo.up);
-        //     console.log(matrixInfo.right);
-        // }
         if(matrixInfo.bRoam){
             let yFactor=800/canvas.height;
             let xFactor=800/canvas.width;
             let dx=xFactor*(x-lastX);
             let dy=yFactor*(y-lastY);
             let r=vec3.create();
-            let t=vec3.create();
-            vec3.sub(r,matrixInfo.at,matrixInfo.eye);
-            vec3.cross(matrixInfo.right,r,matrixInfo.up);
-            vec3.cross(t,matrixInfo.right,r);
-            let upPoint=vec3.create();
-            vec3.add(upPoint,matrixInfo.eye,matrixInfo.up);
+            // rotate with right
             matrixInfo.at=rotateWith(matrixInfo.at,matrixInfo.eye,matrixInfo.right,-dy);
-            let newPoint=rotateWith(upPoint,matrixInfo.eye,matrixInfo.right,-dy);
-            vec3.sub(matrixInfo.up,newPoint,matrixInfo.eye);
-
-            matrixInfo.at=rotateWith(matrixInfo.at,matrixInfo.eye,t,-dx);
-            newPoint=rotateWith(newPoint,matrixInfo.eye,t,-dx);
-            vec3.sub(matrixInfo.up,newPoint,matrixInfo.eye);
             vec3.sub(r,matrixInfo.at,matrixInfo.eye);
+            vec3.normalize(r,r);
+            vec3.cross(matrixInfo.up,matrixInfo.right,r);
+            //rotate with up
+            matrixInfo.at=rotateWith(matrixInfo.at,matrixInfo.eye,matrixInfo.up,-dx);
+            vec3.sub(r,matrixInfo.at,matrixInfo.eye);
+            vec3.normalize(r,r);
             vec3.cross(matrixInfo.right,r,matrixInfo.up);
+            //fix right vec to make it parallel with XoZ plane
+            matrixInfo.right[1]=0;
         }
         lastX=x;
         lastY=y;

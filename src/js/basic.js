@@ -99,6 +99,7 @@ ObjectPool = {};
 BufferPool = {};
 LightSources = [];
 AmbientLight = [0.2, 0.2, 0.2];
+ifDisplay = true;
 
 
 

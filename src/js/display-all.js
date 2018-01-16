@@ -308,7 +308,10 @@ function display() {
 
 }
 
+
+
 function drawScene(gl, programInfo, matrixInfo, ambientLight, lightSources) {
+    if (ifDisplay === false) return;
     gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
     gl.clearDepth(1.0);                 // Clear everything
     gl.enable(gl.DEPTH_TEST);           // Enable depth testing

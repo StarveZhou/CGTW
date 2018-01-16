@@ -58,7 +58,13 @@ function StringToObject(str, layer) {
                 itemList[0] === "useTexture"   ||
                 itemList[0] === "useDepthTexture"
                 ){
-                object[itemList[0]] = Boolean(itemList[1]);
+                if (itemList[1] === "true"){
+                    object[itemList[0]] = true;
+                }
+                else{
+                    object[itemList[0]] = false;
+                }
+                //object[itemList[0]] = Boolean(itemList[1]);
             }
             else if (itemList[0] === "shiness" ||
                      itemList[0] === "x"       ||
@@ -92,23 +98,28 @@ function StringToObject(str, layer) {
 }
 
 function loadScene(str) {
+    ifDisplay = false;
     const canvas = document.querySelector("#glcanvas");
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 
     let strList = str.split('####');
 
     worldName = strList[1];
-    let LoadObjectPool = StringToObject(strList[0], 0);
+
+    ObjectPool = {};
+    BufferPool = {};
 
 
-    console.log(LoadObjectPool);
-    LoadObjectPool.onload = function () {
-        let LoadBufferPool = {};
-        for (let item in LoadObjectPool){
-            LoadBufferPool[item] = initBuffers(gl, LoadObjectPool[item]);
-        }
-        BufferPool = LoadBufferPool;
+    ObjectPool = StringToObject(strList[0], 0);
+
+    for (let item in ObjectPool){
+        refreshItemInObjectPool(item);
     }
-    ObjectPool = LoadObjectPool;
 
+    ifDisplay = true;
+
+}
+
+function loadNow() {
+    ifDisplay = true;
 }

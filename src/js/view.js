@@ -57,7 +57,7 @@ function isOut(point) {
  * @param matrixInfo
  */
 function keydown(ev,matrixInfo) {
-    let delta=0.05;
+    let delta=0.02;
     let temp=vec3.create();
     switch (ev.keyCode) {
         // change the way of projection
@@ -181,8 +181,8 @@ function initCanvasHandlers(canvas,matrixInfo){
     canvas.onmousemove=function(ev){
         let x=ev.clientX,y=ev.clientY;
         if(matrixInfo.bRoam){
-            let yFactor=800/canvas.height;
-            let xFactor=800/canvas.width;
+            let yFactor=200/canvas.height;
+            let xFactor=200/canvas.width;
             let dx=xFactor*(x-lastX);
             let dy=yFactor*(y-lastY);
             let r=vec3.create();

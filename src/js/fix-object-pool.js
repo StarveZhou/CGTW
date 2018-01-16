@@ -65,7 +65,7 @@ function removeItemFromObjectPool(name) {
         mType === "prism"    ||
         mType === "trustum"  ||
         mType === "model"    ||
-        mType === "particle"){
+        mType === "particle" ){
 
         delete BufferPool[name];
         delete ObjectPool[name];
@@ -94,7 +94,8 @@ function refreshItemInObjectPool(name){
         mType === "prism"    ||
         mType === "trustum"  ||
         mType === "model"    ||
-        mType === "particle"){
+        mType === "particle" ||
+        mType === "poly"){
         if (mType === "prism")
             ObjectPool[name].ObjectInfo = createPrismData(ObjectPool[name].ObjectInfo);
         else if (mType === "trustum")

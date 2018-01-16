@@ -269,10 +269,9 @@ function getProgramInfo(gl) {
 function getMatrixInfo(){
     return {
         eye: vec3.fromValues(0.0, 0.0, 5.0),
-        // eye:[0.0,0.0,0.5],
-        //at: vec3.fromValues(0.0, 0.0, 0.0),
         at: vec3.fromValues(0.0, 0.0, 0.0),
         up: vec3.fromValues(0.0, 1.0, 0.0),
+        right:vec3.fromValues(5.0,0.0,0.0),
         bPersp: true,
         fov: 45.0,
         near: 0.1,
@@ -280,6 +279,7 @@ function getMatrixInfo(){
         width: 10.0,
         height: 10.0,
         currentAngle: [0.0, 0.0],
+        bRoam:false,
         projectionMatrix: mat4.create(),
         viewMatrix: mat4.create()
     };

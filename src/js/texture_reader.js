@@ -158,7 +158,7 @@ function loadTexture(obj_name, file)
     let reader = new FileReader();
     let strs = (file.name).split(".");
 
-    if (strs[1] !== "jpg" && strs[1] !== "png")
+    if (strs[1] !== "jpg" && strs[1] !== "png" && strs[1] !== "gif")
     {
         return null;
     }

@@ -282,13 +282,15 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
     // Tell WebGL we want to affect texture unit 0
     gl.activeTexture(gl.TEXTURE0);
     // Bind the texture to texture unit 0
-    gl.bindTexture(gl.TEXTURE_2D, object.texture);
+    if (object.useTexture == true)
+        gl.bindTexture(gl.TEXTURE_2D, object.texture);
     // Tell the shader we bound the texture to texture unit 0
     gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
 
     //Bind the depth texture
     gl.activeTexture(gl.TEXTURE1);
-    gl.bindTexture(gl.TEXTURE_2D, object.depthTexture);
+    if (object.useDepthTexture == true)
+        gl.bindTexture(gl.TEXTURE_2D, object.depthTexture);
     gl.uniform1i(programInfo.uniformLocations.uDepthSampler, 1);//use texture 1
     gl.uniform1f(programInfo.uniformLocations.depthScale, object.depthScale);
     {

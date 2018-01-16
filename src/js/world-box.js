@@ -1,6 +1,6 @@
 worldNameList = ["miramar", "siege", "morning"];
 worldSize = 20;
-worldName = "miramar";
+worldName = "siege";
 
 const canvas = document.querySelector("#glcanvas");
 const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');

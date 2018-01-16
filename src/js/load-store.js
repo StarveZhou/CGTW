@@ -60,13 +60,32 @@ function StringToObject(str, layer) {
                 ){
                 object[itemList[0]] = Boolean(itemList[1]);
             }
-            else if (itemList[0] === "shiness"){
+            else if (itemList[0] === "shiness" ||
+                     itemList[0] === "x"       ||
+                     itemList[0] === "y"       ||
+                     itemList[0] === "z"){
                 object[itemList[0]] = parseInt(itemList[1]);
             }
             else if (itemList[0] === "particleworldSize"){
-                object[itemList[0]] = 
+                object[itemList[0]] = parseFloat(itemList[1]);
             }
-            object[itemList[0]] = itemList[1];
+            else{
+                if (itemList[1].indexOf(",") != -1){
+                    object[itemList[0]] = itemList[1].split(",");
+                    for (let id=0; id<object[itemList[0]].length; id++){
+                        object[itemList[0]][id] = Number(object[itemList[0]][id]);
+                    }
+                }
+                else{
+                    object[itemList[0]] = itemList[1];
+                }
+
+            }
+
+            if (itemList[0] === "useTexture" || itemList[0] === "useDepthTexture"){
+                object[itemList[0]] = false;
+            }
+            //object[itemList[0]] = itemList[1];
         }
     }
     return object;
@@ -80,17 +99,16 @@ function loadScene(str) {
 
     worldName = strList[1];
     let LoadObjectPool = StringToObject(strList[0], 0);
-    let LoadBufferPool = {};
-    for (let item in LoadObjectPool){
 
-    }
 
     console.log(LoadObjectPool);
-
-    for (let item in LoadObjectPool){
-        LoadBufferPool[item] = initBuffers(gl, LoadObjectPool[item]);
+    LoadObjectPool.onload = function () {
+        let LoadBufferPool = {};
+        for (let item in LoadObjectPool){
+            LoadBufferPool[item] = initBuffers(gl, LoadObjectPool[item]);
+        }
+        BufferPool = LoadBufferPool;
     }
+    ObjectPool = LoadObjectPool;
 
-    BufferPool = null; BufferPool = LoadBufferPool;
-    ObjectPool = null; ObjectPool = LoadObjectPool;
 }

@@ -286,6 +286,7 @@ function changeModelObj()
     if (current == null) return ;
     let obj_info = ObjectPool[current].ObjectInfo;
     obj_info.objFile = loadObj(current, model_obj.find(".input-file-file")[0].files[0]);
+    console.log("1 : ", ObjectPool[current].ObjectInfo.indices.length);
     showModelObj();
     console.log(ObjectPool[current].ObjectInfo.indices.length);
     refreshItemInObjectPool(current);

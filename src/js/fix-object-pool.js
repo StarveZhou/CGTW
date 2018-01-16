@@ -91,6 +91,7 @@ function refreshItemInObjectPool(name){
         mType === "prism"    ||
         mType === "trustum"  ||
         mType === "model"){
+        console.log("2 : ", ObjectPool[name].ObjectInfo.indices.length);
         let buffer = initBuffers(gl, ObjectPool[name].ObjectInfo);
         BufferPool[name] = buffer;
     }

@@ -244,6 +244,26 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
     gl.uniform3fv(
         programInfo.uniformLocations.ambientLight,
         ambientLight);
+	
+	const canvas = document.querySelector("#glcanvas");
+	
+	viewMatrixFromLight = mat4.create();
+    projectionMatrixFromLight = mat4.create();
+	mat4.perspective(projectionMatrixFromLight,matrixInfo.fov*Math.PI/180,canvas.clientWidth/canvas.clientHeight,matrixInfo.near,matrixInfo.far);
+	if (lightSources.length>=1) {
+		mat4.lookAt(viewMatrixFromLight, lightSources[0].pointLightingLocation, matrixInfo.at, [1,0,0]);
+	}
+	
+	
+	gl.uniformMatrix4fv(
+		programInfo.uniformLocations.viewMatrixFromLight,
+		false,
+		viewMatrixFromLight);
+
+    gl.uniformMatrix4fv(
+        programInfo.uniformLocations.projectionMatrixFromLight,
+        false,
+        projectionMatrixFromLight);
 
     // Flip the image's y axis
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
@@ -259,6 +279,11 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
     gl.bindTexture(gl.TEXTURE_2D, object.depthTexture);
     gl.uniform1i(programInfo.uniformLocations.uDepthSampler, 1);//use texture 1
     gl.uniform1f(programInfo.uniformLocations.depthScale, object.depthScale);
+	
+	gl.uniform1i(programInfo.uniformLocations.useShadow,
+        true);
+    gl.uniform1i(programInfo.uniformLocations.uShadowSampler, 2);//use texture 2
+	
     {
         const vertexCount = object.indices.length;
         const type = gl.UNSIGNED_SHORT;
@@ -269,6 +294,103 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
 
 
 }
+
+function drawShadowPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers, shadowFrame) {
+	var offScreenHeight = 2048;
+	var offScreenWidth = 2048;
+	
+	
+    const modelMatrix = mat4.create();
+
+    if (object.transformation) {
+        if (object.transformation.translation)
+            mat4.translate(
+                modelMatrix,     // destination matrix
+                modelMatrix,     // matrix to translate
+                object.transformation.translation);  // amount to translate
+
+        if (object.transformation.scale)
+            mat4.scale(
+                modelMatrix,
+                modelMatrix,
+                object.transformation.scale
+            );
+
+        if (object.transformation.rotation) {
+            mat4.rotate(
+                modelMatrix,  // destination matrix
+                modelMatrix,  // matrix to rotate
+                object.transformation.rotation.x,     // amount to rotate in radians
+                [1, 0, 0]);       // axis to rotate around (X)
+
+            mat4.rotate(
+                modelMatrix,  // destination matrix
+                modelMatrix,  // matrix to rotate
+                object.transformation.rotation.y,     // amount to rotate in radians
+                [0, 1, 0]);       // axis to rotate around (Y)
+
+            mat4.rotate(
+                modelMatrix,  // destination matrix
+                modelMatrix,  // matrix to rotate
+                object.transformation.rotation.z,     // amount to rotate in radians
+                [0, 0, 1]);       // axis to rotate around (Z)
+        }
+    }
+
+	
+	gl.uniformMatrix4fv(
+		programInfo.uniformLocations.modelMatrix,
+		false,
+		modelMatrix);
+	
+	const canvas = document.querySelector("#glcanvas");
+	
+	viewMatrix = mat4.create();
+    projectionMatrix = mat4.create();
+	mat4.perspective(projectionMatrix,120,canvas.clientWidth/canvas.clientHeight,matrixInfo.near,matrixInfo.far);
+	if (lightSources.length >= 1) {
+		mat4.lookAt(viewMatrix, lightSources[0].pointLightingLocation, matrixInfo.at, [1,0,0]);
+	}
+	
+	gl.uniformMatrix4fv(
+		programInfo.uniformLocations.viewMatrix,
+		false,
+		viewMatrix);
+
+    gl.uniformMatrix4fv(
+        programInfo.uniformLocations.projectionMatrix,
+        false,
+        projectionMatrix);
+		
+	 // Tell WebGL how to pull out the positions from the position
+    // buffer into the vertexPosition attribute
+    {
+        const numComponents = 3;
+        const type = gl.FLOAT;
+        const normalize = false;
+        const stride = 0;
+        const offset = 0;
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
+        gl.vertexAttribPointer(
+            programInfo.attribLocations.vertexPosition,
+            numComponents,
+            type,
+            normalize,
+            stride,
+            offset);
+        gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+    }
+
+	{
+		const vertexCount = object.indices.length;
+		const type = gl.UNSIGNED_SHORT;
+		const offset = 0;
+		gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
+		// gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
+	}
+	
+}
+
 
 function calculateNormal(i1, j1, k1, i2, j2, k2) {
     return {
@@ -1190,6 +1312,46 @@ function drawTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight
     drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
 }
 
+// draw the shadow for these shapes 
+function drawShadowCube(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers) {
+    //object = createCubeData(object);
+    drawShadowPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
+}
+
+function drawShadowParticle(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers){
+    drawShadowPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
+}
+
+function drawShadowSphere(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers) {
+    //object = createSphereData(object);
+    drawShadowPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
+
+}
+
+function drawShadowCylinder(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers) {
+    //object = createCylinderData(object);
+
+    drawShadowPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
+
+}
+
+function drawShadowCone(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers) {
+
+    //object = createConeData(object);
+    drawShadowPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
+
+}
+
+function drawPrism(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers) {
+    //object = createPrismData(object);
+    drawShadowPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
+}
+
+function drawTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers) {
+
+    //object = createTrustumOfAPyramidData(object);
+    drawshadowPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSources, buffers);
+}
 // initBuffers
 //
 // Initialize the buffers we'll need. For this demo, we just

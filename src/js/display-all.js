@@ -14,9 +14,14 @@ function getProgramInfo(gl) {
         uniform mat4 uViewMatrix;
         uniform mat4 uProjectionMatrix;
         uniform mat4 uNormalMatrix;
+
+        uniform mat4 uViewMatrixFromLight;
+        uniform mat4 uProjectionMatrixFromLight;
+
         uniform vec3 uEyePosition;
         uniform vec3 uEyeFacePoint;
         uniform vec3 uEyeUp;
+
         
         uniform bool uUseBillboard;
         uniform vec3 uBillboardPosition;
@@ -33,6 +38,8 @@ function getProgramInfo(gl) {
         varying vec2 vTextureCoord;
         varying vec4 vTransformedNormal;
         varying float vLifetime;
+
+        varying vec4 vPositionFromLight;
         
         void main(void) {
             if (uUseBillboard)
@@ -66,17 +73,20 @@ function getProgramInfo(gl) {
             vSpecularColor = aVertexSpecularColor;
             gl_Position = uProjectionMatrix * uViewMatrix * vPosition;
             vTextureCoord = aTextureCoord;
+            vPositionFromLight = uProjectionMatrixFromLight*uViewMatrixFromLight*uModelMatrix*aVertexPosition;
         }
         `;
 
     // Fragment shader program
 
     const fsSource = `
-        #define MAX_LIGHT_NUM 5
+        #define MAX_LIGHT_NUM 10
         precision lowp float;
         uniform bool uUseTexture;
         uniform bool uUseDepthTexture;
         uniform bool uUseBillboard;
+        uniform bool uUseShadow;
+
 
         uniform float uMaterialShiness;
         uniform vec3 uEyePosition;
@@ -97,10 +107,11 @@ function getProgramInfo(gl) {
         
         varying float vLifetime;
 
+        varying vec4 vPositionFromLight;
+
         uniform sampler2D uSampler;
         uniform sampler2D uDepthSampler;
-        
-        
+        uniform sampler2D uShadowSampler;
         
         
         void main(void) {
@@ -209,6 +220,16 @@ function getProgramInfo(gl) {
             fogFactor = clamp(fogFactor, 0.0, 1.0);
             
             gl_FragColor = mix(vec4(1.0,1.0,1.0,0.8), gl_FragColor, fogFactor );
+
+            if (uUseShadow) {
+                vec3 shadowCoord = (vPositionFromLight.xyz/vPositionFromLight.w)/2.0+0.5;
+                vec4 rgbaDepth = texture2D(uShadowSampler,shadowCoord.xy);
+                float depth = rgbaDepth.a;
+                float visible = (shadowCoord.z>depth+0.0015)?0.5:1.0;
+                gl_FragColor = vec4(gl_FragColor.rgb*visible,gl_FragColor.a);
+                //gl_FragColor = rgbaDepth;
+            }
+            
             
             //gl_FragColor = vec4((normal.xyz + vec3(1,1,1))*0.5,1);
         }
@@ -217,8 +238,6 @@ function getProgramInfo(gl) {
     // Initialize a shader program; this is where all the lighting
     // for the vertices and so forth is established.
     const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
-
-    gl.useProgram(shaderProgram);
 
     return {
         program: shaderProgram,
@@ -238,6 +257,9 @@ function getProgramInfo(gl) {
             viewMatrix: gl.getUniformLocation(shaderProgram, 'uViewMatrix'),
             modelMatrix: gl.getUniformLocation(shaderProgram, 'uModelMatrix'),
             normalMatrix: gl.getUniformLocation(shaderProgram, 'uNormalMatrix'),
+            viewMatrixFromLight: gl.getUniformLocation(shaderProgram, 'uViewMatrixFromLight'),
+            projectionMatrixFromLight: gl.getUniformLocation(shaderProgram, 'projectionMatrixFromLight'),
+            useShadow: gl.getUniformLocation(shaderProgram, 'uUseShadow'),
             usePointLighting: gl.getUniformLocation(shaderProgram, 'uUsePointLighting'),
             useTexture: gl.getUniformLocation(shaderProgram, 'uUseTexture'),
             useDepthTexture: gl.getUniformLocation(shaderProgram, 'uUseDepthTexture'),
@@ -256,10 +278,77 @@ function getProgramInfo(gl) {
             pointLightingDiffuseColor: gl.getUniformLocation(shaderProgram, 'uPointLightingDiffuseColor'),
             ambientLight: gl.getUniformLocation(shaderProgram, 'uAmbientLight'),
             uSampler: gl.getUniformLocation(shaderProgram, 'uSampler'),
-            uDepthSampler: gl.getUniformLocation(shaderProgram, 'uDepthSampler')
+            uDepthSampler: gl.getUniformLocation(shaderProgram, 'uDepthSampler'),
+            uShadowSampler: gl.getUniformLocation(shaderProgram, 'uShadowSampler')
         },
     };
 }
+
+// the shadow program 
+function getShadowProgramInfo(gl) {
+
+    // vertex shader to determine shadow
+  const shadowVsSource = `
+  precision lowp float;
+  attribute vec4 aVertexPosition;
+
+  uniform mat4 uModelMatrix;
+  uniform mat4 uViewMatrix;
+  uniform mat4 uProjectionMatrix;
+
+  void main(void) {
+      gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * aVertexPosition;
+  }
+  `;
+
+  // Fragment shader to determine shadow 
+  const shadowFsSource = `
+    // vec4 encodeFloat (float depth) {
+    //   const vec4 bitShift = vec4(
+    //     256 * 256 * 256,
+    //     256 * 256,
+    //     256,
+    //     1.0
+    //   );
+    //   const vec4 bitMask = vec4(
+    //     0,
+    //     1.0 / 256.0,
+    //     1.0 / 256.0,
+    //     1.0 / 256.0
+    //   );
+    //   vec4 comp = fract(depth * bitShift);
+    //   comp -= comp.xyz * bitMask;
+    //   return comp;
+    // }
+    // void main (void) {
+    //   // Encode the distance into the scene of this fragment.
+    //   // We'll later decode this when rendering from our camera's
+    //   // perspective and use this number to know whether the fragment
+    //   // that our camera is seeing is inside of our outside of the shadow
+    //   gl_FragColor = encodeFloat(gl_FragCoord.z);
+    // }
+    void main(void) {
+      gl_FragColor = vec4( gl_FragCoord.z, 0.0, 0.0,gl_FragCoord.z);
+      //gl_FragColor = vec4(1.0,0.0,1.0,1.0);
+    }
+    `;
+
+    const shadowShaderProgram = initShaderProgram(gl, shadowVsSource, shadowFsSource);
+    // the program info used for shadow 
+    return {
+        program: shadowShaderProgram,
+        attribLocations: {
+            vertexPosition: gl.getAttribLocation(shadowShaderProgram, 'aVertexPosition'),
+        },
+        uniformLocations: {
+            modelMatrix: gl.getUniformLocation(shadowShaderProgram, 'uModelMatrix'),
+            viewMatrix: gl.getUniformLocation(shadowShaderProgram, 'uViewMatrix'),
+            projectionMatrix: gl.getUniformLocation(shadowShaderProgram, 'uProjectionMatrix'),
+        },
+    };
+}
+
+
 
 function getMatrixInfo(){
     return {
@@ -285,6 +374,12 @@ function display() {
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 
     const programInfo = getProgramInfo(gl);
+    const shadowProgramInfo = getShadowProgramInfo(gl);
+    const shadowFrame = getShadowFramebuffer(gl);
+
+    gl.activeTexture(gl.TEXTURE[2]);
+    gl.bindTexture(gl.TEXTURE_2D, shadowFrame.texture);
+
     let matrixInfo = getMatrixInfo();
     initDocumentHandlers(document, matrixInfo);
     initCanvasHandlers(canvas, matrixInfo);
@@ -295,6 +390,12 @@ function display() {
         //console.log(AmbientLight);
         //console.log(LightSources);
         updateMatrix(gl,canvas,programInfo,matrixInfo) 
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, shadowFrame.shadowFramebuffer);
+        gl.useProgram(shadowProgramInfo.program);
+        drawShadow(gl, shadowProgramInfo, matrixInfo, AmbientLight, LightSources);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.useProgram(programInfo.program);
         drawScene(gl, programInfo, matrixInfo, AmbientLight, LightSources);
 
         requestAnimationFrame(render);
@@ -353,3 +454,91 @@ function drawScene(gl, programInfo, matrixInfo, ambientLight, lightSources) {
     }
 
 }
+
+function drawShadow(gl, programInfo, matrixInfo, ambientLight, lightSources) {
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
+    gl.clearDepth(1.0);                 // Clear everything
+    gl.enable(gl.DEPTH_TEST);           // Enable depth testing
+    gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    //console.log(ObjectPool);
+    for (let item in ObjectPool){
+        //let object = Object.create(ObjectPool[item].ObjectInfo);
+        //object["texture"] = texture1;
+        //console.log(ObjectPool[item].ObjectInfo)
+        //console.log(programInfo)
+        //let object = Object.create(ObjectPool[item].ObjectInfo);
+        let object = ObjectPool[item].ObjectInfo;
+        //ObjectPool[item].ObjectInfo.texture = texture1;
+        //console.log(object);
+        switch (ObjectPool[item].type){
+
+            case "cube":
+                drawShadowCube(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
+                break;
+            case "sphere":
+                drawShadowSphere(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
+                break;
+            case "cylinder":
+                drawShadowCylinder(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
+                break;
+            case "cone":
+                drawShadowCone(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
+                break;
+            case "prism":
+                drawShadowPrism(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
+                break;
+            case "trustum":
+                drawShadowTrustumOfAPyramid(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
+                break;
+            case "model":
+                //console.log(object);
+                if (ObjectPool[item].ObjectInfo.objFile !== null) {
+                    objDisplay(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
+                }
+                break;
+            case "particle":
+                drawParticle(gl, programInfo, matrixInfo, object, ambientLight, lightSources, BufferPool[item]);
+            default:
+                break;
+        }
+    }
+
+}
+
+// the shadow map 
+function getShadowFramebuffer(gl) {  
+
+    var shadowDepthTextureSize = 1024;
+    // render the image to the depth texure
+    var shadowFramebuffer = gl.createFramebuffer();
+
+    var shadowDepthTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, shadowDepthTexture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, shadowDepthTextureSize, shadowDepthTextureSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+    var renderBuffer = gl.createRenderbuffer();
+    gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, shadowDepthTextureSize, shadowDepthTextureSize);
+
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, shadowDepthTexture, 0);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderBuffer);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+    // gl.bindFramebuffer(gl.framebuffer,null);
+    // gl.bindTexture(gl.TEXTURE_2D, null);
+    // gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+    if (shadowDepthTexture == null)
+        console.log('yes');
+
+    return {
+        shadowFramebuffer:shadowFramebuffer,
+        texture:shadowDepthTexture,
+    }
+ }  

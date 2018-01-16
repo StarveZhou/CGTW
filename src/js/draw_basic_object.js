@@ -206,18 +206,13 @@ function drawPolygon(gl, programInfo, matrixInfo, object, ambientLight, lightSou
     gl.uniform1i(
         programInfo.uniformLocations.useBillboard,
         object.useBillboard);
-    if (object.particleCenter)
+    if (object.transformation.translation)
     {
         gl.uniform3fv(
             programInfo.uniformLocations.billboardPosition,
-            object.particleCenter);
+            object.transformation.translation);
     }
-    if (object.particleSize)
-    {
-        gl.uniform1f(
-            programInfo.uniformLocations.billboardSize,
-            object.particleSize);
-    }
+    gl.uniform1f(programInfo.uniformLocations.time, new Date().getTime());
 
     let pointLightingLocation = [];
     let pointLightingSpecularColor = [];
@@ -349,10 +344,10 @@ function createCubeData(object) {
 }
 
 function createParticleData(object) {
-    object.positions = [-1, -1, 0,
-                        1, -1, 0,
-                        1, 1, 0,
-                        -1, 1, 0];
+    object.positions = [-0.5, -0.5, 0,
+                        0.5, -0.5, 0,
+                        0.5, 0.5, 0,
+                        -0.5, 0.5, 0];
     object.indices = [0, 1, 2, 0, 2, 3];
     object.vertexNormals = [0, 0, 1];
     object.normalIndices = [0, 0, 0, 0, 0, 0];
@@ -361,6 +356,51 @@ function createParticleData(object) {
                                  1, 0,
                                  1, 1,
                                  0, 1];
+    /*
+    for (let i = 0; i < particle_num; i++) {
+        let lifetime = 8 * Math.random()
+
+        let diameter = object.particle_size;
+
+        let xStartOffset = diameter * Math.random() - diameter / 2;
+
+        let yStartOffset = diameter * Math.random() - diameter / 2;
+
+        let zStartOffset = 0;
+
+        let upVelocity = object.transformation.scale[1] * Math.random();
+
+        let xVelocity = object.transformation.scale[0] * Math.random() ;
+
+        let zVelocity = object.transformation.scale[2] * Math.random();
+
+        for (let j = 0; j < 4; j++) {
+            lifetimes.push(lifetime)
+
+            triCorners.push(triCornersCycle[j * 2])
+            triCorners.push(triCornersCycle[j * 2 + 1])
+
+            texCoords.push(texCoordsCycle[j * 2])
+            texCoords.push(texCoordsCycle[j * 2 + 1])
+
+            centerOffsets.push(xStartOffset)
+            centerOffsets.push(yStartOffset + Math.abs(xStartOffset / 2.0))
+            centerOffsets.push(zStartOffset)
+
+            velocities.push(xSideVelocity)
+            velocities.push(upVelocity)
+            velocities.push(zSideVelocity)
+        }
+
+        vertexIndices = vertexIndices.concat([
+            0, 1, 2, 0, 2, 3
+        ].map(function (num) { return num + 4 * i }))
+    }
+    for (i = 0; i<particle_num; i++)
+    {
+
+    }
+    */
     return object;
 }
 

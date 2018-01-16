@@ -20,7 +20,10 @@ function getProgramInfo(gl) {
         
         uniform bool uUseBillboard;
         uniform vec3 uBillboardPosition;
-        uniform float uBillboardSize;
+        uniform float uTime;
+        attribute float aLifetime;
+        attribute vec3 aCenterOffset;
+        attribute vec3 aVelocity;
         
         varying vec4 vPosition; 
         varying vec4 vAmbientColor;
@@ -29,16 +32,29 @@ function getProgramInfo(gl) {
         // varying vec4 vColor; 
         varying vec2 vTextureCoord;
         varying vec4 vTransformedNormal;
+        varying float vLifetime;
         
         void main(void) {
             if (uUseBillboard)
             {
+                float time = mod(uTime, aLifetime);
+                vec4 position = vec4(
+                    uBillboardPosition + aCenterOffset + (time * aVelocity),
+                    1.0
+                );
+                
+                vLifetime = 1.3 - (time / aLifetime);
+                vLifetime = clamp(vLifetime, 0.0, 1.0);
+                float size = (vLifetime * vLifetime) * 0.05;
+                
                 vec3 eyeFace = normalize(uEyeFacePoint - uEyePosition);
                 vec3 eyeUp = normalize(uEyeUp);
                 vec3 eyeRight = normalize(cross(eyeFace, eyeUp));
-                vPosition = vec4(uBillboardPosition.xyz + (eyeRight * aVertexPosition.x * uBillboardSize) + \
-                            (eyeUp * aVertexPosition.y * uBillboardSize), 1.0);
+                vPosition = vec4(position.xyz + (eyeRight * aVertexPosition.x * size) + \
+                            (eyeUp * aVertexPosition.y * size), 1.0);
                 vTransformedNormal = vec4(uEyePosition - uBillboardPosition, 1.0);
+                
+                vLifetime = aLifetime;
             }
             else
             {
@@ -60,6 +76,7 @@ function getProgramInfo(gl) {
         precision lowp float;
         uniform bool uUseTexture;
         uniform bool uUseDepthTexture;
+        uniform bool uUseBillboard;
 
         uniform float uMaterialShiness;
         uniform vec3 uEyePosition;
@@ -77,6 +94,8 @@ function getProgramInfo(gl) {
         // varying vec4 vColor; 
         varying vec2 vTextureCoord;
         varying vec4 vTransformedNormal;
+        
+        varying float vLifetime;
 
         uniform sampler2D uSampler;
         uniform sampler2D uDepthSampler;
@@ -92,81 +111,93 @@ function getProgramInfo(gl) {
             vec2 texCoord;
             
             texCoord = vTextureCoord;
-            
-            if (uUseDepthTexture)
+            if (uUseBillboard)
             {
-                vec3 normalDelta;
-                mat3 depth;
-                float deltax;
-                float deltay;
-                
-                texCoord = vTextureCoord + vec2(-0.015, -0.015);
-                depth[0][0] = texture2D(uDepthSampler, texCoord).r;
-                texCoord = vTextureCoord + vec2(-0.015, 0.0);
-                depth[0][1] = texture2D(uDepthSampler, texCoord).r;
-                texCoord = vTextureCoord + vec2(-0.015, 0.015);
-                depth[0][2] = texture2D(uDepthSampler, texCoord).r;
-                
-                texCoord = vTextureCoord + vec2(0.0, -0.015);
-                depth[1][0] = texture2D(uDepthSampler, texCoord).r;
-                texCoord = vTextureCoord + vec2(0.0, 0.0);
-                depth[1][1] = texture2D(uDepthSampler, texCoord).r;
-                texCoord = vTextureCoord + vec2(0.0, 0.015);
-                depth[1][2] = texture2D(uDepthSampler, texCoord).r;
-                
-                texCoord = vTextureCoord + vec2(0.015, -0.015);
-                depth[2][0] = texture2D(uDepthSampler, texCoord).r;
-                texCoord = vTextureCoord + vec2(0.015, 0.0);
-                depth[2][1] = texture2D(uDepthSampler, texCoord).r;
-                texCoord = vTextureCoord + vec2(0.015, 0.015);
-                depth[2][2] = texture2D(uDepthSampler, texCoord).r;
-                
-                deltax = (depth[0][2] + 2.0 * depth[1][2] + depth[2][2]) - (depth[0][0] + 2.0 * depth[1][0] + depth[2][0]);
-                deltay = (depth[2][0] + 2.0 * depth[2][1] + depth[2][2]) - (depth[0][0] + 2.0 * depth[0][1] + depth[0][2]);
-
-                /*
-                float depth0 = texture2D(uDepthSampler, texCoord).r;
-                texCoord = vTextureCoord + vec2(0.01, 0);
-                float depth1 = texture2D(uDepthSampler, texCoord).r;
-                texCoord = vTextureCoord + vec2(0, 0.01);
-                float depth2 = texture2D(uDepthSampler, texCoord).r;
-                deltax = depth1 - depth0;
-                deltay = depth2 - depth0;
-                */
-                
-                normalDelta = normalize(cross(vec3(1, 0, deltax), vec3(0, 1, deltay))) - vec3(0,0,1);
-                normal = normalize(vTransformedNormal.xyz + normalDelta);
-                
-                texCoord = vTextureCoord ;//- eyeUV.xy * (depth[0][0] * 0.02) / eyeUV.z;
+                vec4 color;
+                if (uUseTexture) {
+                    gl_FragColor = texture2D(uSampler,texCoord);
+                } else {
+                    gl_FragColor = vec4(origColor,vAmbientColor.a);
+                }
+                gl_FragColor.a *= vLifetime;
             }
             else
             {
-                normal = normalize(vTransformedNormal.xyz);
-            }
-            for (int i = 0;i < MAX_LIGHT_NUM;i++) {
-                if (i < uLightNum) {
-                    // the direction for point light
-                    vec3 directionalVector = normalize(uPointLightingLocation[i] - vec3(vPosition));
-                    vec3 reflectionDirection = reflect(-directionalVector, normal);
-
-                    float specularLightWeighting = pow(max(dot(reflectionDirection, eyeDirection), 0.0), uMaterialShiness);
-                    float diffuseLightWeighting = max(dot(normal, directionalVector), 0.0);
-
-                    // lighting = uAmbientLight+ uPointLightingDiffuseColor * diffuseLightWeighting;
-                    lighting += uPointLightingSpecularColor[i] * specularLightWeighting
-                        + uPointLightingDiffuseColor[i] * diffuseLightWeighting;
-
-                    origColor +=  uPointLightingSpecularColor[i]*specularLightWeighting*vSpecularColor.rgb + uPointLightingDiffuseColor[i]*diffuseLightWeighting*vDiffuseColor.rgb;
+                if (uUseDepthTexture)
+                {
+                    vec3 normalDelta;
+                    mat3 depth;
+                    float deltax;
+                    float deltay;
+                    
+                    texCoord = vTextureCoord + vec2(-0.015, -0.015);
+                    depth[0][0] = texture2D(uDepthSampler, texCoord).r;
+                    texCoord = vTextureCoord + vec2(-0.015, 0.0);
+                    depth[0][1] = texture2D(uDepthSampler, texCoord).r;
+                    texCoord = vTextureCoord + vec2(-0.015, 0.015);
+                    depth[0][2] = texture2D(uDepthSampler, texCoord).r;
+                    
+                    texCoord = vTextureCoord + vec2(0.0, -0.015);
+                    depth[1][0] = texture2D(uDepthSampler, texCoord).r;
+                    texCoord = vTextureCoord + vec2(0.0, 0.0);
+                    depth[1][1] = texture2D(uDepthSampler, texCoord).r;
+                    texCoord = vTextureCoord + vec2(0.0, 0.015);
+                    depth[1][2] = texture2D(uDepthSampler, texCoord).r;
+                    
+                    texCoord = vTextureCoord + vec2(0.015, -0.015);
+                    depth[2][0] = texture2D(uDepthSampler, texCoord).r;
+                    texCoord = vTextureCoord + vec2(0.015, 0.0);
+                    depth[2][1] = texture2D(uDepthSampler, texCoord).r;
+                    texCoord = vTextureCoord + vec2(0.015, 0.015);
+                    depth[2][2] = texture2D(uDepthSampler, texCoord).r;
+                    
+                    deltax = (depth[0][2] + 2.0 * depth[1][2] + depth[2][2]) - (depth[0][0] + 2.0 * depth[1][0] + depth[2][0]);
+                    deltay = (depth[2][0] + 2.0 * depth[2][1] + depth[2][2]) - (depth[0][0] + 2.0 * depth[0][1] + depth[0][2]);
+    
+                    /*
+                    float depth0 = texture2D(uDepthSampler, texCoord).r;
+                    texCoord = vTextureCoord + vec2(0.01, 0);
+                    float depth1 = texture2D(uDepthSampler, texCoord).r;
+                    texCoord = vTextureCoord + vec2(0, 0.01);
+                    float depth2 = texture2D(uDepthSampler, texCoord).r;
+                    deltax = depth1 - depth0;
+                    deltay = depth2 - depth0;
+                    */
+                    
+                    normalDelta = normalize(cross(vec3(1, 0, deltax), vec3(0, 1, deltay))) - vec3(0,0,1);
+                    normal = normalize(vTransformedNormal.xyz + normalDelta);
+                    
+                    texCoord = vTextureCoord ;//- eyeUV.xy * (depth[0][0] * 0.02) / eyeUV.z;
                 }
-            }
-            
-
-            if (uUseTexture) {
-                vec4 texColor = texture2D(uSampler,texCoord);
-                gl_FragColor = vec4(texColor.rgb*lighting,  texColor.a);
-            } else {
-                gl_FragColor = vec4(origColor,vAmbientColor.a);
-                // gl_FragColor = vec4(vAmbientColor.rgb*lighting,1.0);
+                else
+                {
+                    normal = normalize(vTransformedNormal.xyz);
+                }
+                for (int i = 0;i < MAX_LIGHT_NUM;i++) {
+                    if (i < uLightNum) {
+                        // the direction for point light
+                        vec3 directionalVector = normalize(uPointLightingLocation[i] - vec3(vPosition));
+                        vec3 reflectionDirection = reflect(-directionalVector, normal);
+    
+                        float specularLightWeighting = pow(max(dot(reflectionDirection, eyeDirection), 0.0), uMaterialShiness);
+                        float diffuseLightWeighting = max(dot(normal, directionalVector), 0.0);
+    
+                        // lighting = uAmbientLight+ uPointLightingDiffuseColor * diffuseLightWeighting;
+                        lighting += uPointLightingSpecularColor[i] * specularLightWeighting
+                            + uPointLightingDiffuseColor[i] * diffuseLightWeighting;
+    
+                        origColor +=  uPointLightingSpecularColor[i]*specularLightWeighting*vSpecularColor.rgb + uPointLightingDiffuseColor[i]*diffuseLightWeighting*vDiffuseColor.rgb;
+                    }
+                }
+                
+    
+                if (uUseTexture) {
+                    vec4 texColor = texture2D(uSampler,texCoord);
+                    gl_FragColor = vec4(texColor.rgb*lighting,  texColor.a);
+                } else {
+                    gl_FragColor = vec4(origColor,vAmbientColor.a);
+                    // gl_FragColor = vec4(vAmbientColor.rgb*lighting,1.0);
+                }
             }
             
             const float LOG2 = 1.442695;
@@ -198,6 +229,9 @@ function getProgramInfo(gl) {
             vertexSpecularColor: gl.getAttribLocation(shaderProgram, 'aVertexSpecularColor'),
             vertexNormal: gl.getAttribLocation(shaderProgram, 'aVertexNormal'),
             textureCoord: gl.getAttribLocation(shaderProgram, 'aTextureCoord'),
+            lifeTime: gl.getAttribLocation(shaderProgram, 'aLifetime'),
+            centerOffset: gl.getAttribLocation(shaderProgram, 'aCenterOffset'),
+            velocity: gl.getAttribLocation(shaderProgram, 'aVelocity')
         },
         uniformLocations: {
             projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
@@ -214,7 +248,8 @@ function getProgramInfo(gl) {
             eyeUp: gl.getUniformLocation(shaderProgram, 'uEyeUp'),
             useBillboard: gl.getUniformLocation(shaderProgram, 'uUseBillboard'),
             billboardPosition: gl.getUniformLocation(shaderProgram, 'uBillboardPosition'),
-            billboardSize: gl.getUniformLocation(shaderProgram, 'uBillboardSize'),
+            //billboardSize: gl.getUniformLocation(shaderProgram, 'uBillboardSize'),
+            time: gl.getUniformLocation(shaderProgram, 'uTime'),
             lightNum: gl.getUniformLocation(shaderProgram, 'uLightNum'),
             pointLightingLocation: gl.getUniformLocation(shaderProgram, 'uPointLightingLocation'),
             pointLightingSpecularColor: gl.getUniformLocation(shaderProgram, 'uPointLightingSpecularColor'),

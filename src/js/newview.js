@@ -153,8 +153,8 @@ function initCanvasHandlers(canvas,matrixInfo){
     canvas.onmousemove=function(ev){
         let x=ev.clientX,y=ev.clientY;
         if(dragging){
-            let yFactor=10.0/canvas.height;
-            let xFactor=10.0/canvas.width;
+            let yFactor=20.0/canvas.height;
+            let xFactor=20.0/canvas.width;
             let dx=xFactor*(x-lastX);
             let dy=yFactor*(y-lastY);
             let right = vec3.create();
@@ -165,21 +165,16 @@ function initCanvasHandlers(canvas,matrixInfo){
             let temp = vec3.create();
             let move = vec3.create();
             let delta = vec3.create();
-            let Y = vec3.fromValues(0, 1, 0);
             vec3.sub(from, matrixInfo.eye, matrixInfo.at);
             r = vec3.distance(matrixInfo.eye, matrixInfo.at);
             vec3.normalize(from, from);
             vec3.cross(right, matrixInfo.up, from);
             vec3.normalize(up, matrixInfo.up);
             vec3.normalize(right, right);
+            right[1] = 0;
 
-            vec3.scale(move, right,dx);
-            vec3.scale(temp, up, dy);
-            vec3.add(move, move, temp);
-            angle = -vec3.length(move) / r;
-            vec3.normalize(move, move);
-
-            console.log(angle);
+            vec3.scale(move, up,dy);
+            angle = vec3.length(move) / r;
             vec3.scale(delta, from, Math.cos(angle));
             vec3.scale(temp, move, Math.sin(angle));
             vec3.add(delta, delta, temp);
@@ -187,11 +182,22 @@ function initCanvasHandlers(canvas,matrixInfo){
             vec3.scale(delta, delta, r);
             vec3.add(matrixInfo.eye, matrixInfo.at, delta);
 
-            vec3.cross(temp, delta, Y);
-            vec3.cross(matrixInfo.up, temp, delta);
+            vec3.cross(matrixInfo.up, delta, right);
             vec3.normalize(matrixInfo.up, matrixInfo.up);
-            //vec3.cross(matrixInfo.up, delta, right);
-            //vec3.normalize(matrixInfo.up, matrixInfo.up);
+
+            vec3.sub(from, matrixInfo.eye, matrixInfo.at);
+            vec3.normalize(from, from);
+            vec3.scale(move, right, dx);
+            angle = -vec3.length(move) / r;
+            vec3.scale(delta, from, Math.cos(angle));
+            vec3.scale(temp, move, Math.sin(angle));
+            vec3.add(delta, delta, temp);
+            vec3.normalize(delta, delta);
+
+            vec3.scale(delta, delta, r);
+            temp = matrixInfo.eye;
+            vec3.add(matrixInfo.eye, matrixInfo.at, delta);
+            matrixInfo.eye[1] = temp[1];
         }
         lastX=x;
         lastY=y;

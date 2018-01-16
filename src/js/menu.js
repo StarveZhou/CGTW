@@ -238,8 +238,9 @@ function createParticle()
         sideNum: null,
         upBottomRatio: null,
         objFile: null,
-        particleCenter: [0.0, 0.0, 0.0],
-        particleSize: 1.0
+        particle_num: 1000,
+        particle_size: 1,
+        particle_height: 1
     };
     particle_num++;
     Obj = {type:"particle", ObjectInfo:Obj};

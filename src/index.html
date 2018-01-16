@@ -122,6 +122,20 @@
                             <input id="upBottomRatio" class="spinner" value="0.5">
                         </div>
                     </div>
+                    <div id="particle-arg" class="form-inline form-group">
+                        <div id="particle-num" class="form-group input-particle">
+                            <label for="particleNum" class="input-title">粒子数量：</label>
+                            <input id="particleNum" class="spinner" value="100">
+                        </div>
+                        <div id="particle-size" class="form-group input-particle">
+                            <label for="particleSize" class="input-title">粒子大小：</label>
+                            <input id="particleSize" class="spinner" value="0.1">
+                        </div>
+                        <div id="particle-velocity" class="form-group input-particle">
+                            <label for="particleVelocity" class="input-title">粒子速度：</label>
+                            <input id="particleVelocity" class="spinner" value="1.0">
+                        </div>
+                    </div>
                     <div id="basic-tc">
                         <div class="form-inline form-group en-texture">
                             <label for="basic-entex" class="input-title">使用纹理：</label>
@@ -142,12 +156,14 @@
                                 <span class="input-group-addon"><i></i></span>
                             </div>
                         </div>
+                    </div>
+                    <div id="depth-texture">
                         <div class="form-inline form-group input-depthTexture">
-                            <label for="basic-depthTexture" class="input-title">深度纹理：</label>
-                            <div id="basic-depthTexture" class="input-file">
-                                <input type='button' class="input-file-btn" value='选择文件' onclick='javascript: $("#basic-depthTexture-file").click()'/>
+                            <label for="depthTexture" class="input-title">深度纹理：</label>
+                            <div id="depthTexture" class="input-file">
+                                <input type='button' class="input-file-btn" value='选择文件' onclick='javascript: $("#depthTexture-file").click()'/>
                                 <label class="input-file-label">aaaaaaaaaaa</label>
-                                <input id="basic-depthTexture-file" type="file" class="input-file-file" accept="image/*" onchange='changeDepthTexture()' />
+                                <input id="depthTexture-file" type="file" class="input-file-file" accept="image/*" onchange='changeDepthTexture()' />
                             </div>
                         </div>
                     </div>
@@ -284,4 +300,5 @@
 <script src = "js/texture_reader.js" type="text/javascript"></script>
 <script src = "js/display-all.js" type="text/javascript"></script>
 <script src = "js/basic.js" type = "text/javascript"></script>
+<script src = "js/world-box.js" type="text/javascript"></script>
 </html>

@@ -303,6 +303,7 @@ ObjectPool['world-rt'] = {
 };
 
 
+
 BufferPool['world-bk'] = initBuffers(gl, ObjectPool['world-bk'].ObjectInfo);
 BufferPool['world-ft'] = initBuffers(gl, ObjectPool['world-ft'].ObjectInfo);
 BufferPool['world-up'] = initBuffers(gl, ObjectPool['world-up'].ObjectInfo);

@@ -238,10 +238,14 @@ function createParticle()
         sideNum: null,
         upBottomRatio: null,
         objFile: null,
-        particle_num: 1000,
-        particle_size: 1,
-        particle_height: 1
+        particle_num: 100,
+        particle_velocity: 1.0,
+        particle_size: 0.1,
+        lifeTimes:[],
+        centerOffsets:[],
+        velocities:[]
     };
+
     particle_num++;
     Obj = {type:"particle", ObjectInfo:Obj};
     ObjectPool["particle"+particle_num] = Obj;

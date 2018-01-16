@@ -3,6 +3,7 @@ let basic_scale = base_form.find("#basic-scale");
 let basic_rot = base_form.find("#basic-rot");
 let basic_loc = base_form.find("#basic-loc");
 let basic_tc = base_form.find("#basic-tc");
+let depth_tex = base_form.find("#depth-texture");
 let extra_arg = base_form.find("#extra-arg");
 let basic_sideNum = extra_arg.find("#basic-sideNum");
 let basic_upBotRatio = extra_arg.find("#basic-upBotRatio");
@@ -10,6 +11,12 @@ let model_arg = base_form.find("#model-arg");
 let model_obj = model_arg.find("#model-obj");
 let model_tex = model_arg.find("#model-texture");
 let basic_light = base_form.find("#basic-light");
+let particle_arg = base_form.find("#particle-arg");
+
+function foo(str){
+    str ='0'+str;
+    return str.substring(str.length-2,str.length);
+}
 
 function hideAll()
 {
@@ -19,12 +26,14 @@ function hideAll()
     basic_loc.hide();
     extra_arg.hide();
     basic_tc.hide();
+    depth_tex.hide();
     basic_sideNum.hide();
     basic_upBotRatio.hide();
     model_arg.hide();
     model_obj.hide();
     model_tex.hide();
     basic_light.hide();
+    particle_arg.hide();
 }
 
 function showScale()
@@ -70,7 +79,6 @@ function showTC()
     basic_tc.find("#basic-entex").prop("checked", obj_info.useTexture);
 
     basic_tc.find(".input-texture").find(".input-file-file").val(null);
-    basic_tc.find(".input-depthTexture").find(".input-file-file").val(null);
     if (obj_info.textureFile == null)
     {
         basic_tc.find(".input-texture").find(".input-file-label")[0].innerText = "未选择文件";
@@ -80,16 +88,11 @@ function showTC()
         basic_tc.find(".input-texture").find(".input-file-label")[0].innerText = obj_info.textureFile;
     }
 
-    if (obj_info.depthTextureFile == null)
-    {
-        basic_tc.find(".input-depthTexture").find(".input-file-label")[0].innerText = "未选择文件";
-    }
-    else
-    {
-        basic_tc.find(".input-depthTexture").find(".input-file-label")[0].innerText = obj_info.depthTextureFile;
-    }
-
-    basic_tc.find("#basic-color").colorpicker("setValue","#"+(obj_info.diffuseColor[0]*255).toString(16) + (obj_info.diffuseColor[1]*255).toString(16) + (obj_info.diffuseColor[2]*255).toString(16));
+    let color = "#";
+    color = color + foo((obj_info.diffuseColor[0]*255).toString(16));
+    color = color + foo((obj_info.diffuseColor[1]*255).toString(16));
+    color = color + foo((obj_info.diffuseColor[2]*255).toString(16));
+    basic_tc.find("#basic-color").colorpicker("setValue",color);
 
     basic_tc.find(".input-color").hide();
     basic_tc.find(".input-texture").hide();
@@ -100,6 +103,22 @@ function showTC()
     else
         basic_tc.find(".input-color").show();
     basic_tc.show();
+}
+
+function showDepthTexture()
+{
+    let obj_info = ObjectPool[current].ObjectInfo;
+
+    depth_tex.find(".input-file-file").val(null);
+    if (obj_info.depthTextureFile == null)
+    {
+        depth_tex.find(".input-file-label")[0].innerText = "未选择文件";
+    }
+    else
+    {
+        depth_tex.find(".input-file-label")[0].innerText = obj_info.depthTextureFile;
+    }
+    depth_tex.show();
 }
 
 function showSideNum()
@@ -158,6 +177,15 @@ function showLight()
     basic_light.show();
 }
 
+function showParticleArg()
+{
+    let Obj = ObjectPool[current].ObjectInfo;
+    particle_arg.find("#particleNum").spinner("value", Obj.particle_num);
+    particle_arg.find("#particleVelocity").spinner("value", Obj.particle_velocity);
+    particle_arg.find("#particleSize").spinner("value", Obj.particle_size);
+    particle_arg.show();
+}
+
 function showForm()
 {
     let type = ObjectPool[current].type;
@@ -167,7 +195,7 @@ function showForm()
     {
         hideAll();
         showScale(); showRot(); showLoc();
-        showTC();
+        showTC(); showDepthTexture();
         base_form.fadeIn();
     }
     else if (type === "prism")
@@ -203,8 +231,9 @@ function showForm()
     else if (type === "particle")
     {
         hideAll();
-        showScale(); showLoc();
+        showScale(); showRot(); showLoc();
         showTC();
+        showParticleArg();
         base_form.fadeIn();
     }
 }
@@ -221,6 +250,8 @@ function changeScale()
     obj_scale[0] = basic_scale.find("#basic-scalex").spinner("value");
     obj_scale[1] = basic_scale.find("#basic-scaley").spinner("value");
     obj_scale[2] = basic_scale.find("#basic-scalez").spinner("value");
+    if (current.type === "particle")
+        refreshItemInObjectPool(current);
 }
 
 function changeRot()
@@ -274,9 +305,9 @@ function changeDepthTexture()
     console.log("changeDepthTexture");
     if (current == null) return ;
     let obj_info = ObjectPool[current].ObjectInfo;
-    obj_info.depthTextureFile = loadDepthTexture(current, basic_tc.find("#basic-depthTexture").find(".input-file-file")[0].files[0]);
+    obj_info.depthTextureFile = loadDepthTexture(current, depth_tex.find("#depthTexture").find(".input-file-file")[0].files[0]);
     if (obj_info.depthTextureFile != null) obj_info.useDepthTexture = true;
-    showTC();
+    showDepthTexture();
     refreshItemInObjectPool(current);
 }
 
@@ -386,6 +417,33 @@ function changeSLight()
     refreshItemInObjectPool(current);
 }
 
+function changeParticleSize()
+{
+    if (current == null) return;
+    let obj_info = ObjectPool[current].ObjectInfo;
+
+    obj_info.particle_time = particle_arg.find("#particleTime").spinner("value");
+    obj_info.particle_size = particle_arg.find("#particleSize").spinner("value");
+}
+
+function changParticleNum()
+{
+    if (current == null) return;
+    let obj_info = ObjectPool[current].ObjectInfo;
+
+    obj_info.particle_num = particle_arg.find("#particleNum").spinner("value");
+    refreshItemInObjectPool(current);
+}
+
+function changeParticleVelocity()
+{
+    if (current == null) return;
+    let obj_info = ObjectPool[current].ObjectInfo;
+
+    obj_info.particle_velocity = particle_arg.find("#particleVelocity").spinner("value");
+    refreshItemInObjectPool(current);
+}
+
 jQuery.fn.myform=function()
 {
     $( ".spinner" ).spinner();
@@ -421,4 +479,12 @@ jQuery.fn.myform=function()
         function(ev) {
             changeSLight();
         });
+
+    $("#particle-num").find(".spinner").spinner({max:9000, min:100, step:100});
+    $("#particle-size").find(".spinner").spinner({max:1, min:0.05, step:0.05});
+    $("#particle-velocity").find(".spinner").spinner({max:10, min:1, step:1});
+    particle_arg.find("#particle-num").find(".spinner").spinner({stop:changParticleNum});
+    particle_arg.find("#particle-size").find(".spinner").spinner({spin:changeParticleSize, stop:changeParticleSize});
+    particle_arg.find("#particle-velocity").find(".spinner").spinner({stop:changeParticleVelocity});
+
 }

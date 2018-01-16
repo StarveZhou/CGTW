@@ -103,6 +103,11 @@
     width:100%;
 }
 
+.myform .input-particle{
+    margin-left:10px;
+    width:30%;
+}
+
 
 
 #form-container{

@@ -153,8 +153,8 @@ function initCanvasHandlers(canvas,matrixInfo){
     canvas.onmousemove=function(ev){
         let x=ev.clientX,y=ev.clientY;
         if(dragging){
-            let yFactor=20.0/canvas.height;
-            let xFactor=20.0/canvas.width;
+            let yFactor=15.0/canvas.height;
+            let xFactor=15.0/canvas.width;
             let dx=xFactor*(x-lastX);
             let dy=yFactor*(y-lastY);
             let right = vec3.create();
@@ -189,6 +189,7 @@ function initCanvasHandlers(canvas,matrixInfo){
             vec3.normalize(from, from);
             vec3.scale(move, right, dx);
             angle = -vec3.length(move) / r;
+            //console.log(angle);
             vec3.scale(delta, from, Math.cos(angle));
             vec3.scale(temp, move, Math.sin(angle));
             vec3.add(delta, delta, temp);
@@ -198,6 +199,7 @@ function initCanvasHandlers(canvas,matrixInfo){
             temp = matrixInfo.eye;
             vec3.add(matrixInfo.eye, matrixInfo.at, delta);
             matrixInfo.eye[1] = temp[1];
+
         }
         lastX=x;
         lastY=y;

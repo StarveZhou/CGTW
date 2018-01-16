@@ -20,7 +20,6 @@
  * @param programInfo
  * @param matrixInfo
  */
-let bRoam=false;
 function updateMatrix(gl,canvas,programInfo,matrixInfo) {
     // update projection matrix
     if(matrixInfo.bPersp) {
@@ -33,20 +32,7 @@ function updateMatrix(gl,canvas,programInfo,matrixInfo) {
 
     // update view matrix
     mat4.lookAt(matrixInfo.viewMatrix, matrixInfo.eye, matrixInfo.at, matrixInfo.up);
-
-    // let allModelMatrix=mat4.create();
-
-
-    // mat4.rotateX(allModelMatrix, allModelMatrix, -(Math.PI / 180) * matrixInfo.currentAngle[0]);
-    // mat4.rotateY(allModelMatrix, allModelMatrix, -(Math.PI / 180) * matrixInfo.currentAngle[1]);
-    // mat4.multiply(matrixInfo.viewMatrix,matrixInfo.viewMatrix,allModelMatrix);
-
     gl.uniformMatrix4fv(programInfo.uniformLocations.viewMatrix, false,matrixInfo.viewMatrix);
-
-    // update model matrix
-    // mat4.rotateX(matrixInfo.modelViewMatrix,mat4.create(),-(Math.PI/180)*matrixInfo.currentAngle[0]);
-    // mat4.rotateY(matrixInfo.modelViewMatrix,matrixInfo.modelViewMatrix,-(Math.PI/180)*matrixInfo.currentAngle[1]);
-    // gl.uniformMatrix4fv(u_ModelMatrix,false,modelMatrix);
 }
 
 
@@ -71,50 +57,32 @@ function isOut(point) {
 function keydown(ev,matrixInfo) {
     let delta=0.05;
     let temp=vec3.create();
-    switch (String.fromCharCode(ev.keyCode)) {
-        case 'P':{
+    switch (ev.keyCode) {
+        case 'P'.charCodeAt():{
             matrixInfo.bPersp=!matrixInfo.bPersp;
             break;
         }
-        case 'W': {
-            if(bRoam){
-                let r=vec3.create();
-                vec3.sub(r,matrixInfo.at,matrixInfo.eye);
-                vec3.scaleAndAdd(temp,matrixInfo.eye,r,delta);
-                if(!isOut(temp)){
-                    vec3.copy(matrixInfo.eye,temp);
-                }
-                vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,r,delta);
+        case 'W'.charCodeAt(): {
+            let r=vec3.create();
+            vec3.sub(r,matrixInfo.at,matrixInfo.eye);
+            vec3.scaleAndAdd(temp,matrixInfo.eye,r,delta);
+            if(!isOut(temp)){
+                vec3.copy(matrixInfo.eye,temp);
             }
-            else {
-                vec3.scaleAndAdd(temp,matrixInfo.eye,matrixInfo.up,delta);
-                if(!isOut(temp)){
-                    vec3.copy(matrixInfo.eye,temp);
-                }
-                vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,matrixInfo.up,delta);
-            }
+            vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,r,delta);
             break;
         }
-        case 'S': {
-            if(bRoam){
-                let r=vec3.create();
-                vec3.sub(r,matrixInfo.at,matrixInfo.eye);
-                vec3.scaleAndAdd(temp,matrixInfo.eye,r,-delta);
-                if(!isOut(temp)){
-                    vec3.copy(matrixInfo.eye,temp);
-                }
-                vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,r,-delta);
+        case 'S'.charCodeAt(): {
+            let r=vec3.create();
+            vec3.sub(r,matrixInfo.at,matrixInfo.eye);
+            vec3.scaleAndAdd(temp,matrixInfo.eye,r,-delta);
+            if(!isOut(temp)){
+                vec3.copy(matrixInfo.eye,temp);
             }
-            else {
-                vec3.scaleAndAdd(temp,matrixInfo.eye,matrixInfo.up,-delta);
-                if(!isOut(temp)){
-                    vec3.copy(matrixInfo.eye,temp);
-                }
-                vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,matrixInfo.up,-delta);
-            }
+            vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,r,-delta);
             break;
         }
-        case 'A': {
+        case 'A'.charCodeAt(): {
             vec3.scaleAndAdd(temp,matrixInfo.eye,matrixInfo.right,-delta);
             if(!isOut(temp)){
                 vec3.copy(matrixInfo.eye,temp);
@@ -122,7 +90,7 @@ function keydown(ev,matrixInfo) {
             vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,matrixInfo.right,-delta);
             break;
         }
-        case 'D': {
+        case 'D'.charCodeAt(): {
             vec3.scaleAndAdd(temp,matrixInfo.eye,matrixInfo.right,delta);
             if(!isOut(temp)){
                 vec3.copy(matrixInfo.eye,temp);
@@ -130,7 +98,25 @@ function keydown(ev,matrixInfo) {
             vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,matrixInfo.right,delta);
             break;
         }
-        case "F":{
+        //space key
+        case 32:{
+            vec3.scaleAndAdd(temp,matrixInfo.eye,matrixInfo.up,delta);
+            if(!isOut(temp)){
+                vec3.copy(matrixInfo.eye,temp);
+            }
+            vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,matrixInfo.up,delta);
+            break;
+        }
+        //shift key
+        case 16:{
+            vec3.scaleAndAdd(temp,matrixInfo.eye,matrixInfo.up,-delta);
+            if(!isOut(temp)){
+                vec3.copy(matrixInfo.eye,temp);
+            }
+            vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,matrixInfo.up,-delta);
+            break;
+        }
+        case 'F'.charCodeAt():{
             matrixInfo.eye=vec3.fromValues(0.0, 0.0, 5.0);
             matrixInfo.at=vec3.fromValues(0.0, 0.0, 0.0);
             matrixInfo.up=vec3.fromValues(0.0, 1.0, 0.0);
@@ -179,66 +165,64 @@ function rotateWith(inVec,origin,s,angle){
  * @param matrixInfo
  */
 function initCanvasHandlers(canvas,matrixInfo){
-    canvas.onmousewheel=function (ev) {
-        if(ev.shiftKey&&(!bRoam)){
-            let r=vec3.create();
-            let temp=vec3.create();
-            vec3.sub(r,matrixInfo.at,matrixInfo.eye);
-            vec3.scaleAndAdd(temp,matrixInfo.eye,r,-ev.wheelDelta/5000);
-            if(!isOut(temp)){
-                vec3.copy(matrixInfo.eye,temp);
-            }
-            vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,r,-ev.wheelDelta/5000);
-        }
-    };
-    let dragging = false;
+    // canvas.onmousewheel=function (ev) {
+    //     if(ev.shiftKey&&(!bRoam)){
+    //         let r=vec3.create();
+    //         let temp=vec3.create();
+    //         vec3.sub(r,matrixInfo.at,matrixInfo.eye);
+    //         vec3.scaleAndAdd(temp,matrixInfo.eye,r,-ev.wheelDelta/5000);
+    //         if(!isOut(temp)){
+    //             vec3.copy(matrixInfo.eye,temp);
+    //         }
+    //         vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,r,-ev.wheelDelta/5000);
+    //     }
+    // };
+    // let dragging = false;
     let lastX=0,lastY=0;
     //push the button
-    canvas.onmousedown=function (ev) {
-        let x= ev.clientX, y= ev.clientY;
-        let rect=ev.target.getBoundingClientRect();
-        if(rect.left<=x&&x<rect.right&&rect.top<=y&&y<rect.bottom){
-            lastX=x;
-            lastY=y;
-            dragging=true;
-        }
-    };
+    // canvas.onmousedown=function (ev) {
+    //     let x= ev.clientX, y= ev.clientY;
+    //     let rect=ev.target.getBoundingClientRect();
+    //     if(rect.left<=x&&x<rect.right&&rect.top<=y&&y<rect.bottom){
+    //         lastX=x;
+    //         lastY=y;
+    //         dragging=true;
+    //     }
+    // };
     //release the mouse
     canvas.onclick=function (ev) {
-        if(bRoam){
-            matrixInfo.bRoam=!matrixInfo.bRoam;
-        }
+        matrixInfo.bRoam=!matrixInfo.bRoam;
     };
     canvas.onmouseup=function (ev) {dragging=false};
     canvas.onmousemove=function(ev){
         let x=ev.clientX,y=ev.clientY;
-        if(dragging&&(!bRoam)){
-            let yFactor=100/canvas.height;
-            let xFactor=100/canvas.width;
-            let dx=xFactor*(x-lastX);
-            let dy=yFactor*(y-lastY);
-            let r=vec3.create();
-            let t=vec3.create();
-            // vec3.sub(r,matrixInfo.eye,matrixInfo.at);
-            vec3.sub(r,matrixInfo.at,matrixInfo.eye);
-            vec3.cross(matrixInfo.right,r,matrixInfo.up);
-            vec3.cross(t,matrixInfo.right,r);
-            let upPoint=vec3.create();
-
-            vec3.add(upPoint,matrixInfo.eye,matrixInfo.up);
-            matrixInfo.eye=rotateWith(matrixInfo.eye,matrixInfo.at,matrixInfo.right,-dy);
-            let newPoint=rotateWith(upPoint,matrixInfo.at,matrixInfo.right,-dy);
-            vec3.sub(matrixInfo.up,newPoint,matrixInfo.eye);
-
-            matrixInfo.eye=rotateWith(matrixInfo.eye,matrixInfo.at,t,-dx);
-            newPoint=rotateWith(newPoint,matrixInfo.at,t,-dx);
-            vec3.sub(matrixInfo.up,newPoint,matrixInfo.eye);
-            // vec3.sub(r,matrixInfo.eye,matrixInfo.at);
-            vec3.sub(r,matrixInfo.at,matrixInfo.eye);
-            vec3.cross(matrixInfo.right,r,matrixInfo.up);
-            console.log(matrixInfo.right);
-        }
-        if(bRoam&&matrixInfo.bRoam){
+        // if(dragging&&(!bRoam)){
+        //     let yFactor=100/canvas.height;
+        //     let xFactor=100/canvas.width;
+        //     let dx=xFactor*(x-lastX);
+        //     let dy=yFactor*(y-lastY);
+        //     let r=vec3.create();
+        //     let t=vec3.create();
+        //     // vec3.sub(r,matrixInfo.eye,matrixInfo.at);
+        //     vec3.sub(r,matrixInfo.at,matrixInfo.eye);
+        //     vec3.cross(matrixInfo.right,r,matrixInfo.up);
+        //     vec3.cross(t,matrixInfo.right,r);
+        //     let upPoint=vec3.create();
+        //
+        //     vec3.add(upPoint,matrixInfo.eye,matrixInfo.up);
+        //     matrixInfo.eye=rotateWith(matrixInfo.eye,matrixInfo.at,matrixInfo.right,-dy);
+        //     let newPoint=rotateWith(upPoint,matrixInfo.at,matrixInfo.right,-dy);
+        //     vec3.sub(matrixInfo.up,newPoint,matrixInfo.eye);
+        //
+        //     matrixInfo.eye=rotateWith(matrixInfo.eye,matrixInfo.at,t,-dx);
+        //     newPoint=rotateWith(newPoint,matrixInfo.at,t,-dx);
+        //     vec3.sub(matrixInfo.up,newPoint,matrixInfo.eye);
+        //     // vec3.sub(r,matrixInfo.eye,matrixInfo.at);
+        //     vec3.sub(r,matrixInfo.at,matrixInfo.eye);
+        //     vec3.cross(matrixInfo.right,r,matrixInfo.up);
+        //     console.log(matrixInfo.right);
+        // }
+        if(matrixInfo.bRoam){
             let yFactor=800/canvas.height;
             let xFactor=800/canvas.width;
             let dx=xFactor*(x-lastX);

@@ -61,10 +61,10 @@ function StringToObject(str, layer) {
                 object[itemList[0]] = Boolean(itemList[1]);
             }
             else if (itemList[0] === "shiness"){
-                object[itemList[0]] = Number(itemList[1]);
+                object[itemList[0]] = parseInt(itemList[1]);
             }
             else if (itemList[0] === "particleworldSize"){
-                object[itemList[0]] =
+                object[itemList[0]] = 
             }
             object[itemList[0]] = itemList[1];
         }

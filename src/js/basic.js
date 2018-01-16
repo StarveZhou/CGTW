@@ -101,7 +101,9 @@ BufferPool = {};
 LightSources = [];
 AmbientLight = [0.2, 0.2, 0.2];
 
+worldNameList = ["miramar", "siege"];
 worldSize = 20;
+worldName = "siege";
 
 const canvas = document.querySelector("#glcanvas");
 const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
@@ -122,12 +124,12 @@ $(function() {
 
 });
 
-worldTextureBk = loadTextureFromUrl(gl, "../images/miramar/miramar_bk.jpg");
-worldTextureFt = loadTextureFromUrl(gl, "../images/miramar/miramar_ft.jpg");
-worldTextureLf = loadTextureFromUrl(gl, "../images/miramar/miramar_lf.jpg");
-worldTextureRt = loadTextureFromUrl(gl, "../images/miramar/miramar_rt.jpg");
-worldTextureUp = loadTextureFromUrl(gl, "../images/miramar/miramar_up.jpg");
-worldTextureDn = loadTextureFromUrl(gl, "../images/miramar/miramar_dn.jpg");
+worldTextureBk = loadTextureFromUrl(gl, "../images/" + worldName + "/" + worldName + "_bk.jpg");
+worldTextureFt = loadTextureFromUrl(gl, "../images/" + worldName + "/" + worldName + "_ft.jpg");
+worldTextureLf = loadTextureFromUrl(gl, "../images/" + worldName + "/" + worldName + "_lf.jpg");
+worldTextureRt = loadTextureFromUrl(gl, "../images/" + worldName + "/" + worldName + "_rt.jpg");
+worldTextureUp = loadTextureFromUrl(gl, "../images/" + worldName + "/" + worldName + "_up.jpg");
+worldTextureDn = loadTextureFromUrl(gl, "../images/" + worldName + "/" + worldName + "_dn.jpg");
 
 
 ObjectPool['world-bk'] = {
@@ -292,10 +294,10 @@ ObjectPool['world-dn'] = {
             rotation: {x:0.0, y: 0.0, z: 0.0}
         },
         textureCoordinates: [
-            1, 1,
-            0, 1,
+            1, 0,
             0, 0,
-            1, 0,],
+            0, 1,
+            1, 1,],
         textureIndices: [
             1, 2, 3,
             1, 3, 0,

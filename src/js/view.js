@@ -51,7 +51,14 @@ function updateMatrix(gl,canvas,programInfo,matrixInfo) {
 
 
 
-
+function isOut(point) {
+    let pad=1;
+    let trueWorldSize=worldSize-pad;
+    if(point[0]>-trueWorldSize&&point[0]<trueWorldSize&&point[1]>-trueWorldSize&&point[1]<trueWorldSize&&point[2]>-trueWorldSize&&point[2]<trueWorldSize)
+        return false;
+    else
+        return true;
+}
 
 
 // followings are small handler
@@ -63,6 +70,7 @@ function updateMatrix(gl,canvas,programInfo,matrixInfo) {
  */
 function keydown(ev,matrixInfo) {
     let delta=0.05;
+    let temp=vec3.create();
     switch (String.fromCharCode(ev.keyCode)) {
         case 'P':{
             matrixInfo.bPersp=!matrixInfo.bPersp;
@@ -72,10 +80,17 @@ function keydown(ev,matrixInfo) {
             if(bRoam){
                 let r=vec3.create();
                 vec3.sub(r,matrixInfo.at,matrixInfo.eye);
-                vec3.scaleAndAdd(matrixInfo.eye,matrixInfo.eye,r,delta);
+                vec3.scaleAndAdd(temp,matrixInfo.eye,r,delta);
+                if(!isOut(temp)){
+                    vec3.copy(matrixInfo.eye,temp);
+                }
+                vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,r,delta);
             }
             else {
-                vec3.scaleAndAdd(matrixInfo.eye,matrixInfo.eye,matrixInfo.up,delta);
+                vec3.scaleAndAdd(temp,matrixInfo.eye,matrixInfo.up,delta);
+                if(!isOut(temp)){
+                    vec3.copy(matrixInfo.eye,temp);
+                }
                 vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,matrixInfo.up,delta);
             }
             break;
@@ -84,21 +99,34 @@ function keydown(ev,matrixInfo) {
             if(bRoam){
                 let r=vec3.create();
                 vec3.sub(r,matrixInfo.at,matrixInfo.eye);
-                vec3.scaleAndAdd(matrixInfo.eye,matrixInfo.eye,r,-delta);
+                vec3.scaleAndAdd(temp,matrixInfo.eye,r,-delta);
+                if(!isOut(temp)){
+                    vec3.copy(matrixInfo.eye,temp);
+                }
+                vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,r,-delta);
             }
             else {
-                vec3.scaleAndAdd(matrixInfo.eye,matrixInfo.eye,matrixInfo.up,-delta);
+                vec3.scaleAndAdd(temp,matrixInfo.eye,matrixInfo.up,-delta);
+                if(!isOut(temp)){
+                    vec3.copy(matrixInfo.eye,temp);
+                }
                 vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,matrixInfo.up,-delta);
             }
             break;
         }
         case 'A': {
-            vec3.scaleAndAdd(matrixInfo.eye,matrixInfo.eye,matrixInfo.right,-delta);
+            vec3.scaleAndAdd(temp,matrixInfo.eye,matrixInfo.right,-delta);
+            if(!isOut(temp)){
+                vec3.copy(matrixInfo.eye,temp);
+            }
             vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,matrixInfo.right,-delta);
             break;
         }
         case 'D': {
-            vec3.scaleAndAdd(matrixInfo.eye,matrixInfo.eye,matrixInfo.right,delta);
+            vec3.scaleAndAdd(temp,matrixInfo.eye,matrixInfo.right,delta);
+            if(!isOut(temp)){
+                vec3.copy(matrixInfo.eye,temp);
+            }
             vec3.scaleAndAdd(matrixInfo.at,matrixInfo.at,matrixInfo.right,delta);
             break;
         }

@@ -7,10 +7,11 @@ let ObjSelector = {
 */
 
 function objStrAna(str){
-    let lines = str.split('\r\n');
+    str = str.replace('\r', '');
+    let lines = str.split('\n');
     let resultStr = '';
     //console.log(lines);
-    for (let id in lines){
+    for (let id=0; id<lines.length; id++){
         let item = lines[id];
         item = item.replace(/ +/g, ' ');
         if (item[0] == '#' | item.length <= 1) continue;
@@ -279,7 +280,7 @@ function loadObj(name, file)
                 case 'vt' :
                     objInfo.texPosition.push(parseFloat(items[1]));
                     objInfo.texPosition.push(parseFloat(items[2]));
-                    objInfo.texPosition.push(parseFloat(items[3]));
+                    //objInfo.texPosition.push(parseFloat(items[3]));
                     break;
 
                 case 'vn' :

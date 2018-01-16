@@ -33,6 +33,10 @@ function storeScene() {
     return str;
 }
 
+function storeAndDownload(){
+    let str = storeScene();
+    downloadFile("scene.cgtw", str);
+}
 
 function StringToObject(str, layer) {
     //console.log(str, layer);
@@ -106,6 +110,8 @@ function loadScene(str) {
 
     worldName = strList[1];
 
+    preLoadScene();
+
     ObjectPool = {};
     BufferPool = {};
 
@@ -115,11 +121,28 @@ function loadScene(str) {
     for (let item in ObjectPool){
         refreshItemInObjectPool(item);
     }
-
+    getListFromPool();
+    refreshWorldTexture();
     ifDisplay = true;
 
 }
 
-function loadNow() {
-    ifDisplay = true;
+function downloadFile(filename, content) {
+    let aTag = document.createElement("a");
+    let blob = new Blob([content]);
+
+    aTag.download = filename;
+    aTag.href = URL.createObjectURL(blob);
+    aTag.click();
+
+    URL.revokeObjectURL(blob);
+}
+
+function loadSceneFromFile(file) {
+    let reader = new FileReader();
+    reader.onload = function () {
+        let str = this.result;
+        loadScene(str);
+    };
+    reader.readAsText(file);
 }

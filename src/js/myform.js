@@ -13,6 +13,8 @@ let model_tex = model_arg.find("#model-texture");
 let basic_light = base_form.find("#basic-light");
 let particle_arg = base_form.find("#particle-arg");
 
+let scene_load = base_form.find("#load-scene-file");
+
 function foo(str){
     str ='0'+str;
     return str.substring(str.length-2,str.length);
@@ -34,6 +36,8 @@ function hideAll()
     model_tex.hide();
     basic_light.hide();
     particle_arg.hide();
+
+    scene_load.hide();
 }
 
 function showScale()
@@ -186,6 +190,17 @@ function showParticleArg()
     particle_arg.show();
 }
 
+function showLoadScene() {
+    base_form.find("#myform-title").text("加载场景");
+
+    hideAll();
+    scene_load.find(".input-texture").find(".input-file-file").val(null);
+    scene_load.find(".input-texture").find(".input-file-label")[0].innerText = "未选择文件";
+    scene_load.show();
+    base_form.fadeIn();
+}
+
+
 function showForm()
 {
     let type = ObjectPool[current].type;
@@ -310,6 +325,11 @@ function changeDepthTexture()
     showDepthTexture();
     refreshItemInObjectPool(current);
 }
+
+function changeSceneFile() {
+    loadSceneFromFile(scene_load.find("#loadSceneFile").find(".input-file-file")[0].files[0]);
+}
+
 
 function changeColor()
 {

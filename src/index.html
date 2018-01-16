@@ -58,6 +58,45 @@
 
                         </ul>
                     </li>
+                    <li id="saveLoad">
+                        <a class="has-arrow" href="#">
+                            Save or Load
+                        </a>
+                        <ul aria-expanded="false" class="collapse">
+                            <li>
+                                <a href="#" onclick="storeAndDownload();">
+                                    Save
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" onclick="showLoadScene();">
+                                    Load
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li id="changeWorld">
+                        <a class="has-arrow" href="#">
+                            SkyBox
+                        </a>
+                        <ul aria-expanded="false" class="collapse">
+                            <li>
+                                <a href="#" onclick="changeWorld(0)">
+                                    Sky
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" onclick="changeWorld(2)">
+                                    Morning
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" onclick="changeWorld(1)">
+                                    Mountain
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </nav>
         </div>
@@ -167,6 +206,22 @@
                             </div>
                         </div>
                     </div>
+
+
+
+                    <div id="load-scene-file">
+                        <div class="form-inline form-group input-texture">
+                            <label for="loadSceneFile" class="input-title">场景文件：</label>
+                            <div id="loadSceneFile" class="input-file">
+                                <input type='button' class="input-file-btn" value='选择文件' onclick='javascript: $("#sceneFile").click()'/>
+                                <label class="input-file-label">aaaaaaaaaaa</label>
+                                <input id="sceneFile" type="file" class="input-file-file" onchange='changeSceneFile()' />
+                            </div>
+                        </div>
+                    </div>
+
+
+
                     <div id="model-arg">
                         <div class="form-inline form-group input-obj">
                             <label for="model-obj" class="input-title">Obj文件：</label>
@@ -278,11 +333,11 @@
                             </div>
                         </a>
                     </li>
+
                 </ul>
             </nav>
         </div>
     </div>
-    <button id = "load" onclick="loadNow();">load</button>
 </body>
 
 <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
@@ -302,5 +357,5 @@
 <script src = "js/display-all.js" type="text/javascript"></script>
 <script src = "js/basic.js" type = "text/javascript"></script>
 <script src = "js/world-box.js" type="text/javascript"></script>
-<script src = "js/load-store.js" type="text/javascript"></script>s
+<script src = "js/load-store.js" type="text/javascript"></script>
 </html>

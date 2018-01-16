@@ -310,3 +310,35 @@ BufferPool['world-up'] = initBuffers(gl, ObjectPool['world-up'].ObjectInfo);
 BufferPool['world-dn'] = initBuffers(gl, ObjectPool['world-dn'].ObjectInfo);
 BufferPool['world-lf'] = initBuffers(gl, ObjectPool['world-lf'].ObjectInfo);
 BufferPool['world-rt'] = initBuffers(gl, ObjectPool['world-rt'].ObjectInfo);
+
+
+function refreshWorldTexture() {
+    worldTextureBk = loadTextureFromUrl(gl, "../images/" + worldName + "/" + worldName + "_bk.jpg");
+    worldTextureFt = loadTextureFromUrl(gl, "../images/" + worldName + "/" + worldName + "_ft.jpg");
+    worldTextureLf = loadTextureFromUrl(gl, "../images/" + worldName + "/" + worldName + "_lf.jpg");
+    worldTextureRt = loadTextureFromUrl(gl, "../images/" + worldName + "/" + worldName + "_rt.jpg");
+    worldTextureUp = loadTextureFromUrl(gl, "../images/" + worldName + "/" + worldName + "_up.jpg");
+    worldTextureDn = loadTextureFromUrl(gl, "../images/" + worldName + "/" + worldName + "_dn.jpg");
+
+
+    ObjectPool['world-bk'].ObjectInfo.texture = worldTextureBk;
+    ObjectPool['world-ft'].ObjectInfo.texture = worldTextureFt;
+    ObjectPool['world-lf'].ObjectInfo.texture = worldTextureLf;
+    ObjectPool['world-rt'].ObjectInfo.texture = worldTextureRt;
+    ObjectPool['world-up'].ObjectInfo.texture = worldTextureUp;
+    ObjectPool['world-dn'].ObjectInfo.texture = worldTextureDn;
+
+
+    ObjectPool['world-bk'].ObjectInfo.useTexture = true;
+    ObjectPool['world-ft'].ObjectInfo.useTexture = true;
+    ObjectPool['world-lf'].ObjectInfo.useTexture = true;
+    ObjectPool['world-rt'].ObjectInfo.useTexture = true;
+    ObjectPool['world-up'].ObjectInfo.useTexture = true;
+    ObjectPool['world-dn'].ObjectInfo.useTexture = true;
+}
+
+function changeWorld(id) {
+    if (worldNameList[id] === worldName) return;
+    worldName = worldNameList[id];
+    refreshWorldTexture();
+}
